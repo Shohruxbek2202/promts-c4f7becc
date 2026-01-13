@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Save, Plus, Trash2, CreditCard, Loader2, Upload, Link as LinkIcon, Image, FolderOpen, Edit2 } from "lucide-react";
+import { Save, Plus, Trash2, CreditCard, Loader2, Upload, Link as LinkIcon, Image, FolderOpen, Edit2, Mail, Phone, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -34,10 +34,19 @@ interface PaymentSettings {
   instructions: string;
 }
 
+interface ContactSettings {
+  email: string;
+  phone: string;
+  address: string;
+  telegram_url: string;
+  instagram_url: string;
+}
+
 const AdminSettings = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingContact, setIsSavingContact] = useState(false);
   const [newCategory, setNewCategory] = useState({
     name: "",
     slug: "",
@@ -49,6 +58,13 @@ const AdminSettings = () => {
     card_holder: "",
     instructions: "",
   });
+  const [contactSettings, setContactSettings] = useState<ContactSettings>({
+    email: "",
+    phone: "",
+    address: "",
+    telegram_url: "",
+    instagram_url: "",
+  });
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [iconUrl, setIconUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -58,6 +74,7 @@ const AdminSettings = () => {
   useEffect(() => {
     fetchCategories();
     fetchPaymentSettings();
+    fetchContactSettings();
   }, []);
 
   const fetchCategories = async () => {
@@ -86,6 +103,59 @@ const AdminSettings = () => {
         instructions: settings.instructions || "",
       });
     }
+  };
+
+  const fetchContactSettings = async () => {
+    const { data } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "contact_settings")
+      .maybeSingle();
+    
+    if (data?.value) {
+      const settings = data.value as unknown as ContactSettings;
+      setContactSettings({
+        email: settings.email || "",
+        phone: settings.phone || "",
+        address: settings.address || "",
+        telegram_url: settings.telegram_url || "",
+        instagram_url: settings.instagram_url || "",
+      });
+    }
+  };
+
+  const saveContactSettings = async () => {
+    setIsSavingContact(true);
+    
+    const { data: existing } = await supabase
+      .from("settings")
+      .select("id")
+      .eq("key", "contact_settings")
+      .maybeSingle();
+
+    let error;
+    const settingsValue = contactSettings as unknown as Json;
+    
+    if (existing) {
+      const result = await supabase
+        .from("settings")
+        .update({ value: settingsValue })
+        .eq("key", "contact_settings");
+      error = result.error;
+    } else {
+      const result = await supabase
+        .from("settings")
+        .insert([{ key: "contact_settings", value: settingsValue }]);
+      error = result.error;
+    }
+
+    if (error) {
+      toast.error("Saqlashda xatolik: " + error.message);
+    } else {
+      toast.success("Aloqa ma'lumotlari saqlandi");
+    }
+    
+    setIsSavingContact(false);
   };
 
   const generateSlug = (name: string) => {
@@ -340,6 +410,91 @@ const AdminSettings = () => {
           </div>
           <Button onClick={savePaymentSettings} disabled={isSaving}>
             {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Saqlanmoqda...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Saqlash
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* Contact Settings */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="p-6 border-b border-border flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+            <Mail className="w-5 h-5 text-green-500" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">
+              Aloqa ma'lumotlari
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Footer va aloqa sahifasida ko'rinadigan ma'lumotlar
+            </p>
+          </div>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                Email
+              </Label>
+              <Input 
+                placeholder="info@example.uz"
+                value={contactSettings.email}
+                onChange={(e) => setContactSettings(prev => ({ ...prev, email: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                Telefon
+              </Label>
+              <Input 
+                placeholder="+998 90 123 45 67"
+                value={contactSettings.phone}
+                onChange={(e) => setContactSettings(prev => ({ ...prev, phone: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              Manzil
+            </Label>
+            <Input 
+              placeholder="Toshkent, O'zbekiston"
+              value={contactSettings.address}
+              onChange={(e) => setContactSettings(prev => ({ ...prev, address: e.target.value }))}
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Telegram URL</Label>
+              <Input 
+                placeholder="https://t.me/username"
+                value={contactSettings.telegram_url}
+                onChange={(e) => setContactSettings(prev => ({ ...prev, telegram_url: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Instagram URL</Label>
+              <Input 
+                placeholder="https://instagram.com/username"
+                value={contactSettings.instagram_url}
+                onChange={(e) => setContactSettings(prev => ({ ...prev, instagram_url: e.target.value }))}
+              />
+            </div>
+          </div>
+          <Button onClick={saveContactSettings} disabled={isSavingContact}>
+            {isSavingContact ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Saqlanmoqda...

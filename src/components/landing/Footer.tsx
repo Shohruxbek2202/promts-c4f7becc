@@ -1,5 +1,15 @@
+import { useState, useEffect } from "react";
 import { Sparkles, Mail, Phone, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+
+interface ContactSettings {
+  email: string;
+  phone: string;
+  address: string;
+  telegram_url: string;
+  instagram_url: string;
+}
 
 const footerLinks = {
   platform: [
@@ -22,6 +32,57 @@ const footerLinks = {
 };
 
 export const Footer = () => {
+  const [promptsCount, setPromptsCount] = useState<number>(0);
+  const [contactSettings, setContactSettings] = useState<ContactSettings>({
+    email: "info@shohruxdigital.uz",
+    phone: "+998 90 123 45 67",
+    address: "Toshkent, O'zbekiston",
+    telegram_url: "#",
+    instagram_url: "#",
+  });
+
+  useEffect(() => {
+    fetchPromptsCount();
+    fetchContactSettings();
+  }, []);
+
+  const fetchPromptsCount = async () => {
+    const { count } = await supabase
+      .from("prompts")
+      .select("id", { count: "exact", head: true })
+      .eq("is_published", true);
+    
+    if (count !== null) {
+      setPromptsCount(count);
+    }
+  };
+
+  const fetchContactSettings = async () => {
+    const { data } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "contact_settings")
+      .maybeSingle();
+    
+    if (data?.value) {
+      const settings = data.value as unknown as ContactSettings;
+      setContactSettings({
+        email: settings.email || "info@shohruxdigital.uz",
+        phone: settings.phone || "+998 90 123 45 67",
+        address: settings.address || "Toshkent, O'zbekiston",
+        telegram_url: settings.telegram_url || "#",
+        instagram_url: settings.instagram_url || "#",
+      });
+    }
+  };
+
+  const formatCount = (count: number): string => {
+    if (count >= 1000) {
+      return `${Math.floor(count / 1000)}K+`;
+    }
+    return `${count}+`;
+  };
+
   return (
     <footer className="bg-foreground text-background">
       <div className="container mx-auto px-4 py-16">
@@ -37,21 +98,21 @@ export const Footer = () => {
               </span>
             </Link>
             <p className="text-background/60 mb-6 max-w-sm leading-relaxed">
-              100,000+ professional marketing promtlari bazasi. 
+              {formatCount(promptsCount)} professional marketing promtlari bazasi. 
               Vaqtingizni tejang, natijalaringizni oshiring.
             </p>
             <div className="space-y-2">
-              <a href="mailto:info@shohruxdigital.uz" className="flex items-center gap-2 text-sm text-background/60 hover:text-background transition-colors">
+              <a href={`mailto:${contactSettings.email}`} className="flex items-center gap-2 text-sm text-background/60 hover:text-background transition-colors">
                 <Mail className="w-4 h-4" />
-                info@shohruxdigital.uz
+                {contactSettings.email}
               </a>
-              <a href="tel:+998901234567" className="flex items-center gap-2 text-sm text-background/60 hover:text-background transition-colors">
+              <a href={`tel:${contactSettings.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm text-background/60 hover:text-background transition-colors">
                 <Phone className="w-4 h-4" />
-                +998 90 123 45 67
+                {contactSettings.phone}
               </a>
               <p className="flex items-center gap-2 text-sm text-background/60">
                 <MapPin className="w-4 h-4" />
-                Toshkent, O'zbekiston
+                {contactSettings.address}
               </p>
             </div>
           </div>
@@ -118,11 +179,11 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-background/60">
-            © 2025 ShohruxDigital.uz. Barcha huquqlar himoyalangan.
+            © {new Date().getFullYear()} ShohruxDigital.uz. Barcha huquqlar himoyalangan.
           </p>
           <div className="flex items-center gap-3">
             <a 
-              href="#" 
+              href={contactSettings.telegram_url} 
               className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
               aria-label="Telegram"
             >
@@ -131,7 +192,7 @@ export const Footer = () => {
               </svg>
             </a>
             <a 
-              href="#" 
+              href={contactSettings.instagram_url} 
               className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
               aria-label="Instagram"
             >
