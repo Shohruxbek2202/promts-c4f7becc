@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
+import Payment from "./pages/Payment";
 import Prompts from "./pages/Prompts";
 import PromptDetail from "./pages/PromptDetail";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -29,6 +31,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/payment" element={<Payment />} />
             <Route path="/prompts" element={<Prompts />} />
             <Route path="/prompt/:slug" element={<PromptDetail />} />
             
