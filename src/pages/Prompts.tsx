@@ -9,8 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
   Search, 
-  Filter, 
-  Star, 
   Lock, 
   ChevronRight,
   Sparkles
@@ -39,10 +37,10 @@ interface Prompt {
 }
 
 const difficultyColors: Record<DifficultyLevel, string> = {
-  beginner: "bg-green-100 text-green-700",
-  intermediate: "bg-blue-100 text-blue-700",
-  advanced: "bg-orange-100 text-orange-700",
-  expert: "bg-red-100 text-red-700",
+  beginner: "bg-green-500/10 text-green-600 dark:text-green-400",
+  intermediate: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+  advanced: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+  expert: "bg-red-500/10 text-red-600 dark:text-red-400",
 };
 
 const difficultyLabels: Record<DifficultyLevel, string> = {
@@ -125,7 +123,7 @@ const Prompts = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
           >
-            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight mb-4">
               Promtlar bazasi
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -133,27 +131,26 @@ const Prompts = () => {
             </p>
           </motion.div>
 
-          {/* Search and Filters */}
+          {/* Search */}
           <div className="mb-8">
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Promt qidirish..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+            <div className="relative max-w-xl mx-auto mb-6">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Promt qidirish..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 h-12 rounded-full glass-button border-0"
+              />
             </div>
 
             {/* Category Filters */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
               <Button
                 variant={!selectedCategory ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleCategoryChange("")}
+                className="rounded-full"
               >
                 Barchasi
               </Button>
@@ -163,6 +160,7 @@ const Prompts = () => {
                   variant={selectedCategory === category.slug ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleCategoryChange(category.slug)}
+                  className="rounded-full"
                 >
                   {category.name}
                 </Button>
@@ -171,7 +169,7 @@ const Prompts = () => {
           </div>
 
           {/* Results Count */}
-          <p className="text-sm text-muted-foreground mb-6">
+          <p className="text-sm text-muted-foreground mb-6 text-center">
             {filteredPrompts.length} ta promt topildi
           </p>
 
@@ -179,10 +177,10 @@ const Prompts = () => {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-card rounded-2xl p-6 border border-border animate-pulse">
-                  <div className="h-6 bg-muted rounded mb-3 w-3/4"></div>
-                  <div className="h-4 bg-muted rounded mb-2 w-full"></div>
-                  <div className="h-4 bg-muted rounded w-2/3"></div>
+                <div key={i} className="glass-card p-6 animate-pulse">
+                  <div className="h-6 bg-muted rounded-lg mb-3 w-3/4"></div>
+                  <div className="h-4 bg-muted rounded-lg mb-2 w-full"></div>
+                  <div className="h-4 bg-muted rounded-lg w-2/3"></div>
                 </div>
               ))}
             </div>
@@ -195,45 +193,44 @@ const Prompts = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Link
-                    to={`/prompt/${prompt.slug}`}
-                    className="group block bg-card rounded-2xl p-6 border border-border shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 h-full"
-                  >
-                    {/* Category & Premium Badge */}
-                    <div className="flex items-center justify-between mb-3">
-                      {prompt.categories && (
-                        <span className="text-xs font-medium text-muted-foreground">
-                          {prompt.categories.name}
-                        </span>
-                      )}
-                      {prompt.is_premium ? (
-                        <Badge variant="secondary" className="gap-1">
-                          <Lock className="w-3 h-3" />
-                          Premium
+                  <Link to={`/prompt/${prompt.slug}`} className="group block h-full">
+                    <div className="glass-card p-6 h-full flex flex-col">
+                      {/* Category & Premium Badge */}
+                      <div className="flex items-center justify-between mb-3">
+                        {prompt.categories && (
+                          <span className="text-xs font-medium text-muted-foreground">
+                            {prompt.categories.name}
+                          </span>
+                        )}
+                        {prompt.is_premium ? (
+                          <Badge className="gap-1 bg-primary/10 text-primary border-0">
+                            <Lock className="w-3 h-3" />
+                            Premium
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-green-600 border-green-200 dark:border-green-800">
+                            Bepul
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                        {prompt.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-grow">
+                        {prompt.description}
+                      </p>
+
+                      {/* Footer */}
+                      <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                        <Badge className={difficultyColors[prompt.difficulty]}>
+                          {difficultyLabels[prompt.difficulty]}
                         </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-green-600 border-green-200">
-                          Bepul
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="font-display text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {prompt.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {prompt.description}
-                    </p>
-
-                    {/* Footer */}
-                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-border">
-                      <Badge className={difficultyColors[prompt.difficulty]}>
-                        {difficultyLabels[prompt.difficulty]}
-                      </Badge>
-                      <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                      </div>
                     </div>
                   </Link>
                 </motion.div>
@@ -244,8 +241,10 @@ const Prompts = () => {
           {/* Empty State */}
           {!isLoading && filteredPrompts.length === 0 && (
             <div className="text-center py-16">
-              <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+              <div className="glass-card w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-10 h-10 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">
                 Promtlar topilmadi
               </h3>
               <p className="text-muted-foreground">

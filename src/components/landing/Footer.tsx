@@ -23,33 +23,33 @@ const footerLinks = {
 
 export const Footer = () => {
   return (
-    <footer className="bg-primary text-primary-foreground">
+    <footer className="bg-foreground text-background">
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-primary-foreground/10 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-secondary" />
+            <Link to="/" className="flex items-center gap-2.5 mb-4">
+              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+                <Sparkles className="w-4.5 h-4.5 text-primary-foreground" />
               </div>
-              <span className="font-display text-xl font-bold">
+              <span className="text-lg font-semibold">
                 PromptsHub
               </span>
             </Link>
-            <p className="text-primary-foreground/70 mb-6 max-w-sm">
+            <p className="text-background/60 mb-6 max-w-sm leading-relaxed">
               100,000+ professional marketing promtlari bazasi. 
               Vaqtingizni tejang, natijalaringizni oshiring.
             </p>
             <div className="space-y-2">
-              <a href="mailto:info@shohruxdigital.uz" className="flex items-center gap-2 text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+              <a href="mailto:info@shohruxdigital.uz" className="flex items-center gap-2 text-sm text-background/60 hover:text-background transition-colors">
                 <Mail className="w-4 h-4" />
                 info@shohruxdigital.uz
               </a>
-              <a href="tel:+998901234567" className="flex items-center gap-2 text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+              <a href="tel:+998901234567" className="flex items-center gap-2 text-sm text-background/60 hover:text-background transition-colors">
                 <Phone className="w-4 h-4" />
                 +998 90 123 45 67
               </a>
-              <p className="flex items-center gap-2 text-sm text-primary-foreground/70">
+              <p className="flex items-center gap-2 text-sm text-background/60">
                 <MapPin className="w-4 h-4" />
                 Toshkent, O'zbekiston
               </p>
@@ -58,21 +58,21 @@ export const Footer = () => {
 
           {/* Links Columns */}
           <div>
-            <h3 className="font-display font-semibold mb-4">Platforma</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-4">Platforma</h3>
+            <ul className="space-y-2.5">
               {footerLinks.platform.map((link) => (
                 <li key={link.label}>
                   {link.href.startsWith("/") ? (
                     <Link 
                       to={link.href}
-                      className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                      className="text-sm text-background/60 hover:text-background transition-colors"
                     >
                       {link.label}
                     </Link>
                   ) : (
                     <a 
                       href={link.href}
-                      className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                      className="text-sm text-background/60 hover:text-background transition-colors"
                     >
                       {link.label}
                     </a>
@@ -83,13 +83,13 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-display font-semibold mb-4">Yordam</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-4">Yordam</h3>
+            <ul className="space-y-2.5">
               {footerLinks.support.map((link) => (
                 <li key={link.label}>
                   <a 
                     href={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                    className="text-sm text-background/60 hover:text-background transition-colors"
                   >
                     {link.label}
                   </a>
@@ -99,13 +99,13 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-display font-semibold mb-4">Huquqiy</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold mb-4">Huquqiy</h3>
+            <ul className="space-y-2.5">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
                   <a 
                     href={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                    className="text-sm text-background/60 hover:text-background transition-colors"
                   >
                     {link.label}
                   </a>
@@ -116,14 +116,14 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-primary-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-primary-foreground/70">
+        <div className="mt-12 pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-background/60">
             © 2025 ShohruxDigital.uz. Barcha huquqlar himoyalangan.
           </p>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <a 
               href="#" 
-              className="w-10 h-10 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
+              className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
               aria-label="Telegram"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -132,7 +132,7 @@ export const Footer = () => {
             </a>
             <a 
               href="#" 
-              className="w-10 h-10 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
+              className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
               aria-label="Instagram"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
