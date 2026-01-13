@@ -69,7 +69,7 @@ export const Hero = () => {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-sm font-medium text-foreground">100,000+ professional prompts</span>
+            <span className="text-sm font-medium text-foreground">{stats.prompts > 0 ? `${stats.prompts.toLocaleString()}+ professional promtlar` : "Professional promtlar to'plami"}</span>
           </motion.div>
 
           {/* Headline */}
@@ -125,9 +125,9 @@ export const Hero = () => {
             className="mt-20 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto"
           >
             {[
-              { icon: Target, value: stats.prompts, label: "Promtlar" },
-              { icon: Zap, value: stats.categories, label: "Kategoriyalar" },
-              { icon: Sparkles, value: stats.users, label: "Foydalanuvchilar" },
+              { icon: Target, value: stats.prompts > 0 ? `${stats.prompts}+` : "0", label: "Promtlar" },
+              { icon: Zap, value: stats.categories > 0 ? `${stats.categories}` : "0", label: "Kategoriyalar" },
+              { icon: Sparkles, value: stats.users > 0 ? `${stats.users}+` : "0", label: "Foydalanuvchilar" },
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}

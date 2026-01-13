@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, Mail, Lock, ArrowRight, Gift, ArrowLeft } from "lucide-react";
+import { Sparkles, Mail, Lock, ArrowRight, Gift, ArrowLeft, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -20,6 +20,7 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [referralCode, setReferralCode] = useState(searchParams.get("ref") || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { signIn, signUp, user, isLoading } = useAuth();
@@ -34,7 +35,6 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate input
     const result = authSchema.safeParse({ email, password });
     if (!result.success) {
       toast.error(result.error.errors[0].message);
@@ -67,9 +67,7 @@ const Auth = () => {
         } else {
           toast.success("Ro'yxatdan muvaffaqiyatli o'tdingiz!");
           
-          // If referral code provided, link it after signup
           if (referralCode.trim()) {
-            // Wait a bit for the profile to be created
             setTimeout(async () => {
               await linkReferralCode(referralCode.trim());
             }, 1000);
@@ -85,7 +83,6 @@ const Auth = () => {
 
   const linkReferralCode = async (code: string) => {
     try {
-      // Find referrer by code
       const { data: referrer } = await supabase
         .from("profiles")
         .select("id")
@@ -93,10 +90,8 @@ const Auth = () => {
         .maybeSingle();
 
       if (referrer) {
-        // Get current user's profile
         const { data: { user: currentUser } } = await supabase.auth.getUser();
         if (currentUser) {
-          // Update current user's profile with referrer
           await supabase
             .from("profiles")
             .update({ referred_by: referrer.id })
@@ -111,7 +106,7 @@ const Auth = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="glass-card p-8">
+        <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-muted-foreground">Yuklanmoqda...</p>
         </div>
@@ -119,147 +114,258 @@ const Auth = () => {
     );
   }
 
+  const features = [
+    "Professional marketing promtlari",
+    "Barcha platformalar uchun tayyor",
+    "Muntazam yangilanishlar",
+    "10% referral komissiya",
+  ];
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-secondary/10 rounded-full blur-3xl" />
-      
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md relative z-10"
-      >
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-glass">
-              <Sparkles className="w-6 h-6 text-primary-foreground" />
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex">
+      {/* Left Side - Decorative */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10" />
+        <motion.div
+          animate={{ 
+            x: [0, 30, 0],
+            y: [0, -20, 0],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ 
+            x: [0, -20, 0],
+            y: [0, 30, 0],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-3xl"
+        />
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-center p-12 xl:p-16">
+          <Link to="/" className="inline-flex items-center gap-3 mb-12">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/25">
+              <Sparkles className="w-7 h-7 text-primary-foreground" />
             </div>
-            <span className="text-2xl font-bold text-foreground">
+            <span className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               PromptsHub
             </span>
           </Link>
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            {isLogin ? "Hisobingizga kiring" : "Ro'yxatdan o'ting"}
-          </h1>
-          <p className="text-muted-foreground">
-            {isLogin
-              ? "100,000+ marketing promtlariga kirish"
-              : "Bepul hisob oching va promtlardan foydalaning"}
-          </p>
-        </div>
 
-        {/* Form */}
-        <div className="glass-card p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="sizning@email.uz"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12 rounded-xl glass-button border-0"
-                  required
-                />
-              </div>
-            </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-4xl xl:text-5xl font-bold text-foreground leading-tight mb-6">
+              Marketing <span className="text-gradient">promtlari</span> bilan{" "}
+              <br />biznesingizni rivojlantiring
+            </h1>
+            <p className="text-lg text-muted-foreground mb-10 max-w-md">
+              Google Ads, Meta Ads, Yandex Direct va boshqa platformalar uchun 
+              tayyor professional promtlar to'plami.
+            </p>
+          </motion.div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground">Parol</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 h-12 rounded-xl glass-button border-0"
-                  required
-                  minLength={6}
-                />
-              </div>
-            </div>
-
-            {/* Referral Code - Only show on signup */}
-            {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="referral" className="text-foreground flex items-center gap-2">
-                  <Gift className="w-4 h-4 text-primary" />
-                  Referral kod (ixtiyoriy)
-                </Label>
-                <Input
-                  id="referral"
-                  type="text"
-                  placeholder="XXXXXXXX"
-                  value={referralCode}
-                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                  className="h-12 rounded-xl glass-button border-0 uppercase tracking-widest"
-                  maxLength={8}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Do'stingiz kodini kiriting va ikkalangiz ham foyda oling
-                </p>
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              variant="hero"
-              size="lg"
-              className="w-full h-12 rounded-xl"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Kutib turing...
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="space-y-4"
+          >
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+                className="flex items-center gap-3"
+              >
+                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                  <CheckCircle className="w-4 h-4 text-primary" />
                 </div>
-              ) : (
-                <>
-                  {isLogin ? "Kirish" : "Ro'yxatdan o'tish"}
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </>
-              )}
-            </Button>
-          </form>
+                <span className="text-foreground">{feature}</span>
+              </motion.div>
+            ))}
+          </motion.div>
 
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {isLogin ? (
-                <>
-                  Hisobingiz yo'qmi?{" "}
-                  <span className="text-primary font-medium">Ro'yxatdan o'ting</span>
-                </>
-              ) : (
-                <>
-                  Allaqachon hisobingiz bormi?{" "}
-                  <span className="text-primary font-medium">Kiring</span>
-                </>
-              )}
-            </button>
+          {/* Floating Elements */}
+          <motion.div
+            animate={{ y: [-8, 8, -8] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-20 right-20"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center shadow-lg">
+              <span className="text-3xl">🎯</span>
+            </div>
+          </motion.div>
+
+          <motion.div
+            animate={{ y: [8, -8, 8] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-32 right-32"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center shadow-lg">
+              <span className="text-2xl">✨</span>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Right Side - Form */}
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          {/* Mobile Logo */}
+          <div className="lg:hidden text-center mb-8">
+            <Link to="/" className="inline-flex items-center gap-2 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
+                <Sparkles className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <span className="text-2xl font-bold text-foreground">
+                PromptsHub
+              </span>
+            </Link>
           </div>
-        </div>
 
-        {/* Back to home */}
-        <div className="text-center mt-6">
-          <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            Bosh sahifaga qaytish
-          </Link>
-        </div>
-      </motion.div>
+          {/* Form Header */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
+              {isLogin ? "Xush kelibsiz!" : "Yangi hisob yarating"}
+            </h2>
+            <p className="text-muted-foreground">
+              {isLogin
+                ? "Hisobingizga kirish uchun ma'lumotlarni kiriting"
+                : "Ro'yxatdan o'ting va promtlardan foydalaning"}
+            </p>
+          </div>
+
+          {/* Form */}
+          <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 lg:p-8 shadow-xl">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-foreground font-medium">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="sizning@email.uz"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-12 h-12 rounded-xl bg-background/50 border-border/50 focus:border-primary transition-colors"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-foreground font-medium">Parol</Label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-12 pr-12 h-12 rounded-xl bg-background/50 border-border/50 focus:border-primary transition-colors"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Referral Code - Only show on signup */}
+              {!isLogin && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="space-y-2"
+                >
+                  <Label htmlFor="referral" className="text-foreground font-medium flex items-center gap-2">
+                    <Gift className="w-4 h-4 text-primary" />
+                    Referral kod (ixtiyoriy)
+                  </Label>
+                  <Input
+                    id="referral"
+                    type="text"
+                    placeholder="XXXXXXXX"
+                    value={referralCode}
+                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                    className="h-12 rounded-xl bg-background/50 border-border/50 uppercase tracking-widest font-mono focus:border-primary transition-colors"
+                    maxLength={8}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Do'stingiz kodini kiriting va ikkalangiz ham foyda oling
+                  </p>
+                </motion.div>
+              )}
+
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full h-12 rounded-xl text-base font-medium shadow-lg shadow-primary/25"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Kutib turing...
+                  </div>
+                ) : (
+                  <>
+                    {isLogin ? "Kirish" : "Ro'yxatdan o'tish"}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </>
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {isLogin ? (
+                  <>
+                    Hisobingiz yo'qmi?{" "}
+                    <span className="text-primary font-medium hover:underline">Ro'yxatdan o'ting</span>
+                  </>
+                ) : (
+                  <>
+                    Allaqachon hisobingiz bormi?{" "}
+                    <span className="text-primary font-medium hover:underline">Kiring</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Back to home */}
+          <div className="text-center mt-6">
+            <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group">
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              Bosh sahifaga qaytish
+            </Link>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 };

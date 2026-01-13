@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Sparkles, User, LogOut, LayoutDashboard, Shield, Moon, Sun, CreditCard, Crown } from "lucide-react";
+import { Menu, X, Sparkles, User, LogOut, LayoutDashboard, Shield, Moon, Sun, CreditCard, Crown, Building2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
@@ -255,6 +255,20 @@ export const Header = () => {
                           Dashboard
                         </Button>
                       </Link>
+                      <Link to="/payment" onClick={() => setIsMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start rounded-lg">
+                          <CreditCard className="mr-2 h-4 w-4" />
+                          To'lov
+                        </Button>
+                      </Link>
+                      {hasAgencyAccess && (
+                        <Link to="/agency" onClick={() => setIsMenuOpen(false)}>
+                          <Button variant="ghost" className="w-full justify-start rounded-lg">
+                            <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                            Agentlik
+                          </Button>
+                        </Link>
+                      )}
                       {isAdmin && (
                         <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
                           <Button variant="ghost" className="w-full justify-start rounded-lg">
