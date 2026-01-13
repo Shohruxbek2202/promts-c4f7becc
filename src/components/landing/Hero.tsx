@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Zap, Target } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, Target, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -8,47 +8,71 @@ export const Hero = () => {
   const { user } = useAuth();
 
   return (
-    <section className="relative min-h-screen bg-gradient-hero overflow-hidden">
-      {/* Background decorations */}
+    <section className="relative min-h-screen overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-hero" />
+      
+      {/* Animated orbs */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-secondary/20 rounded-full blur-3xl animate-pulse-glow" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-glow" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-secondary/5 rounded-full blur-3xl" />
+        <motion.div
+          animate={{ 
+            x: [0, 50, 0],
+            y: [0, -30, 0],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ 
+            x: [0, -40, 0],
+            y: [0, 40, 0],
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ 
+            x: [0, 30, 0],
+            y: [0, 20, 0],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/2 right-1/3 w-[400px] h-[400px] bg-pink-500/5 rounded-full blur-3xl"
+        />
       </div>
 
       {/* Content */}
-      <div className="container relative z-10 mx-auto px-4 pt-32 pb-20">
+      <div className="container relative z-10 mx-auto px-4 pt-32 pb-24">
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border shadow-card mb-8"
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8"
           >
-            <Sparkles className="w-4 h-4 text-secondary" />
-            <span className="text-sm font-medium text-foreground">100,000+ professional marketing prompts</span>
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-sm font-medium text-foreground">100,000+ professional prompts</span>
           </motion.div>
 
           {/* Headline */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6"
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight mb-6"
           >
             Marketing promtlar{" "}
             <span className="text-gradient">bazasi</span>
             <br />
-            eng katta to'plami
+            <span className="text-muted-foreground">eng katta to'plami</span>
           </motion.h1>
 
           {/* Subtitle */}
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
           >
             Google Ads, Meta Ads, Yandex Direct va boshqa platformalar uchun 
             tayyor promtlar. Vaqtingizni tejang, natijani oshiring.
@@ -58,17 +82,18 @@ export const Hero = () => {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <Link to={user ? "/dashboard" : "/auth"}>
-              <Button variant="hero" size="xl">
+              <Button size="lg" className="rounded-full px-8 h-12 shadow-lg shadow-primary/25 text-base">
                 {user ? "Dashboardga o'tish" : "Bepul boshlash"}
-                <ArrowRight className="w-5 h-5 ml-1" />
+                <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
             <Link to="/prompts">
-              <Button variant="heroOutline" size="xl">
+              <Button variant="outline" size="lg" className="rounded-full px-8 h-12 glass-button text-base">
+                <Play className="w-4 h-4 mr-2" />
                 Promtlarni ko'rish
               </Button>
             </Link>
@@ -78,8 +103,8 @@ export const Hero = () => {
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.5 }}
-            className="mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto"
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="mt-20 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto"
           >
             {[
               { icon: Target, value: "100K+", label: "Promtlar" },
@@ -91,12 +116,12 @@ export const Hero = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
-                className="flex flex-col items-center"
+                className="glass-card p-4 md:p-6 text-center"
               >
-                <div className="w-12 h-12 rounded-xl bg-card border border-border shadow-card flex items-center justify-center mb-3">
-                  <stat.icon className="w-6 h-6 text-secondary" />
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                 </div>
-                <span className="font-display text-2xl md:text-3xl font-bold text-foreground">{stat.value}</span>
+                <span className="block text-2xl md:text-3xl font-bold text-foreground tracking-tight">{stat.value}</span>
                 <span className="text-sm text-muted-foreground">{stat.label}</span>
               </motion.div>
             ))}
@@ -106,22 +131,32 @@ export const Hero = () => {
 
       {/* Floating elements */}
       <motion.div
-        animate={{ y: [-10, 10, -10] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-40 right-20 hidden lg:block"
+        animate={{ y: [-8, 8, -8] }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-40 right-[15%] hidden lg:block"
       >
-        <div className="w-16 h-16 rounded-2xl bg-card border border-border shadow-lg flex items-center justify-center">
+        <div className="glass-card w-14 h-14 flex items-center justify-center">
           <span className="text-2xl">🎯</span>
         </div>
       </motion.div>
 
       <motion.div
-        animate={{ y: [10, -10, 10] }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-40 left-20 hidden lg:block"
+        animate={{ y: [8, -8, 8] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-40 left-[15%] hidden lg:block"
       >
-        <div className="w-16 h-16 rounded-2xl bg-card border border-border shadow-lg flex items-center justify-center">
+        <div className="glass-card w-14 h-14 flex items-center justify-center">
           <span className="text-2xl">✨</span>
+        </div>
+      </motion.div>
+
+      <motion.div
+        animate={{ y: [-5, 10, -5] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-60 left-[10%] hidden lg:block"
+      >
+        <div className="glass-card w-12 h-12 flex items-center justify-center">
+          <span className="text-xl">🚀</span>
         </div>
       </motion.div>
     </section>
