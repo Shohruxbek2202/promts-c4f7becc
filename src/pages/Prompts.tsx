@@ -4,7 +4,6 @@ import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -13,7 +12,9 @@ import {
   ChevronRight,
   Sparkles,
   FolderOpen,
-  Layers
+  Layers,
+  MoreHorizontal,
+  PenSquare
 } from "lucide-react";
 
 type DifficultyLevel = "beginner" | "intermediate" | "advanced" | "expert";
@@ -158,9 +159,9 @@ const Prompts = () => {
     return emojiRegex.test(str) || str.length <= 2;
   };
 
-  const renderIcon = (icon: string | null, index: number) => {
+  const renderIcon = (icon: string | null) => {
     if (!icon) {
-      return <FolderOpen className="w-5 h-5 text-primary" />;
+      return <FolderOpen className="w-4 h-4 text-amber-500" />;
     }
 
     if (isUrl(icon)) {
@@ -168,7 +169,7 @@ const Prompts = () => {
         <img 
           src={icon} 
           alt="" 
-          className="w-6 h-6 object-contain rounded"
+          className="w-5 h-5 object-contain rounded"
           onError={(e) => {
             (e.target as HTMLImageElement).style.display = 'none';
           }}
@@ -177,14 +178,19 @@ const Prompts = () => {
     }
 
     if (isEmoji(icon)) {
-      return <span className="text-xl">{icon}</span>;
+      return <span className="text-base">{icon}</span>;
     }
 
-    return <FolderOpen className="w-5 h-5 text-primary" />;
+    return <FolderOpen className="w-4 h-4 text-amber-500" />;
   };
 
   // Calculate total prompts count
   const totalPromptsCount = Object.values(promptCounts).reduce((a, b) => a + b, 0);
+
+  // Get current category name
+  const currentCategoryName = selectedCategory 
+    ? categories.find(c => c.slug === selectedCategory)?.name || "Kategoriya"
+    : "Barcha promtlar";
 
   return (
     <div className="min-h-screen bg-background">
@@ -192,21 +198,7 @@ const Prompts = () => {
       
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
-          {/* Page Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight mb-4">
-              Promtlar bazasi
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              {totalPromptsCount.toLocaleString()}+ professional marketing promtlari. Kerakli promtni toping va ishlating.
-            </p>
-          </motion.div>
-
-          {/* Search */}
+          {/* Search Bar */}
           <div className="relative max-w-xl mx-auto mb-8">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
@@ -218,45 +210,45 @@ const Prompts = () => {
             />
           </div>
 
-          {/* Main Content - Sidebar + Grid */}
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Categories Sidebar - Apple Notes Style */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="lg:w-80 flex-shrink-0"
-            >
-              <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden shadow-lg sticky top-24">
-                {/* Header */}
-                <div className="px-4 py-3 border-b border-border/50 bg-muted/30">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                    <span className="ml-3 text-sm font-medium text-muted-foreground">Kategoriyalar</span>
-                  </div>
+          {/* Apple Notes Style Layout */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm overflow-hidden shadow-2xl"
+          >
+            <div className="flex min-h-[70vh]">
+              {/* Left Sidebar - Categories */}
+              <div className="w-64 border-r border-border/50 bg-card/50 flex flex-col">
+                {/* Sidebar Header with window controls */}
+                <div className="px-4 py-3 border-b border-border/50 flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                </div>
+
+                {/* iCloud Label */}
+                <div className="px-4 py-2">
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Kategoriyalar
+                  </span>
                 </div>
 
                 {/* Categories List */}
-                <div className="divide-y divide-border/30 max-h-[60vh] overflow-y-auto">
-                  {/* All Categories Button */}
+                <div className="flex-1 overflow-y-auto">
+                  {/* All Prompts */}
                   <button
                     onClick={() => handleCategoryChange("")}
-                    className={`w-full group flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-all duration-200 ${
-                      !selectedCategory ? "bg-primary/10" : ""
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                      !selectedCategory 
+                        ? "bg-primary/20 text-primary" 
+                        : "hover:bg-muted/50 text-foreground"
                     }`}
                   >
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0 ${
-                      !selectedCategory ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
-                    }`}>
-                      <Layers className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 text-left min-w-0">
-                      <h3 className={`font-medium truncate ${!selectedCategory ? "text-primary" : "text-foreground"}`}>
-                        Barchasi
-                      </h3>
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                    <Layers className="w-4 h-4 text-primary" />
+                    <span className="flex-1 text-left text-sm font-medium truncate">
+                      Barchasi
+                    </span>
+                    <span className="text-xs text-muted-foreground">
                       {totalPromptsCount}
                     </span>
                   </button>
@@ -265,129 +257,130 @@ const Prompts = () => {
                     <button
                       key={category.id}
                       onClick={() => handleCategoryChange(category.slug)}
-                      className={`w-full group flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-all duration-200 ${
-                        selectedCategory === category.slug ? "bg-primary/10" : ""
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                        selectedCategory === category.slug 
+                          ? "bg-primary/20 text-primary" 
+                          : "hover:bg-muted/50 text-foreground"
                       }`}
                     >
-                      {/* Icon */}
-                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradientColors[index % gradientColors.length]} flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300 ${
-                        selectedCategory === category.slug ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
-                      }`}>
-                        {renderIcon(category.icon, index)}
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 text-left min-w-0">
-                        <h3 className={`font-medium truncate transition-colors ${
-                          selectedCategory === category.slug ? "text-primary" : "text-foreground group-hover:text-primary"
-                        }`}>
-                          {category.name}
-                        </h3>
-                      </div>
-
-                      {/* Count */}
-                      <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                      {renderIcon(category.icon)}
+                      <span className="flex-1 text-left text-sm font-medium truncate">
+                        {category.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
                         {promptCounts[category.id] || 0}
                       </span>
                     </button>
                   ))}
                 </div>
               </div>
-            </motion.div>
 
-            {/* Prompts Grid */}
-            <div className="flex-1 min-w-0">
-              {/* Results Count */}
-              <p className="text-sm text-muted-foreground mb-6">
-                {filteredPrompts.length} ta promt topildi
-                {selectedCategory && categories.find(c => c.slug === selectedCategory) && (
-                  <span className="ml-2 text-primary font-medium">
-                    — {categories.find(c => c.slug === selectedCategory)?.name}
-                  </span>
-                )}
-              </p>
-
-              {/* Prompts Grid */}
-              {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="glass-card p-6 animate-pulse">
-                      <div className="h-6 bg-muted rounded-lg mb-3 w-3/4"></div>
-                      <div className="h-4 bg-muted rounded-lg mb-2 w-full"></div>
-                      <div className="h-4 bg-muted rounded-lg w-2/3"></div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredPrompts.map((prompt, index) => (
-                    <motion.div
-                      key={prompt.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.03 }}
-                    >
-                      <Link to={`/prompt/${prompt.slug}`} className="group block h-full">
-                        <div className="glass-card p-6 h-full flex flex-col hover:border-primary/30 transition-all duration-300">
-                          {/* Category & Premium Badge */}
-                          <div className="flex items-center justify-between mb-3">
-                            {prompt.categories && (
-                              <span className="text-xs font-medium text-muted-foreground">
-                                {prompt.categories.name}
-                              </span>
-                            )}
-                            {prompt.is_premium ? (
-                              <Badge className="gap-1 bg-primary/10 text-primary border-0">
-                                <Lock className="w-3 h-3" />
-                                Premium
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-green-600 border-green-200 dark:border-green-800">
-                                Bepul
-                              </Badge>
-                            )}
-                          </div>
-
-                          {/* Title */}
-                          <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                            {prompt.title}
-                          </h3>
-
-                          {/* Description */}
-                          <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-grow">
-                            {prompt.description}
-                          </p>
-
-                          {/* Footer */}
-                          <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                            <Badge className={difficultyColors[prompt.difficulty]}>
-                              {difficultyLabels[prompt.difficulty]}
-                            </Badge>
-                            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                          </div>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-
-              {/* Empty State */}
-              {!isLoading && filteredPrompts.length === 0 && (
-                <div className="text-center py-16">
-                  <div className="glass-card w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Sparkles className="w-10 h-10 text-muted-foreground" />
+              {/* Right Content Area */}
+              <div className="flex-1 flex flex-col">
+                {/* Content Header */}
+                <div className="px-6 py-4 border-b border-border/50 flex items-center justify-between">
+                  <div>
+                    <h1 className="text-xl font-bold text-foreground">
+                      {currentCategoryName}
+                    </h1>
+                    <p className="text-sm text-muted-foreground">
+                      {filteredPrompts.length} ta promt
+                    </p>
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    Promtlar topilmadi
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Boshqa kalit so'z bilan qidirib ko'ring
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <button className="p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                      <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
+                    </button>
+                    <button className="p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                      <PenSquare className="w-5 h-5 text-muted-foreground" />
+                    </button>
+                  </div>
                 </div>
-              )}
+
+                {/* Prompts List */}
+                <div className="flex-1 overflow-y-auto p-6">
+                  {isLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[...Array(6)].map((_, i) => (
+                        <div key={i} className="rounded-xl border border-border/50 bg-card/50 p-5 animate-pulse">
+                          <div className="h-5 bg-muted rounded mb-3 w-3/4"></div>
+                          <div className="h-4 bg-muted rounded mb-2 w-full"></div>
+                          <div className="h-4 bg-muted rounded w-2/3"></div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : filteredPrompts.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-center py-16">
+                      <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+                        <Sparkles className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
+                        Promtlar topilmadi
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Boshqa kategoriya yoki kalit so'z bilan qidirib ko'ring
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {filteredPrompts.map((prompt, index) => (
+                        <motion.div
+                          key={prompt.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.02 }}
+                        >
+                          <Link 
+                            to={`/prompt/${prompt.slug}`} 
+                            className="group block h-full"
+                          >
+                            <div className="rounded-xl border border-border/50 bg-card/50 hover:bg-card/80 hover:border-primary/30 p-5 h-full flex flex-col transition-all duration-200">
+                              {/* Category & Badge */}
+                              <div className="flex items-center justify-between mb-3">
+                                {prompt.categories && (
+                                  <span className="text-xs font-medium text-muted-foreground">
+                                    {prompt.categories.name}
+                                  </span>
+                                )}
+                                {prompt.is_premium ? (
+                                  <Badge className="gap-1 bg-primary/10 text-primary border-0 text-xs">
+                                    <Lock className="w-3 h-3" />
+                                    Premium
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-green-600 border-green-200 dark:border-green-800 text-xs">
+                                    Bepul
+                                  </Badge>
+                                )}
+                              </div>
+
+                              {/* Title */}
+                              <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-1">
+                                {prompt.title}
+                              </h3>
+
+                              {/* Description */}
+                              <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-grow">
+                                {prompt.description}
+                              </p>
+
+                              {/* Footer */}
+                              <div className="flex items-center justify-between pt-3 border-t border-border/30">
+                                <Badge className={`${difficultyColors[prompt.difficulty]} text-xs`}>
+                                  {difficultyLabels[prompt.difficulty]}
+                                </Badge>
+                                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                              </div>
+                            </div>
+                          </Link>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </main>
 
