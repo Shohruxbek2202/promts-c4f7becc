@@ -15,6 +15,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPrompts from "./pages/admin/AdminPrompts";
 import AdminPromptForm from "./pages/admin/AdminPromptForm";
+import AdminCategories from "./pages/admin/AdminCategories";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPayments from "./pages/admin/AdminPayments";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="prompts" element={<AdminPrompts />} />
               <Route path="prompts/new" element={<AdminPromptForm />} />
               <Route path="prompts/:id/edit" element={<AdminPromptForm />} />
+              <Route path="categories" element={<AdminCategories />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="payments" element={<AdminPayments />} />
               <Route path="settings" element={<AdminSettings />} />
