@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Gift, Users, Wallet, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const steps = [
   {
@@ -21,6 +23,8 @@ const steps = [
 ];
 
 export const Referral = () => {
+  const { user } = useAuth();
+
   return (
     <section id="referral" className="py-24 bg-background overflow-hidden">
       <div className="container mx-auto px-4">
@@ -50,10 +54,12 @@ export const Referral = () => {
                   Har bir muvaffaqiyatli referral uchun 10% komissiya oling. 
                   Minimal to'lov chegarasi 100,000 so'm.
                 </p>
-                <Button variant="hero" size="lg">
-                  Hoziroq boshlash
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
+                <Link to={user ? "/dashboard" : "/auth"}>
+                  <Button variant="hero" size="lg">
+                    {user ? "Referral kodimni olish" : "Hoziroq boshlash"}
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
               </div>
 
               {/* Right Content - Steps */}

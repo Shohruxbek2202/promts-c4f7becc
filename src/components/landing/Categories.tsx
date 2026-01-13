@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { 
   Target,
   BarChart3,
@@ -7,7 +8,8 @@ import {
   PenTool,
   Users,
   Globe,
-  Search
+  Search,
+  ArrowRight
 } from "lucide-react";
 
 const categories = [
@@ -93,17 +95,19 @@ export const Categories = () => {
               whileHover={{ scale: 1.02 }}
               className="group cursor-pointer"
             >
-              <div className="bg-card rounded-2xl p-6 border border-border shadow-card hover:shadow-card-hover transition-all duration-300 h-full">
-                <div className={`w-12 h-12 rounded-xl ${category.color} flex items-center justify-center mb-4`}>
-                  <category.icon className="w-6 h-6" />
+              <Link to="/prompts">
+                <div className="bg-card rounded-2xl p-6 border border-border shadow-card hover:shadow-card-hover transition-all duration-300 h-full">
+                  <div className={`w-12 h-12 rounded-xl ${category.color} flex items-center justify-center mb-4`}>
+                    <category.icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-display font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
+                    {category.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {category.count} promtlar
+                  </p>
                 </div>
-                <h3 className="font-display font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-                  {category.name}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {category.count} promtlar
-                </p>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </div>
@@ -116,15 +120,13 @@ export const Categories = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-center mt-12"
         >
-          <a 
-            href="#" 
+          <Link 
+            to="/prompts" 
             className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
           >
             Barcha kategoriyalarni ko'rish
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </a>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </motion.div>
       </div>
     </section>

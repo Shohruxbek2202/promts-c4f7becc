@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check, Star, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const pricingPlans = [
   {
@@ -54,6 +56,8 @@ const pricingPlans = [
 ];
 
 export const Pricing = () => {
+  const { user } = useAuth();
+
   return (
     <section id="pricing" className="py-24 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -138,9 +142,11 @@ export const Pricing = () => {
               </ul>
 
               {/* CTA Button */}
-              <Button variant={plan.variant} className="w-full" size="lg">
-                {plan.cta}
-              </Button>
+              <Link to={user ? "/payment" : "/auth"}>
+                <Button variant={plan.variant} className="w-full" size="lg">
+                  {plan.cta}
+                </Button>
+              </Link>
             </motion.div>
           ))}
         </div>

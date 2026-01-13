@@ -1,8 +1,12 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Zap, Target } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Hero = () => {
+  const { user } = useAuth();
+
   return (
     <section className="relative min-h-screen bg-gradient-hero overflow-hidden">
       {/* Background decorations */}
@@ -57,13 +61,17 @@ export const Hero = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <Button variant="hero" size="xl">
-              Bepul boshlash
-              <ArrowRight className="w-5 h-5 ml-1" />
-            </Button>
-            <Button variant="heroOutline" size="xl">
-              Promtlarni ko'rish
-            </Button>
+            <Link to={user ? "/dashboard" : "/auth"}>
+              <Button variant="hero" size="xl">
+                {user ? "Dashboardga o'tish" : "Bepul boshlash"}
+                <ArrowRight className="w-5 h-5 ml-1" />
+              </Button>
+            </Link>
+            <Link to="/prompts">
+              <Button variant="heroOutline" size="xl">
+                Promtlarni ko'rish
+              </Button>
+            </Link>
           </motion.div>
 
           {/* Stats */}
