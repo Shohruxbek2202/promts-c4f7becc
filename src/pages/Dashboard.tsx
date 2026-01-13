@@ -271,30 +271,30 @@ const Dashboard = () => {
             </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:border-primary/30 transition-all duration-300"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-purple-500" />
+          {profile?.has_agency_access && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:border-primary/30 transition-all duration-300"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                    <Building2 className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <Badge variant="default">Faol</Badge>
                 </div>
-                <Badge variant={profile?.has_agency_access ? "default" : "outline"}>
-                  {profile?.has_agency_access ? "Faol" : "Nofaol"}
-                </Badge>
+                <h3 className="text-sm text-muted-foreground">Agentlik kirish</h3>
+                {profile?.agency_access_expires_at && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Tugaydi: {new Date(profile.agency_access_expires_at).toLocaleDateString("uz-UZ")}
+                  </p>
+                )}
               </div>
-              <h3 className="text-sm text-muted-foreground">Agentlik kirish</h3>
-              {profile?.agency_access_expires_at && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Tugaydi: {new Date(profile.agency_access_expires_at).toLocaleDateString("uz-UZ")}
-                </p>
-              )}
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
         </div>
 
         {/* Tabs */}
