@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { 
   Search, 
   Lock, 
@@ -13,9 +14,16 @@ import {
   Sparkles,
   FolderOpen,
   Layers,
-  MoreHorizontal,
-  PenSquare
+  Menu,
+  X
 } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 type DifficultyLevel = "beginner" | "intermediate" | "advanced" | "expert";
 
@@ -54,20 +62,6 @@ const difficultyLabels: Record<DifficultyLevel, string> = {
   expert: "Ekspert",
 };
 
-// Gradient colors for category icons
-const gradientColors = [
-  "from-blue-500/20 to-blue-600/10",
-  "from-indigo-500/20 to-indigo-600/10",
-  "from-red-500/20 to-red-600/10",
-  "from-emerald-500/20 to-emerald-600/10",
-  "from-amber-500/20 to-amber-600/10",
-  "from-pink-500/20 to-pink-600/10",
-  "from-cyan-500/20 to-cyan-600/10",
-  "from-violet-500/20 to-violet-600/10",
-  "from-orange-500/20 to-orange-600/10",
-  "from-teal-500/20 to-teal-600/10",
-];
-
 const Prompts = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -75,6 +69,7 @@ const Prompts = () => {
   const [promptCounts, setPromptCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const selectedCategory = searchParams.get("category") || "";
 
   useEffect(() => {
@@ -148,6 +143,7 @@ const Prompts = () => {
       searchParams.set("category", slug);
     }
     setSearchParams(searchParams);
+    setIsMobileMenuOpen(false);
   };
 
   const isUrl = (str: string) => {
@@ -192,6 +188,49 @@ const Prompts = () => {
     ? categories.find(c => c.slug === selectedCategory)?.name || "Kategoriya"
     : "Barcha promtlar";
 
+  // Categories sidebar content (shared between desktop and mobile)
+  const CategoriesList = () => (
+    <div className="flex-1 overflow-y-auto">
+      {/* All Prompts */}
+      <button
+        onClick={() => handleCategoryChange("")}
+        className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
+          !selectedCategory 
+            ? "bg-primary/20 text-primary" 
+            : "hover:bg-muted/50 text-foreground"
+        }`}
+      >
+        <Layers className="w-4 h-4 text-primary" />
+        <span className="flex-1 text-left text-sm font-medium truncate">
+          Barchasi
+        </span>
+        <span className="text-xs text-muted-foreground">
+          {totalPromptsCount}
+        </span>
+      </button>
+
+      {categories.map((category) => (
+        <button
+          key={category.id}
+          onClick={() => handleCategoryChange(category.slug)}
+          className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
+            selectedCategory === category.slug 
+              ? "bg-primary/20 text-primary" 
+              : "hover:bg-muted/50 text-foreground"
+          }`}
+        >
+          {renderIcon(category.icon)}
+          <span className="flex-1 text-left text-sm font-medium truncate">
+            {category.name}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {promptCounts[category.id] || 0}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -210,6 +249,24 @@ const Prompts = () => {
             />
           </div>
 
+          {/* Mobile Category Button */}
+          <div className="lg:hidden mb-4">
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="w-full gap-2">
+                  <Menu className="w-4 h-4" />
+                  {currentCategoryName}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-80 p-0">
+                <SheetHeader className="px-4 py-3 border-b border-border/50">
+                  <SheetTitle className="text-left">Kategoriyalar</SheetTitle>
+                </SheetHeader>
+                <CategoriesList />
+              </SheetContent>
+            </Sheet>
+          </div>
+
           {/* Apple Notes Style Layout */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -217,8 +274,8 @@ const Prompts = () => {
             className="rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm overflow-hidden shadow-2xl"
           >
             <div className="flex min-h-[70vh]">
-              {/* Left Sidebar - Categories */}
-              <div className="w-64 border-r border-border/50 bg-card/50 flex flex-col">
+              {/* Left Sidebar - Categories (Desktop only) */}
+              <div className="hidden lg:flex w-64 border-r border-border/50 bg-card/50 flex-col">
                 {/* Sidebar Header with window controls */}
                 <div className="px-4 py-3 border-b border-border/50 flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -226,7 +283,7 @@ const Prompts = () => {
                   <div className="w-3 h-3 rounded-full bg-green-500" />
                 </div>
 
-                {/* iCloud Label */}
+                {/* Label */}
                 <div className="px-4 py-2">
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Kategoriyalar
@@ -234,71 +291,23 @@ const Prompts = () => {
                 </div>
 
                 {/* Categories List */}
-                <div className="flex-1 overflow-y-auto">
-                  {/* All Prompts */}
-                  <button
-                    onClick={() => handleCategoryChange("")}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                      !selectedCategory 
-                        ? "bg-primary/20 text-primary" 
-                        : "hover:bg-muted/50 text-foreground"
-                    }`}
-                  >
-                    <Layers className="w-4 h-4 text-primary" />
-                    <span className="flex-1 text-left text-sm font-medium truncate">
-                      Barchasi
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {totalPromptsCount}
-                    </span>
-                  </button>
-
-                  {categories.map((category, index) => (
-                    <button
-                      key={category.id}
-                      onClick={() => handleCategoryChange(category.slug)}
-                      className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                        selectedCategory === category.slug 
-                          ? "bg-primary/20 text-primary" 
-                          : "hover:bg-muted/50 text-foreground"
-                      }`}
-                    >
-                      {renderIcon(category.icon)}
-                      <span className="flex-1 text-left text-sm font-medium truncate">
-                        {category.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {promptCounts[category.id] || 0}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                <CategoriesList />
               </div>
 
               {/* Right Content Area */}
               <div className="flex-1 flex flex-col">
                 {/* Content Header */}
-                <div className="px-6 py-4 border-b border-border/50 flex items-center justify-between">
-                  <div>
-                    <h1 className="text-xl font-bold text-foreground">
-                      {currentCategoryName}
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                      {filteredPrompts.length} ta promt
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button className="p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                      <MoreHorizontal className="w-5 h-5 text-muted-foreground" />
-                    </button>
-                    <button className="p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                      <PenSquare className="w-5 h-5 text-muted-foreground" />
-                    </button>
-                  </div>
+                <div className="px-6 py-4 border-b border-border/50">
+                  <h1 className="text-xl font-bold text-foreground">
+                    {currentCategoryName}
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    {filteredPrompts.length} ta promt
+                  </p>
                 </div>
 
                 {/* Prompts List */}
-                <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 overflow-y-auto p-4 md:p-6">
                   {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {[...Array(6)].map((_, i) => (
