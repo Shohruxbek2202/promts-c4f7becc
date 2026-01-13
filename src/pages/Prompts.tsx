@@ -155,12 +155,33 @@ const Prompts = () => {
     return emojiRegex.test(str) || str.length <= 2;
   };
 
-  const renderIcon = (icon: string | null) => {
-    if (!icon) {
-      return <FolderOpen className="w-4 h-4 text-amber-500" />;
+  // Default emoji icons for categories
+  const defaultCategoryIcons: Record<string, string> = {
+    "google-ads": "🎯",
+    "meta-ads": "📢",
+    "yandex-direct": "📊",
+    "content-marketing": "✍️",
+    "email-marketing": "📧",
+    "smm-strategy": "👥",
+    "seo-prompts": "🌐",
+    "analytics": "🔍",
+    "copywriting": "📝",
+    "video-marketing": "🎬",
+    "landing-page": "🖥️",
+    "branding": "🏷️",
+    "e-commerce": "🛒",
+    "telegram-marketing": "📨",
+    "ai-tools": "🤖",
+  };
+
+  const renderIcon = (icon: string | null, slug?: string) => {
+    // First check for emoji icon from database
+    if (icon && isEmoji(icon)) {
+      return <span className="text-base">{icon}</span>;
     }
 
-    if (isUrl(icon)) {
+    // Check for URL icon
+    if (icon && isUrl(icon)) {
       return (
         <img 
           src={icon} 
@@ -173,8 +194,9 @@ const Prompts = () => {
       );
     }
 
-    if (isEmoji(icon)) {
-      return <span className="text-base">{icon}</span>;
+    // Use default emoji based on slug
+    if (slug && defaultCategoryIcons[slug]) {
+      return <span className="text-base">{defaultCategoryIcons[slug]}</span>;
     }
 
     return <FolderOpen className="w-4 h-4 text-amber-500" />;
@@ -219,7 +241,7 @@ const Prompts = () => {
               : "hover:bg-muted/50 text-foreground"
           }`}
         >
-          {renderIcon(category.icon)}
+          {renderIcon(category.icon, category.slug)}
           <span className="flex-1 text-left text-sm font-medium truncate">
             {category.name}
           </span>
@@ -306,8 +328,8 @@ const Prompts = () => {
                   </p>
                 </div>
 
-                {/* Prompts List */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-6">
+                {/* Prompts List - Scrollable */}
+                <div className="flex-1 overflow-y-auto p-4 md:p-6 max-h-[calc(100vh-280px)]">
                   {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {[...Array(6)].map((_, i) => (
