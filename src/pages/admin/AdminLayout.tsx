@@ -9,7 +9,8 @@ import {
   Settings,
   LogOut,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  FolderOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ import { toast } from "sonner";
 const navItems = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/admin/prompts", icon: FileText, label: "Promtlar" },
+  { href: "/admin/categories", icon: FolderOpen, label: "Kategoriyalar" },
   { href: "/admin/users", icon: Users, label: "Foydalanuvchilar" },
   { href: "/admin/payments", icon: CreditCard, label: "To'lovlar" },
   { href: "/admin/settings", icon: Settings, label: "Sozlamalar" },
