@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -6,15 +6,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Save, Plus, Trash2, CreditCard, Loader2 } from "lucide-react";
+import { Save, Plus, Trash2, CreditCard, Loader2, Upload, Link as LinkIcon, Image, FolderOpen, Edit2 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Category {
   id: string;
   name: string;
   slug: string;
-  description: string;
-  icon: string;
+  description: string | null;
+  icon: string | null;
   is_active: boolean;
   sort_order: number;
 }
@@ -40,6 +49,11 @@ const AdminSettings = () => {
     card_holder: "",
     instructions: "",
   });
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [iconUrl, setIconUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchCategories();
@@ -83,6 +97,54 @@ const AdminSettings = () => {
       .trim();
   };
 
+  const uploadIcon = async (file: File): Promise<string | null> => {
+    setIsUploading(true);
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    
+    const { error } = await supabase.storage
+      .from("category-icons")
+      .upload(fileName, file);
+
+    if (error) {
+      toast.error("Rasm yuklashda xatolik: " + error.message);
+      setIsUploading(false);
+      return null;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("category-icons")
+      .getPublicUrl(fileName);
+
+    setIsUploading(false);
+    return urlData.publicUrl;
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, isEdit = false) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Faqat rasm fayllari qabul qilinadi");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Fayl hajmi 2MB dan kichik bo'lishi kerak");
+      return;
+    }
+
+    const url = await uploadIcon(file);
+    if (url) {
+      if (isEdit && editingCategory) {
+        setEditingCategory({ ...editingCategory, icon: url });
+      } else {
+        setNewCategory(prev => ({ ...prev, icon: url }));
+      }
+      toast.success("Rasm yuklandi");
+    }
+  };
+
   const handleAddCategory = async () => {
     if (!newCategory.name) {
       toast.error("Kategoriya nomi majburiy");
@@ -94,8 +156,8 @@ const AdminSettings = () => {
       .insert({
         name: newCategory.name,
         slug: newCategory.slug || generateSlug(newCategory.name),
-        description: newCategory.description,
-        icon: newCategory.icon,
+        description: newCategory.description || null,
+        icon: newCategory.icon || null,
         sort_order: categories.length + 1,
       });
 
@@ -104,6 +166,28 @@ const AdminSettings = () => {
     } else {
       toast.success("Kategoriya qo'shildi");
       setNewCategory({ name: "", slug: "", description: "", icon: "" });
+      fetchCategories();
+    }
+  };
+
+  const handleUpdateCategory = async () => {
+    if (!editingCategory) return;
+
+    const { error } = await supabase
+      .from("categories")
+      .update({
+        name: editingCategory.name,
+        slug: editingCategory.slug,
+        description: editingCategory.description,
+        icon: editingCategory.icon,
+      })
+      .eq("id", editingCategory.id);
+
+    if (error) {
+      toast.error("Xatolik: " + error.message);
+    } else {
+      toast.success("Kategoriya yangilandi");
+      setEditingCategory(null);
       fetchCategories();
     }
   };
@@ -168,6 +252,36 @@ const AdminSettings = () => {
     }
     
     setIsSaving(false);
+  };
+
+  const renderIconPreview = (icon: string | null) => {
+    if (!icon) {
+      return (
+        <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
+          <FolderOpen className="w-6 h-6 text-muted-foreground" />
+        </div>
+      );
+    }
+
+    if (icon.startsWith("http://") || icon.startsWith("https://")) {
+      return (
+        <img 
+          src={icon} 
+          alt="" 
+          className="w-12 h-12 rounded-xl object-cover border border-border"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "";
+            (e.target as HTMLImageElement).className = "hidden";
+          }}
+        />
+      );
+    }
+
+    return (
+      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-2xl">
+        {icon}
+      </div>
+    );
   };
 
   return (
@@ -254,8 +368,8 @@ const AdminSettings = () => {
         {/* Add New Category */}
         <div className="p-6 border-b border-border bg-muted/30">
           <h3 className="font-medium text-foreground mb-4">Yangi kategoriya qo'shish</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+            <div className="space-y-2">
               <Label>Nomi</Label>
               <Input
                 value={newCategory.name}
@@ -267,7 +381,7 @@ const AdminSettings = () => {
                 placeholder="Kategoriya nomi"
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label>Slug</Label>
               <Input
                 value={newCategory.slug}
@@ -275,13 +389,57 @@ const AdminSettings = () => {
                 placeholder="kategoriya-slug"
               />
             </div>
-            <div>
-              <Label>Icon (emoji)</Label>
+            <div className="space-y-2">
+              <Label>Tavsif</Label>
               <Input
-                value={newCategory.icon}
-                onChange={(e) => setNewCategory(prev => ({ ...prev, icon: e.target.value }))}
-                placeholder="📁"
+                value={newCategory.description}
+                onChange={(e) => setNewCategory(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Qisqa tavsif"
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Icon (rasm yoki emoji)</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={newCategory.icon}
+                  onChange={(e) => setNewCategory(prev => ({ ...prev, icon: e.target.value }))}
+                  placeholder="🎯 yoki URL"
+                  className="flex-1"
+                />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, false)}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+              {newCategory.icon && (
+                <div className="flex items-center gap-2 mt-2">
+                  {renderIconPreview(newCategory.icon)}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setNewCategory(prev => ({ ...prev, icon: "" }))}
+                    className="text-red-500 hover:text-red-600"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
             </div>
             <div className="flex items-end">
               <Button onClick={handleAddCategory} className="w-full">
@@ -307,17 +465,16 @@ const AdminSettings = () => {
             categories.map((category) => (
               <div key={category.id} className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    category.is_active ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                  }`}>
-                    <span className="text-lg">{category.icon || "📁"}</span>
-                  </div>
+                  {renderIconPreview(category.icon)}
                   <div>
                     <p className="font-medium text-foreground">{category.name}</p>
                     <p className="text-sm text-muted-foreground">/{category.slug}</p>
+                    {category.description && (
+                      <p className="text-xs text-muted-foreground mt-1">{category.description}</p>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
                     <Label htmlFor={`active-${category.id}`} className="text-sm text-muted-foreground">
                       Faol
@@ -328,6 +485,114 @@ const AdminSettings = () => {
                       onCheckedChange={() => toggleCategoryStatus(category.id, category.is_active)}
                     />
                   </div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditingCategory(category)}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Kategoriyani tahrirlash</DialogTitle>
+                        <DialogDescription>
+                          Kategoriya ma'lumotlarini o'zgartiring
+                        </DialogDescription>
+                      </DialogHeader>
+                      {editingCategory && (
+                        <div className="space-y-4 pt-4">
+                          <div className="space-y-2">
+                            <Label>Nomi</Label>
+                            <Input
+                              value={editingCategory.name}
+                              onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Slug</Label>
+                            <Input
+                              value={editingCategory.slug}
+                              onChange={(e) => setEditingCategory({ ...editingCategory, slug: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Tavsif</Label>
+                            <Input
+                              value={editingCategory.description || ""}
+                              onChange={(e) => setEditingCategory({ ...editingCategory, description: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Icon</Label>
+                            <Tabs defaultValue="emoji" className="w-full">
+                              <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="emoji">Emoji / URL</TabsTrigger>
+                                <TabsTrigger value="upload">Rasm yuklash</TabsTrigger>
+                              </TabsList>
+                              <TabsContent value="emoji" className="space-y-3">
+                                <Input
+                                  value={editingCategory.icon || ""}
+                                  onChange={(e) => setEditingCategory({ ...editingCategory, icon: e.target.value })}
+                                  placeholder="🎯 yoki https://..."
+                                />
+                              </TabsContent>
+                              <TabsContent value="upload" className="space-y-3">
+                                <input
+                                  ref={editFileInputRef}
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handleFileChange(e, true)}
+                                  className="hidden"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => editFileInputRef.current?.click()}
+                                  disabled={isUploading}
+                                  className="w-full"
+                                >
+                                  {isUploading ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      Yuklanmoqda...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Upload className="w-4 h-4 mr-2" />
+                                      Rasm tanlash
+                                    </>
+                                  )}
+                                </Button>
+                              </TabsContent>
+                            </Tabs>
+                            {editingCategory.icon && (
+                              <div className="flex items-center gap-3 mt-3">
+                                {renderIconPreview(editingCategory.icon)}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setEditingCategory({ ...editingCategory, icon: null })}
+                                  className="text-red-500 hover:text-red-600"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-1" />
+                                  O'chirish
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex gap-3 pt-4">
+                            <Button onClick={handleUpdateCategory} className="flex-1">
+                              <Save className="w-4 h-4 mr-2" />
+                              Saqlash
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </DialogContent>
+                  </Dialog>
                   <Button
                     variant="ghost"
                     size="sm"
