@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -145,16 +146,18 @@ const AdminSettings = () => {
       .maybeSingle();
 
     let error;
+    const settingsValue = paymentSettings as unknown as Json;
+    
     if (existing) {
       const result = await supabase
         .from("settings")
-        .update({ value: paymentSettings as unknown as Record<string, unknown> })
+        .update({ value: settingsValue })
         .eq("key", "payment_settings");
       error = result.error;
     } else {
       const result = await supabase
         .from("settings")
-        .insert({ key: "payment_settings", value: paymentSettings as unknown as Record<string, unknown> });
+        .insert([{ key: "payment_settings", value: settingsValue }]);
       error = result.error;
     }
 
