@@ -73,6 +73,13 @@ const AdminPayments = () => {
       updateData.approved_at = new Date().toISOString();
     }
 
+    // Get payment details first
+    const { data: paymentData } = await supabase
+      .from("payments")
+      .select("user_id, plan_id, pricing_plans(subscription_type, duration_days)")
+      .eq("id", paymentId)
+      .single();
+
     const { error } = await supabase
       .from("payments")
       .update(updateData)
@@ -80,10 +87,97 @@ const AdminPayments = () => {
 
     if (error) {
       toast.error("Xatolik yuz berdi");
+      return;
+    }
+
+    // If approved, update user subscription
+    if (action === "approved" && paymentData?.plan_id) {
+      const plan = paymentData.pricing_plans as unknown as { subscription_type: string; duration_days: number | null };
+      
+      if (plan) {
+        let expiresAt: string | null = null;
+        
+        // Calculate expiration date based on plan duration
+        if (plan.duration_days && plan.subscription_type !== "lifetime") {
+          const expireDate = new Date();
+          expireDate.setDate(expireDate.getDate() + plan.duration_days);
+          expiresAt = expireDate.toISOString();
+        }
+
+        // Check if VIP plan to enable agency access
+        const isVipPlan = plan.subscription_type === "vip";
+
+        const profileUpdate: Record<string, unknown> = {
+          subscription_type: plan.subscription_type,
+          subscription_expires_at: expiresAt,
+        };
+
+        if (isVipPlan) {
+          profileUpdate.has_agency_access = true;
+          profileUpdate.agency_access_expires_at = expiresAt;
+        }
+
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .update(profileUpdate)
+          .eq("user_id", paymentData.user_id);
+
+        if (profileError) {
+          console.error("Error updating profile:", profileError);
+          toast.error("To'lov tasdiqlandi, lekin profil yangilanmadi");
+        } else {
+          // Handle referral commission
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("id, referred_by")
+            .eq("user_id", paymentData.user_id)
+            .single();
+
+          if (profile?.referred_by) {
+            // Get payment amount for commission calculation (10%)
+            const { data: payment } = await supabase
+              .from("payments")
+              .select("amount")
+              .eq("id", paymentId)
+              .single();
+
+            if (payment) {
+              const commissionAmount = Number(payment.amount) * 0.10;
+
+              // Create referral transaction
+              await supabase.from("referral_transactions").insert({
+                referrer_id: profile.referred_by,
+                referred_user_id: profile.id,
+                payment_id: paymentId,
+                amount: commissionAmount,
+              });
+
+              // Update referrer's earnings
+              const { data: referrerProfile } = await supabase
+                .from("profiles")
+                .select("referral_earnings")
+                .eq("id", profile.referred_by)
+                .single();
+                
+              if (referrerProfile) {
+                await supabase
+                  .from("profiles")
+                  .update({ 
+                    referral_earnings: (referrerProfile.referral_earnings || 0) + commissionAmount 
+                  })
+                  .eq("id", profile.referred_by);
+              }
+            }
+          }
+
+          toast.success("To'lov tasdiqlandi va obuna yangilandi");
+        }
+      }
     } else {
       toast.success(action === "approved" ? "To'lov tasdiqlandi" : "To'lov rad etildi");
-      fetchPayments();
     }
+    
+    fetchPayments();
   };
 
   const filteredPayments = payments.filter(payment => {
