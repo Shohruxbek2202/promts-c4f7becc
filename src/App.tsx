@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Payment from "./pages/Payment";
 import Prompts from "./pages/Prompts";
 import PromptDetail from "./pages/PromptDetail";
+import Agency from "./pages/Agency";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPrompts from "./pages/admin/AdminPrompts";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/payment" element={<Payment />} />
             <Route path="/prompts" element={<Prompts />} />
             <Route path="/prompt/:slug" element={<PromptDetail />} />
+            <Route path="/agency" element={<Agency />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
