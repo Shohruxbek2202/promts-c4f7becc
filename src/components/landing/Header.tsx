@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Sparkles, User, LogOut, LayoutDashboard, Shield, Moon, Sun, CreditCard } from "lucide-react";
+import { Menu, X, Sparkles, User, LogOut, LayoutDashboard, Shield, Moon, Sun, CreditCard, Crown } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,9 +24,32 @@ const navLinks = [
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [hasAgencyAccess, setHasAgencyAccess] = useState(false);
   const { user, isAdmin, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      checkAgencyAccess();
+    }
+  }, [user]);
+
+  const checkAgencyAccess = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("profiles")
+      .select("has_agency_access, agency_access_expires_at")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (data) {
+      const isActive = data.has_agency_access && 
+        (!data.agency_access_expires_at || 
+         new Date(data.agency_access_expires_at) > new Date());
+      setHasAgencyAccess(isActive);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -129,6 +153,14 @@ export const Header = () => {
                       Promtlar
                     </Link>
                   </DropdownMenuItem>
+                  {hasAgencyAccess && (
+                    <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
+                      <Link to="/agency">
+                        <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                        Agentlik
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   {isAdmin && (
                     <>
                       <DropdownMenuSeparator />
