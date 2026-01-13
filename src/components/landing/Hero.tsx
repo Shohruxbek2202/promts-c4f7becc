@@ -3,10 +3,28 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Zap, Target, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Hero = () => {
   const { user } = useAuth();
+  const [stats, setStats] = useState({ prompts: 0, categories: 0, users: 0 });
 
+  useEffect(() => {
+    const fetchStats = async () => {
+      const [promptsRes, categoriesRes, usersRes] = await Promise.all([
+        supabase.from("prompts").select("id", { count: "exact", head: true }),
+        supabase.from("categories").select("id", { count: "exact", head: true }).eq("is_active", true),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+      ]);
+      setStats({
+        prompts: promptsRes.count || 0,
+        categories: categoriesRes.count || 0,
+        users: usersRes.count || 0,
+      });
+    };
+    fetchStats();
+  }, []);
   return (
     <section className="relative min-h-screen overflow-hidden">
       {/* Background */}
@@ -107,9 +125,9 @@ export const Hero = () => {
             className="mt-20 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto"
           >
             {[
-              { icon: Target, value: "100K+", label: "Promtlar" },
-              { icon: Zap, value: "50+", label: "Kategoriyalar" },
-              { icon: Sparkles, value: "10K+", label: "Foydalanuvchilar" },
+              { icon: Target, value: stats.prompts, label: "Promtlar" },
+              { icon: Zap, value: stats.categories, label: "Kategoriyalar" },
+              { icon: Sparkles, value: stats.users, label: "Foydalanuvchilar" },
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}
