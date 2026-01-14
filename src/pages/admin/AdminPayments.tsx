@@ -46,6 +46,26 @@ const AdminPayments = () => {
 
   useEffect(() => {
     fetchPayments();
+
+    // Subscribe to realtime payment changes
+    const channel = supabase
+      .channel('payments-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'payments'
+        },
+        () => {
+          fetchPayments();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchPayments = async () => {
