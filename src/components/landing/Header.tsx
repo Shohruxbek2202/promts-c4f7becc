@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Sparkles, User, LogOut, LayoutDashboard, Shield, Moon, Sun, CreditCard, Crown, Building2 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, Sparkles, LogOut, LayoutDashboard, Shield, Moon, Sun, CreditCard, Crown } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,10 +16,10 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navLinks = [
-  { href: "#features", label: "Xususiyatlar" },
-  { href: "#categories", label: "Kategoriyalar" },
-  { href: "#pricing", label: "Narxlar" },
-  { href: "#referral", label: "Referral" },
+  { href: "/#features", label: "Xususiyatlar", hashOnly: true },
+  { href: "/#categories", label: "Kategoriyalar", hashOnly: true },
+  { href: "/#pricing", label: "Narxlar", hashOnly: true },
+  { href: "/#referral", label: "Referral", hashOnly: true },
 ];
 
 export const Header = () => {
@@ -28,6 +28,7 @@ export const Header = () => {
   const { user, isAdmin, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (user) {
@@ -64,6 +65,14 @@ export const Header = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // If we're on a different page and clicking a hash link, navigate to home first
+    if (href.startsWith("/#") && location.pathname !== "/") {
+      e.preventDefault();
+      navigate(href);
+    }
+  };
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -20 }}
@@ -89,6 +98,7 @@ export const Header = () => {
               <a
                 key={link.href}
                 href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
                 className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50"
               >
                 {link.label}
@@ -234,7 +244,10 @@ export const Header = () => {
                     key={link.href}
                     href={link.href}
                     className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={(e) => {
+                      handleNavClick(e, link.href);
+                      setIsMenuOpen(false);
+                    }}
                   >
                     {link.label}
                   </a>
