@@ -12,16 +12,17 @@ export const Hero = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const [promptsRes, categoriesRes, usersRes] = await Promise.all([
-        supabase.from("prompts").select("id", { count: "exact", head: true }),
-        supabase.from("categories").select("id", { count: "exact", head: true }).eq("is_active", true),
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
-      ]);
-      setStats({
-        prompts: promptsRes.count || 0,
-        categories: categoriesRes.count || 0,
-        users: usersRes.count || 0,
-      });
+      // Use the public stats function which bypasses RLS
+      const { data, error } = await supabase.rpc('get_public_stats');
+      
+      if (data && !error) {
+        const statsData = data as { prompts_count: number; categories_count: number; users_count: number };
+        setStats({
+          prompts: statsData.prompts_count || 0,
+          categories: statsData.categories_count || 0,
+          users: statsData.users_count || 0,
+        });
+      }
     };
     fetchStats();
   }, []);
