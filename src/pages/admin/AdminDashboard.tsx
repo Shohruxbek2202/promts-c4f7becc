@@ -10,11 +10,12 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  ArrowRight
+  ArrowRight,
+  BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
+import { StatsCharts } from "@/components/admin/StatsCharts";
 interface Stats {
   totalUsers: number;
   totalPrompts: number;
@@ -236,6 +237,29 @@ const AdminDashboard = () => {
         )}
       </motion.div>
 
+      {/* Stats Charts */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="bg-card rounded-xl border border-border p-6"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <BarChart3 className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="font-display font-semibold text-foreground">
+              Statistika
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Daromad va to'lovlar tahlili
+            </p>
+          </div>
+        </div>
+        <StatsCharts />
+      </motion.div>
+
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Link to="/admin/prompts/new">
@@ -249,14 +273,14 @@ const AdminDashboard = () => {
             </p>
           </div>
         </Link>
-        <Link to="/admin/users">
+        <Link to="/admin/lessons/new">
           <div className="bg-card rounded-xl p-6 border border-border hover:border-primary transition-colors cursor-pointer group">
-            <Users className="w-8 h-8 text-primary mb-3" />
+            <FileText className="w-8 h-8 text-primary mb-3" />
             <h3 className="font-display font-semibold text-foreground group-hover:text-primary transition-colors">
-              Foydalanuvchilarni boshqarish
+              Yangi dars qo'shish
             </h3>
             <p className="text-sm text-muted-foreground">
-              Foydalanuvchilar ro'yxatini ko'ring
+              Video dars qo'shing
             </p>
           </div>
         </Link>
