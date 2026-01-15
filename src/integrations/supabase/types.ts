@@ -64,6 +64,62 @@ export type Database = {
           },
         ]
       }
+      lessons: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          is_published: boolean | null
+          slug: string
+          sort_order: number | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_file_url: string | null
+          video_url: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          slug: string
+          sort_order?: number | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_file_url?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean | null
+          slug?: string
+          sort_order?: number | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_file_url?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           admin_notes: string | null
@@ -275,6 +331,44 @@ export type Database = {
           },
         ]
       }
+      prompt_media: {
+        Row: {
+          created_at: string
+          id: string
+          media_type: string
+          prompt_id: string
+          sort_order: number | null
+          title: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          media_type: string
+          prompt_id: string
+          sort_order?: number | null
+          title?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          media_type?: string
+          prompt_id?: string
+          sort_order?: number | null
+          title?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_media_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prompt_versions: {
         Row: {
           change_notes: string | null
@@ -440,6 +534,30 @@ export type Database = {
         ]
       }
       settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      site_settings: {
         Row: {
           created_at: string
           id: string

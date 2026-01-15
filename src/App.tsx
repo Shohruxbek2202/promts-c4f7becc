@@ -11,6 +11,8 @@ import Payment from "./pages/Payment";
 import Prompts from "./pages/Prompts";
 import PromptDetail from "./pages/PromptDetail";
 import Agency from "./pages/Agency";
+import Lessons from "./pages/Lessons";
+import LessonDetail from "./pages/LessonDetail";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPrompts from "./pages/admin/AdminPrompts";
@@ -19,6 +21,8 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPayments from "./pages/admin/AdminPayments";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminLessons from "./pages/admin/AdminLessons";
+import AdminLessonForm from "./pages/admin/AdminLessonForm";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +42,8 @@ const App = () => (
             <Route path="/prompts" element={<Prompts />} />
             <Route path="/prompt/:slug" element={<PromptDetail />} />
             <Route path="/agency" element={<Agency />} />
+            <Route path="/lessons" element={<Lessons />} />
+            <Route path="/lessons/:slug" element={<LessonDetail />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
@@ -49,6 +55,9 @@ const App = () => (
               <Route path="users" element={<AdminUsers />} />
               <Route path="payments" element={<AdminPayments />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route path="lessons" element={<AdminLessons />} />
+              <Route path="lessons/new" element={<AdminLessonForm />} />
+              <Route path="lessons/:id/edit" element={<AdminLessonForm />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />

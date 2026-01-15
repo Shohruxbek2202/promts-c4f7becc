@@ -18,6 +18,7 @@ import { toast } from "sonner";
 const navItems = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/admin/prompts", icon: FileText, label: "Promtlar" },
+  { href: "/admin/lessons", icon: FileText, label: "Darslar" },
   { href: "/admin/categories", icon: FolderOpen, label: "Kategoriyalar" },
   { href: "/admin/users", icon: Users, label: "Foydalanuvchilar" },
   { href: "/admin/payments", icon: CreditCard, label: "To'lovlar" },

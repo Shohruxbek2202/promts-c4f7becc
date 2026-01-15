@@ -9,10 +9,10 @@ import { supabase } from "@/integrations/supabase/client";
 export const Hero = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState({ prompts: 0, categories: 0, users: 0 });
+  const [heroText, setHeroText] = useState({ title: "Professional marketing promtlari bazasi", subtitle: "Vaqtingizni tejang, natijalaringizni oshiring." });
 
   useEffect(() => {
     const fetchStats = async () => {
-      // Use the public stats function which bypasses RLS
       const { data, error } = await supabase.rpc('get_public_stats');
       
       if (data && !error) {
@@ -24,7 +24,25 @@ export const Hero = () => {
         });
       }
     };
+
+    const fetchHeroText = async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "hero_text")
+        .single();
+      
+      if (data?.value) {
+        const value = data.value as { title?: string; subtitle?: string };
+        setHeroText({
+          title: value.title || heroText.title,
+          subtitle: value.subtitle || heroText.subtitle,
+        });
+      }
+    };
+
     fetchStats();
+    fetchHeroText();
   }, []);
   return (
     <section className="relative min-h-screen overflow-hidden">
@@ -93,8 +111,7 @@ export const Hero = () => {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            Google Ads, Meta Ads, Yandex Direct va boshqa platformalar uchun 
-            tayyor promtlar. Vaqtingizni tejang, natijani oshiring.
+            {stats.prompts > 0 ? `${stats.prompts}+ ${heroText.title}` : heroText.title}. {heroText.subtitle}
           </motion.p>
 
           {/* CTA Buttons */}
