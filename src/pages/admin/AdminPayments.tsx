@@ -70,16 +70,55 @@ const AdminPayments = () => {
 
   const fetchPayments = async () => {
     setIsLoading(true);
-    const { data } = await supabase
+    
+    // First get payments
+    const { data: paymentsData, error: paymentsError } = await supabase
       .from("payments")
       .select(`
-        id, amount, status, receipt_url, admin_notes, created_at, approved_at,
-        profiles!payments_user_id_fkey (email, full_name),
-        pricing_plans (name)
+        id, amount, status, receipt_url, admin_notes, created_at, approved_at, user_id, plan_id
       `)
       .order("created_at", { ascending: false });
 
-    if (data) setPayments(data as unknown as Payment[]);
+    if (paymentsError) {
+      console.error("Error fetching payments:", paymentsError);
+      setIsLoading(false);
+      return;
+    }
+
+    if (!paymentsData || paymentsData.length === 0) {
+      setPayments([]);
+      setIsLoading(false);
+      return;
+    }
+
+    // Get unique user IDs and plan IDs
+    const userIds = [...new Set(paymentsData.map(p => p.user_id))];
+    const planIds = [...new Set(paymentsData.filter(p => p.plan_id).map(p => p.plan_id))];
+
+    // Fetch profiles for these users
+    const { data: profilesData } = await supabase
+      .from("profiles")
+      .select("user_id, email, full_name")
+      .in("user_id", userIds);
+
+    // Fetch pricing plans
+    const { data: plansData } = await supabase
+      .from("pricing_plans")
+      .select("id, name")
+      .in("id", planIds);
+
+    // Create lookup maps
+    const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
+    const plansMap = new Map(plansData?.map(p => [p.id, p]) || []);
+
+    // Combine data
+    const combinedPayments = paymentsData.map(payment => ({
+      ...payment,
+      profiles: profilesMap.get(payment.user_id) || null,
+      pricing_plans: plansMap.get(payment.plan_id) || null,
+    }));
+
+    setPayments(combinedPayments as unknown as Payment[]);
     setIsLoading(false);
   };
 

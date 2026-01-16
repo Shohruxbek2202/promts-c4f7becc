@@ -16,7 +16,9 @@ import {
   Eye,
   FileText,
   Lightbulb,
-  BookOpen
+  BookOpen,
+  Play,
+  Image as ImageIcon
 } from "lucide-react";
 
 type DifficultyLevel = "beginner" | "intermediate" | "advanced" | "expert";
@@ -25,6 +27,14 @@ interface Category {
   id: string;
   name: string;
   slug: string;
+}
+
+interface PromptMedia {
+  id: string;
+  media_type: "video" | "image";
+  url: string;
+  title: string | null;
+  sort_order: number;
 }
 
 interface Prompt {
@@ -58,10 +68,26 @@ const difficultyLabels: Record<DifficultyLevel, string> = {
   expert: "Ekspert",
 };
 
+// Helper to convert YouTube URL to embed URL
+const getEmbedUrl = (url: string): string => {
+  // YouTube watch URL
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+  if (ytMatch) {
+    return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  }
+  // Vimeo URL
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  }
+  return url;
+};
+
 const PromptDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
   const [prompt, setPrompt] = useState<Prompt | null>(null);
+  const [media, setMedia] = useState<PromptMedia[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
@@ -94,6 +120,15 @@ const PromptDetail = () => {
 
     if (data) {
       setPrompt(data as Prompt);
+      // Fetch media
+      const { data: mediaData } = await supabase
+        .from("prompt_media")
+        .select("*")
+        .eq("prompt_id", data.id)
+        .order("sort_order");
+      
+      if (mediaData) setMedia(mediaData as PromptMedia[]);
+      
       // Update view count
       await supabase
         .from("prompts")
@@ -358,6 +393,75 @@ const PromptDetail = () => {
                     <pre className="whitespace-pre-wrap text-sm text-muted-foreground">
                       {prompt.examples}
                     </pre>
+                  </div>
+                </div>
+              )}
+
+              {/* Videos */}
+              {media.filter(m => m.media_type === "video").length > 0 && hasAccess && (
+                <div className="bg-card rounded-2xl border border-border overflow-hidden">
+                  <div className="flex items-center gap-2 px-6 py-4 border-b border-border bg-muted/30">
+                    <Play className="w-5 h-5 text-primary" />
+                    <span className="font-medium">Qo'llanma videolari</span>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    {media.filter(m => m.media_type === "video").map((video) => (
+                      <div key={video.id} className="space-y-2">
+                        {video.title && (
+                          <h4 className="font-medium text-sm text-foreground">{video.title}</h4>
+                        )}
+                        {video.url.includes("youtube") || video.url.includes("youtu.be") || video.url.includes("vimeo") ? (
+                          <div className="aspect-video rounded-lg overflow-hidden">
+                            <iframe
+                              src={getEmbedUrl(video.url)}
+                              className="w-full h-full"
+                              allowFullScreen
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            />
+                          </div>
+                        ) : (
+                          <video
+                            src={video.url}
+                            controls
+                            className="w-full rounded-lg"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Images */}
+              {media.filter(m => m.media_type === "image").length > 0 && hasAccess && (
+                <div className="bg-card rounded-2xl border border-border overflow-hidden">
+                  <div className="flex items-center gap-2 px-6 py-4 border-b border-border bg-muted/30">
+                    <ImageIcon className="w-5 h-5 text-secondary" />
+                    <span className="font-medium">Natija rasmlari</span>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {media.filter(m => m.media_type === "image").map((image) => (
+                        <a
+                          key={image.id}
+                          href={image.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block rounded-lg overflow-hidden hover:opacity-90 transition-opacity"
+                        >
+                          <img
+                            src={image.url}
+                            alt={image.title || "Natija rasmi"}
+                            className="w-full h-auto"
+                          />
+                          {image.title && (
+                            <p className="text-sm text-muted-foreground mt-2 text-center">
+                              {image.title}
+                            </p>
+                          )}
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
