@@ -20,6 +20,7 @@ const navItems = [
   { href: "/admin/prompts", icon: FileText, label: "Promtlar" },
   { href: "/admin/lessons", icon: FileText, label: "Darslar" },
   { href: "/admin/categories", icon: FolderOpen, label: "Kategoriyalar" },
+  { href: "/admin/pricing", icon: CreditCard, label: "Tariflar" },
   { href: "/admin/users", icon: Users, label: "Foydalanuvchilar" },
   { href: "/admin/payments", icon: CreditCard, label: "To'lovlar" },
   { href: "/admin/settings", icon: Settings, label: "Sozlamalar" },
