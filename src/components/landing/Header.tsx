@@ -19,7 +19,7 @@ const navLinks = [
   { href: "/#features", label: "Xususiyatlar", hashOnly: true },
   { href: "/#categories", label: "Kategoriyalar", hashOnly: true },
   { href: "/#pricing", label: "Narxlar", hashOnly: true },
-  { href: "/#referral", label: "Referral", hashOnly: true },
+  { href: "/lessons", label: "Darslar", hashOnly: false },
 ];
 
 export const Header = () => {
@@ -95,14 +95,24 @@ export const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50"
-              >
-                {link.label}
-              </a>
+              link.hashOnly ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
+                  className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50"
+                >
+                  {link.label}
+                </Link>
+              )
             ))}
             <Link
               to="/prompts"
@@ -240,17 +250,28 @@ export const Header = () => {
             >
               <nav className="flex flex-col gap-1">
                 {navLinks.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors"
-                    onClick={(e) => {
-                      handleNavClick(e, link.href);
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    {link.label}
-                  </a>
+                  link.hashOnly ? (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors"
+                      onClick={(e) => {
+                        handleNavClick(e, link.href);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  )
                 ))}
                 <Link
                   to="/prompts"

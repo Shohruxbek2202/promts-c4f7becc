@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { ChevronLeft, Save } from "lucide-react";
 import { toast } from "sonner";
+import { PromptMediaManager } from "@/components/admin/PromptMediaManager";
 
 interface Category {
   id: string;
@@ -308,6 +309,16 @@ const AdminPromptForm = () => {
             />
           </div>
         </div>
+
+        {/* Media Manager - only show when editing */}
+        {isEditing && id && (
+          <div className="bg-card rounded-xl p-6 border border-border space-y-6">
+            <h2 className="font-display text-lg font-semibold text-foreground">
+              Media (Video va Rasmlar)
+            </h2>
+            <PromptMediaManager promptId={id} />
+          </div>
+        )}
 
         {/* Pricing */}
         <div className="bg-card rounded-xl p-6 border border-border space-y-6">

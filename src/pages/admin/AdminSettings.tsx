@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Save, Plus, Trash2, CreditCard, Loader2, Upload, Link as LinkIcon, Image, FolderOpen, Edit2, Mail, Phone, MapPin } from "lucide-react";
+import { Save, Plus, Trash2, CreditCard, Loader2, Upload, Link as LinkIcon, Image, FolderOpen, Edit2, Mail, Phone, MapPin, Type } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -42,11 +42,17 @@ interface ContactSettings {
   instagram_url: string;
 }
 
+interface HeroSettings {
+  title: string;
+  subtitle: string;
+}
+
 const AdminSettings = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingContact, setIsSavingContact] = useState(false);
+  const [isSavingHero, setIsSavingHero] = useState(false);
   const [newCategory, setNewCategory] = useState({
     name: "",
     slug: "",
@@ -65,6 +71,10 @@ const AdminSettings = () => {
     telegram_url: "",
     instagram_url: "",
   });
+  const [heroSettings, setHeroSettings] = useState<HeroSettings>({
+    title: "",
+    subtitle: "",
+  });
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [iconUrl, setIconUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -75,6 +85,7 @@ const AdminSettings = () => {
     fetchCategories();
     fetchPaymentSettings();
     fetchContactSettings();
+    fetchHeroSettings();
   }, []);
 
   const fetchCategories = async () => {
@@ -122,6 +133,56 @@ const AdminSettings = () => {
         instagram_url: settings.instagram_url || "",
       });
     }
+  };
+
+  const fetchHeroSettings = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "hero_text")
+      .maybeSingle();
+    
+    if (data?.value) {
+      const settings = data.value as unknown as HeroSettings;
+      setHeroSettings({
+        title: settings.title || "",
+        subtitle: settings.subtitle || "",
+      });
+    }
+  };
+
+  const saveHeroSettings = async () => {
+    setIsSavingHero(true);
+    
+    const { data: existing } = await supabase
+      .from("site_settings")
+      .select("id")
+      .eq("key", "hero_text")
+      .maybeSingle();
+
+    let error;
+    const settingsValue = heroSettings as unknown as Json;
+    
+    if (existing) {
+      const result = await supabase
+        .from("site_settings")
+        .update({ value: settingsValue })
+        .eq("key", "hero_text");
+      error = result.error;
+    } else {
+      const result = await supabase
+        .from("site_settings")
+        .insert([{ key: "hero_text", value: settingsValue }]);
+      error = result.error;
+    }
+
+    if (error) {
+      toast.error("Saqlashda xatolik: " + error.message);
+    } else {
+      toast.success("Hero matni saqlandi");
+    }
+    
+    setIsSavingHero(false);
   };
 
   const saveContactSettings = async () => {
@@ -363,6 +424,55 @@ const AdminSettings = () => {
         <p className="text-muted-foreground">
           Platforma sozlamalarini boshqaring
         </p>
+      </div>
+
+      {/* Hero Settings */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="p-6 border-b border-border flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+            <Type className="w-5 h-5 text-purple-500" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">
+              Bosh sahifa matni
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Hero qismidagi sarlavha va tavsif
+            </p>
+          </div>
+        </div>
+        <div className="p-6 space-y-4">
+          <div className="space-y-2">
+            <Label>Sarlavha</Label>
+            <Input 
+              placeholder="Professional marketing promtlari bazasi"
+              value={heroSettings.title}
+              onChange={(e) => setHeroSettings(prev => ({ ...prev, title: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Tavsif</Label>
+            <Textarea 
+              placeholder="Vaqtingizni tejang, natijalaringizni oshiring."
+              rows={2}
+              value={heroSettings.subtitle}
+              onChange={(e) => setHeroSettings(prev => ({ ...prev, subtitle: e.target.value }))}
+            />
+          </div>
+          <Button onClick={saveHeroSettings} disabled={isSavingHero}>
+            {isSavingHero ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Saqlanmoqda...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Saqlash
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Payment Settings */}
