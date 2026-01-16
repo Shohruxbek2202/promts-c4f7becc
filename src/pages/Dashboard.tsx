@@ -15,10 +15,12 @@ import {
   Crown,
   Sparkles,
   Building2,
-  LogOut
+  LogOut,
+  BarChart3
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { UserStatsChart } from "@/components/dashboard/UserStatsChart";
 
 interface Profile {
   id: string;
@@ -64,7 +66,7 @@ const Dashboard = () => {
   const [purchasedPrompts, setPurchasedPrompts] = useState<PurchasedPrompt[]>([]);
   const [referralTransactions, setReferralTransactions] = useState<ReferralTransaction[]>([]);
   const [loadingData, setLoadingData] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "prompts" | "referrals">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "stats" | "prompts" | "referrals">("overview");
 
   useEffect(() => {
     if (user) {
@@ -301,6 +303,7 @@ const Dashboard = () => {
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {[
             { id: "overview", label: "Umumiy", icon: User },
+            { id: "stats", label: "Statistika", icon: BarChart3 },
             { id: "prompts", label: "Promptlar", icon: FileText },
             { id: "referrals", label: "Referrallar", icon: Gift },
           ].map((tab) => (
@@ -389,6 +392,15 @@ const Dashboard = () => {
               </Link>
             </div>
           </div>
+        )}
+
+        {activeTab === "stats" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <UserStatsChart />
+          </motion.div>
         )}
 
         {activeTab === "prompts" && (
