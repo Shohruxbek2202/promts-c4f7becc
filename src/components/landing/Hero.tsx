@@ -86,10 +86,10 @@ export const Hero = () => {
               <span className="absolute -inset-x-3 -inset-y-1 bg-primary/20 rounded-lg" />
               
               {/* Corner handle - top left */}
-              <span className="absolute -left-4 -top-2 w-3 h-3 bg-amber-400 rounded-full shadow-md" />
+              <span className="absolute -left-4 -top-2 w-3 h-3 bg-primary rounded-full shadow-lg shadow-primary/30" />
               
               {/* Corner handle - bottom right */}
-              <span className="absolute -right-4 -bottom-2 w-3 h-3 bg-amber-400 rounded-full shadow-md" />
+              <span className="absolute -right-4 -bottom-2 w-3 h-3 bg-primary rounded-full shadow-lg shadow-primary/30" />
               
               <span className="relative z-10 text-foreground">Marketing Promtlar</span>
             </span>
