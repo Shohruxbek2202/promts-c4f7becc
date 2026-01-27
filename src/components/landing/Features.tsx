@@ -28,7 +28,7 @@ const features = [
   },
   {
     icon: Shield,
-    title: "Professional sifat",
+    title: "Yuqori sifat",
     description: "Barcha promtlar ekspertlar tomonidan tekshirilgan va tasdiqlangan.",
   },
   {
@@ -80,7 +80,7 @@ export const Features = () => {
             Nima uchun bizni <span className="text-primary">tanlash</span> kerak?
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Professional marketing promtlari bilan vaqtingizni tejang va natijalaringizni maksimal darajada oshiring.
+            Marketing promtlari bilan vaqtingizni tejang va natijalaringizni maksimal darajada oshiring.
           </p>
         </motion.div>
 

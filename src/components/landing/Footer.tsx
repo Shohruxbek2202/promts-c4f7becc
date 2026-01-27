@@ -142,7 +142,7 @@ export const Footer = () => {
               </span>
             </Link>
             <p className="text-muted-foreground mb-6 max-w-sm leading-relaxed">
-              {formatCount(promptsCount)} professional marketing promtlari bazasi. 
+              {formatCount(promptsCount)} marketing promtlari bazasi. 
               Vaqtingizni tejang, natijalaringizni oshiring.
             </p>
             <div className="space-y-2">
