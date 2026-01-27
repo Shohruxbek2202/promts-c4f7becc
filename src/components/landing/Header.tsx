@@ -15,20 +15,56 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-const navLinks = [
-  { href: "/#features", label: "Xususiyatlar", hashOnly: true },
-  { href: "/#categories", label: "Kategoriyalar", hashOnly: true },
-  { href: "/#pricing", label: "Narxlar", hashOnly: true },
-  { href: "/lessons", label: "Darslar", hashOnly: false },
-];
+interface NavLink {
+  href: string;
+  label: string;
+  hashOnly: boolean;
+  key?: string;
+}
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [hasAgencyAccess, setHasAgencyAccess] = useState(false);
+  const [showPricing, setShowPricing] = useState(true);
   const { user, isAdmin, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Check if pricing should be shown
+  useEffect(() => {
+    checkPricingVisibility();
+  }, []);
+
+  const checkPricingVisibility = async () => {
+    // Check site settings
+    const { data: settings } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "section_visibility")
+      .maybeSingle();
+
+    const showPricingSetting = settings?.value 
+      ? (settings.value as { show_pricing?: boolean }).show_pricing ?? true 
+      : true;
+
+    // Check if there are active plans
+    const { count } = await supabase
+      .from("pricing_plans")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true);
+
+    const hasActivePlans = (count || 0) > 0;
+    setShowPricing(showPricingSetting && hasActivePlans);
+  };
+
+  // Build nav links dynamically based on visibility
+  const navLinks: NavLink[] = [
+    { href: "/#features", label: "Xususiyatlar", hashOnly: true },
+    { href: "/#categories", label: "Kategoriyalar", hashOnly: true },
+    ...(showPricing ? [{ href: "/#pricing", label: "Narxlar", hashOnly: true }] : []),
+    { href: "/lessons", label: "Darslar", hashOnly: false },
+  ];
 
   useEffect(() => {
     if (user) {
