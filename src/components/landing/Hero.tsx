@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Hero = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState({ prompts: 0, categories: 0, users: 0 });
-  const [heroText, setHeroText] = useState({ title: "Professional marketing promtlari bazasi", subtitle: "Vaqtingizni tejang, natijalaringizni oshiring." });
+  const [heroText, setHeroText] = useState({ title: "Marketing promtlari bazasi", subtitle: "Vaqtingizni tejang, natijalaringizni oshiring." });
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -47,7 +47,7 @@ export const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background with gradient overlay */}
+      {/* Background */}
       <div className="absolute inset-0 bg-background" />
       
       {/* Subtle animated gradient orbs */}
@@ -73,20 +73,35 @@ export const Hero = () => {
       {/* Content */}
       <div className="container relative z-10 mx-auto px-4 pt-24 pb-16">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Main Headline with Blue Highlight Box */}
+          {/* Main Headline with iPhone-style Selection Highlight */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.15] tracking-tight mb-6"
           >
-            <span className="inline-block relative">
-              <span className="relative z-10 px-3 py-1 bg-primary text-primary-foreground rounded-lg">
-                Marketing Promtlar
-              </span>
+            {/* Highlighted text with iPhone selection style */}
+            <span className="relative inline-block">
+              {/* Selection box background */}
+              <span className="absolute -inset-x-3 -inset-y-1 bg-primary/20 rounded-lg" />
+              
+              {/* Corner handles - top left */}
+              <span className="absolute -left-4 -top-2 w-3 h-3 border-2 border-primary bg-primary rounded-full" />
+              {/* Corner handles - top right */}
+              <span className="absolute -right-4 -top-2 w-3 h-3 border-2 border-primary bg-primary rounded-full" />
+              {/* Corner handles - bottom left */}
+              <span className="absolute -left-4 -bottom-2 w-3 h-3 border-2 border-primary bg-primary rounded-full" />
+              {/* Corner handles - bottom right */}
+              <span className="absolute -right-4 -bottom-2 w-3 h-3 border-2 border-primary bg-primary rounded-full" />
+              
+              {/* Vertical selection lines */}
+              <span className="absolute -left-4 top-1 bottom-1 w-0.5 bg-primary" />
+              <span className="absolute -right-4 top-1 bottom-1 w-0.5 bg-primary" />
+              
+              <span className="relative z-10 text-foreground">Marketing Promtlar</span>
             </span>
             <br />
-            <span className="text-foreground">Bazasi</span>
+            <span className="text-foreground mt-2 inline-block">va Biznes Strategiyalar</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -96,7 +111,7 @@ export const Hero = () => {
             transition={{ duration: 0.7, delay: 0.15 }}
             className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            {stats.prompts > 0 ? `${stats.prompts}+ ${heroText.title}` : heroText.title}. {heroText.subtitle}
+            {heroText.title}. {heroText.subtitle}
           </motion.p>
 
           {/* CTA Button */}
