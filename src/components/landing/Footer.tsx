@@ -11,28 +11,37 @@ interface ContactSettings {
   instagram_url: string;
 }
 
-const footerLinks = {
-  platform: [
-    { label: "Promtlar", href: "/prompts" },
-    { label: "Kategoriyalar", href: "#categories" },
-    { label: "Narxlar", href: "#pricing" },
-    { label: "Referral", href: "#referral" },
-  ],
-  support: [
-    { label: "Yordam markazi", href: "#" },
-    { label: "Telegram bot", href: "#" },
-    { label: "FAQ", href: "#" },
-    { label: "Aloqa", href: "#" },
-  ],
-  legal: [
-    { label: "Foydalanish shartlari", href: "#" },
-    { label: "Maxfiylik siyosati", href: "#" },
-    { label: "To'lov shartlari", href: "#" },
-  ],
-};
+interface SectionSettings {
+  show_pricing: boolean;
+  show_referral: boolean;
+}
+
+interface FooterLink {
+  label: string;
+  href: string;
+  key?: string;
+}
+
+const supportLinks: FooterLink[] = [
+  { label: "Yordam markazi", href: "#" },
+  { label: "Telegram bot", href: "#" },
+  { label: "FAQ", href: "#" },
+  { label: "Aloqa", href: "#" },
+];
+
+const legalLinks: FooterLink[] = [
+  { label: "Foydalanish shartlari", href: "#" },
+  { label: "Maxfiylik siyosati", href: "#" },
+  { label: "To'lov shartlari", href: "#" },
+];
 
 export const Footer = () => {
   const [promptsCount, setPromptsCount] = useState<number>(0);
+  const [sectionSettings, setSectionSettings] = useState<SectionSettings>({
+    show_pricing: true,
+    show_referral: true,
+  });
+  const [hasActivePlans, setHasActivePlans] = useState(false);
   const [contactSettings, setContactSettings] = useState<ContactSettings>({
     email: "info@shohruxdigital.uz",
     phone: "+998 90 123 45 67",
@@ -44,6 +53,8 @@ export const Footer = () => {
   useEffect(() => {
     fetchPromptsCount();
     fetchContactSettings();
+    fetchSectionSettings();
+    checkActivePlans();
   }, []);
 
   const fetchPromptsCount = async () => {
@@ -55,6 +66,31 @@ export const Footer = () => {
     if (count !== null) {
       setPromptsCount(count);
     }
+  };
+
+  const fetchSectionSettings = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "section_visibility")
+      .maybeSingle();
+    
+    if (data?.value) {
+      const settings = data.value as unknown as SectionSettings;
+      setSectionSettings({
+        show_pricing: settings.show_pricing ?? true,
+        show_referral: settings.show_referral ?? true,
+      });
+    }
+  };
+
+  const checkActivePlans = async () => {
+    const { count } = await supabase
+      .from("pricing_plans")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true);
+    
+    setHasActivePlans((count || 0) > 0);
   };
 
   const fetchContactSettings = async () => {
@@ -75,6 +111,17 @@ export const Footer = () => {
       });
     }
   };
+
+  // Build platform links dynamically
+  const showPricing = sectionSettings.show_pricing && hasActivePlans;
+  const showReferral = sectionSettings.show_referral;
+
+  const platformLinks: FooterLink[] = [
+    { label: "Promtlar", href: "/prompts" },
+    { label: "Kategoriyalar", href: "#categories" },
+    ...(showPricing ? [{ label: "Narxlar", href: "#pricing" }] : []),
+    ...(showReferral ? [{ label: "Referral", href: "#referral" }] : []),
+  ];
 
   const formatCount = (count: number): string => {
     if (count >= 1000) {
@@ -118,7 +165,7 @@ export const Footer = () => {
           <div>
             <h3 className="font-semibold text-foreground mb-4">Platforma</h3>
             <ul className="space-y-2.5">
-              {footerLinks.platform.map((link) => (
+              {platformLinks.map((link) => (
                 <li key={link.label}>
                   {link.href.startsWith("/") ? (
                     <Link 
@@ -143,7 +190,7 @@ export const Footer = () => {
           <div>
             <h3 className="font-semibold text-foreground mb-4">Yordam</h3>
             <ul className="space-y-2.5">
-              {footerLinks.support.map((link) => (
+              {supportLinks.map((link) => (
                 <li key={link.label}>
                   <a 
                     href={link.href}
@@ -159,7 +206,7 @@ export const Footer = () => {
           <div>
             <h3 className="font-semibold text-foreground mb-4">Huquqiy</h3>
             <ul className="space-y-2.5">
-              {footerLinks.legal.map((link) => (
+              {legalLinks.map((link) => (
                 <li key={link.label}>
                   <a 
                     href={link.href}

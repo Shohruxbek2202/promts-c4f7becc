@@ -131,33 +131,35 @@ export const Hero = () => {
             </Link>
           </motion.div>
 
-          {/* Stats Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-16 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto"
-          >
-            {[
-              { icon: Target, value: stats.prompts > 0 ? `${stats.prompts}+` : "0", label: "Promtlar" },
-              { icon: Zap, value: stats.categories > 0 ? `${stats.categories}` : "0", label: "Kategoriyalar" },
-              { icon: Sparkles, value: stats.users > 0 ? `${stats.users}+` : "0", label: "Foydalanuvchilar" },
-            ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
-                className="glass-card p-4 md:p-6 text-center"
-              >
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-                </div>
-                <span className="block text-2xl md:text-3xl font-bold text-foreground tracking-tight">{stat.value}</span>
-                <span className="text-sm text-muted-foreground">{stat.label}</span>
-              </motion.div>
-            ))}
-          </motion.div>
+          {/* Stats Section - only show if there's meaningful data */}
+          {(stats.prompts > 0 || stats.categories > 0 || stats.users > 0) && (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="mt-16 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto"
+            >
+              {[
+                { icon: Target, value: stats.prompts > 0 ? `${stats.prompts}+` : null, label: "Promtlar" },
+                { icon: Zap, value: stats.categories > 0 ? `${stats.categories}` : null, label: "Kategoriyalar" },
+                { icon: Sparkles, value: stats.users > 0 ? `${stats.users}+` : null, label: "Foydalanuvchilar" },
+              ].filter(stat => stat.value !== null).map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
+                  className="glass-card p-4 md:p-6 text-center"
+                >
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                  </div>
+                  <span className="block text-2xl md:text-3xl font-bold text-foreground tracking-tight">{stat.value}</span>
+                  <span className="text-sm text-muted-foreground">{stat.label}</span>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </div>
     </section>
