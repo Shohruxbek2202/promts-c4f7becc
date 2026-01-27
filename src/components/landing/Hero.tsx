@@ -85,18 +85,11 @@ export const Hero = () => {
               {/* Selection box background */}
               <span className="absolute -inset-x-3 -inset-y-1 bg-primary/20 rounded-lg" />
               
-              {/* Corner handles - top left */}
-              <span className="absolute -left-4 -top-2 w-3 h-3 border-2 border-primary bg-primary rounded-full" />
-              {/* Corner handles - top right */}
-              <span className="absolute -right-4 -top-2 w-3 h-3 border-2 border-primary bg-primary rounded-full" />
-              {/* Corner handles - bottom left */}
-              <span className="absolute -left-4 -bottom-2 w-3 h-3 border-2 border-primary bg-primary rounded-full" />
-              {/* Corner handles - bottom right */}
-              <span className="absolute -right-4 -bottom-2 w-3 h-3 border-2 border-primary bg-primary rounded-full" />
+              {/* Corner handle - top left */}
+              <span className="absolute -left-4 -top-2 w-3 h-3 bg-amber-400 rounded-full shadow-md" />
               
-              {/* Vertical selection lines */}
-              <span className="absolute -left-4 top-1 bottom-1 w-0.5 bg-primary" />
-              <span className="absolute -right-4 top-1 bottom-1 w-0.5 bg-primary" />
+              {/* Corner handle - bottom right */}
+              <span className="absolute -right-4 -bottom-2 w-3 h-3 bg-amber-400 rounded-full shadow-md" />
               
               <span className="relative z-10 text-foreground">Marketing Promtlar</span>
             </span>
