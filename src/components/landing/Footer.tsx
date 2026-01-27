@@ -84,33 +84,30 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="bg-foreground text-background">
+    <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
-                <Sparkles className="w-4.5 h-4.5 text-primary-foreground" />
-              </div>
-              <span className="text-lg font-semibold">
+              <span className="text-lg font-bold text-foreground">
                 PromptsHub
               </span>
             </Link>
-            <p className="text-background/60 mb-6 max-w-sm leading-relaxed">
+            <p className="text-muted-foreground mb-6 max-w-sm leading-relaxed">
               {formatCount(promptsCount)} professional marketing promtlari bazasi. 
               Vaqtingizni tejang, natijalaringizni oshiring.
             </p>
             <div className="space-y-2">
-              <a href={`mailto:${contactSettings.email}`} className="flex items-center gap-2 text-sm text-background/60 hover:text-background transition-colors">
+              <a href={`mailto:${contactSettings.email}`} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                 <Mail className="w-4 h-4" />
                 {contactSettings.email}
               </a>
-              <a href={`tel:${contactSettings.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm text-background/60 hover:text-background transition-colors">
+              <a href={`tel:${contactSettings.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                 <Phone className="w-4 h-4" />
                 {contactSettings.phone}
               </a>
-              <p className="flex items-center gap-2 text-sm text-background/60">
+              <p className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4" />
                 {contactSettings.address}
               </p>
@@ -119,21 +116,21 @@ export const Footer = () => {
 
           {/* Links Columns */}
           <div>
-            <h3 className="font-semibold mb-4">Platforma</h3>
+            <h3 className="font-semibold text-foreground mb-4">Platforma</h3>
             <ul className="space-y-2.5">
               {footerLinks.platform.map((link) => (
                 <li key={link.label}>
                   {link.href.startsWith("/") ? (
                     <Link 
                       to={link.href}
-                      className="text-sm text-background/60 hover:text-background transition-colors"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {link.label}
                     </Link>
                   ) : (
                     <a 
                       href={link.href}
-                      className="text-sm text-background/60 hover:text-background transition-colors"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {link.label}
                     </a>
@@ -144,13 +141,13 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Yordam</h3>
+            <h3 className="font-semibold text-foreground mb-4">Yordam</h3>
             <ul className="space-y-2.5">
               {footerLinks.support.map((link) => (
                 <li key={link.label}>
                   <a 
                     href={link.href}
-                    className="text-sm text-background/60 hover:text-background transition-colors"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
                   </a>
@@ -160,13 +157,13 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-4">Huquqiy</h3>
+            <h3 className="font-semibold text-foreground mb-4">Huquqiy</h3>
             <ul className="space-y-2.5">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
                   <a 
                     href={link.href}
-                    className="text-sm text-background/60 hover:text-background transition-colors"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
                   </a>
@@ -177,14 +174,14 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-background/60">
+        <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} ShohruxDigital.uz. Barcha huquqlar himoyalangan.
           </p>
           <div className="flex items-center gap-3">
             <a 
               href={contactSettings.telegram_url} 
-              className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
+              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors text-muted-foreground hover:text-foreground"
               aria-label="Telegram"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -193,7 +190,7 @@ export const Footer = () => {
             </a>
             <a 
               href={contactSettings.instagram_url} 
-              className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
+              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors text-muted-foreground hover:text-foreground"
               aria-label="Instagram"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">

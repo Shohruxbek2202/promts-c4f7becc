@@ -81,8 +81,6 @@ export const Pricing = () => {
 
   return (
     <section id="pricing" className="py-24 relative">
-      <div className="absolute inset-0 bg-muted/30" />
-      
       <div className="container relative mx-auto px-4">
         {/* Section Header */}
         <motion.div
@@ -93,7 +91,7 @@ export const Pricing = () => {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight mb-4">
-            Oddiy va tushunarli narxlar
+            Oddiy va <span className="text-primary">tushunarli</span> narxlar
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Bepul boshlang yoki premium imkoniyatlarga ega bo'ling
