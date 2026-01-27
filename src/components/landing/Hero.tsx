@@ -78,23 +78,23 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.15] tracking-tight mb-6"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.15] tracking-tight mb-6"
           >
             {/* Highlighted text with iPhone selection style */}
             <span className="relative inline-block">
               {/* Selection box background */}
-              <span className="absolute -inset-x-3 -inset-y-1 bg-primary/20 rounded-lg" />
+              <span className="absolute -inset-x-2 sm:-inset-x-3 -inset-y-1 bg-primary/20 rounded-lg" />
               
               {/* Corner handle - top left with line */}
-              <span className="absolute -left-4 -top-2 flex flex-col items-center">
-                <span className="w-0.5 h-4 bg-primary rounded-full -mb-1" />
-                <span className="w-3 h-3 bg-primary rounded-full shadow-lg shadow-primary/30" />
+              <span className="absolute -left-3 sm:-left-4 -top-2 flex flex-col items-center">
+                <span className="w-0.5 h-3 sm:h-4 bg-primary rounded-full -mb-1" />
+                <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-primary rounded-full shadow-lg shadow-primary/30" />
               </span>
               
               {/* Corner handle - bottom right with line */}
-              <span className="absolute -right-4 -bottom-2 flex flex-col items-center">
-                <span className="w-3 h-3 bg-primary rounded-full shadow-lg shadow-primary/30" />
-                <span className="w-0.5 h-4 bg-primary rounded-full -mt-1" />
+              <span className="absolute -right-3 sm:-right-4 -bottom-2 flex flex-col items-center">
+                <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-primary rounded-full shadow-lg shadow-primary/30" />
+                <span className="w-0.5 h-3 sm:h-4 bg-primary rounded-full -mt-1" />
               </span>
               
               <span className="relative z-10 text-foreground">Marketing Promtlar</span>
