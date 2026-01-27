@@ -115,7 +115,7 @@ const Auth = () => {
   }
 
   const features = [
-    "Professional marketing promtlari",
+    "Marketing promtlari",
     "Barcha platformalar uchun tayyor",
     "Muntazam yangilanishlar",
     "10% referral komissiya",
@@ -166,7 +166,7 @@ const Auth = () => {
             </h1>
             <p className="text-lg text-muted-foreground mb-10 max-w-md">
               Google Ads, Meta Ads, Yandex Direct va boshqa platformalar uchun 
-              tayyor professional promtlar to'plami.
+              tayyor promtlar to'plami.
             </p>
           </motion.div>
 

@@ -124,7 +124,7 @@ const Lessons = () => {
               Video Darslar
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Professional <span className="text-gradient">marketing darslari</span>
+              <span className="text-gradient">Marketing darslari</span>
             </h1>
             <p className="text-lg text-muted-foreground">
               AI va marketing bo'yicha to'liq video kurslar. Amaliy bilimlar va real misollar.

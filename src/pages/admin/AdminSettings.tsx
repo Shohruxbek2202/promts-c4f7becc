@@ -506,7 +506,7 @@ const AdminSettings = () => {
           <div className="space-y-2">
             <Label>Sarlavha</Label>
             <Input 
-              placeholder="Professional marketing promtlari bazasi"
+              placeholder="Marketing promtlari bazasi"
               value={heroSettings.title}
               onChange={(e) => setHeroSettings(prev => ({ ...prev, title: e.target.value }))}
             />
