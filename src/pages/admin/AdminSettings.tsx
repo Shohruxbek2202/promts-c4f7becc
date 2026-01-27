@@ -47,6 +47,11 @@ interface HeroSettings {
   subtitle: string;
 }
 
+interface SectionVisibility {
+  show_pricing: boolean;
+  show_referral: boolean;
+}
+
 const AdminSettings = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,6 +80,11 @@ const AdminSettings = () => {
     title: "",
     subtitle: "",
   });
+  const [sectionVisibility, setSectionVisibility] = useState<SectionVisibility>({
+    show_pricing: true,
+    show_referral: true,
+  });
+  const [isSavingSections, setIsSavingSections] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [iconUrl, setIconUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -86,6 +96,7 @@ const AdminSettings = () => {
     fetchPaymentSettings();
     fetchContactSettings();
     fetchHeroSettings();
+    fetchSectionVisibility();
   }, []);
 
   const fetchCategories = async () => {
@@ -149,6 +160,56 @@ const AdminSettings = () => {
         subtitle: settings.subtitle || "",
       });
     }
+  };
+
+  const fetchSectionVisibility = async () => {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "section_visibility")
+      .maybeSingle();
+    
+    if (data?.value) {
+      const settings = data.value as unknown as SectionVisibility;
+      setSectionVisibility({
+        show_pricing: settings.show_pricing ?? true,
+        show_referral: settings.show_referral ?? true,
+      });
+    }
+  };
+
+  const saveSectionVisibility = async () => {
+    setIsSavingSections(true);
+    
+    const { data: existing } = await supabase
+      .from("site_settings")
+      .select("id")
+      .eq("key", "section_visibility")
+      .maybeSingle();
+
+    let error;
+    const settingsValue = sectionVisibility as unknown as Json;
+    
+    if (existing) {
+      const result = await supabase
+        .from("site_settings")
+        .update({ value: settingsValue })
+        .eq("key", "section_visibility");
+      error = result.error;
+    } else {
+      const result = await supabase
+        .from("site_settings")
+        .insert([{ key: "section_visibility", value: settingsValue }]);
+      error = result.error;
+    }
+
+    if (error) {
+      toast.error("Saqlashda xatolik: " + error.message);
+    } else {
+      toast.success("Bo'lim sozlamalari saqlandi");
+    }
+    
+    setIsSavingSections(false);
   };
 
   const saveHeroSettings = async () => {
@@ -461,6 +522,62 @@ const AdminSettings = () => {
           </div>
           <Button onClick={saveHeroSettings} disabled={isSavingHero}>
             {isSavingHero ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Saqlanmoqda...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Saqlash
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* Section Visibility */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="p-6 border-b border-border flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+            <FolderOpen className="w-5 h-5 text-amber-500" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">
+              Bo'limlarni ko'rsatish
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Bosh sahifada qaysi bo'limlar ko'rinishini boshqaring
+            </p>
+          </div>
+        </div>
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30">
+            <div>
+              <p className="font-medium text-foreground">Narxlar bo'limi</p>
+              <p className="text-sm text-muted-foreground">
+                Bosh sahifada narxlar ko'rinsin (faol narx planlari bo'lsa)
+              </p>
+            </div>
+            <Switch
+              checked={sectionVisibility.show_pricing}
+              onCheckedChange={(checked) => setSectionVisibility(prev => ({ ...prev, show_pricing: checked }))}
+            />
+          </div>
+          <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30">
+            <div>
+              <p className="font-medium text-foreground">Referral bo'limi</p>
+              <p className="text-sm text-muted-foreground">
+                Bosh sahifada referral dasturi ko'rinsin
+              </p>
+            </div>
+            <Switch
+              checked={sectionVisibility.show_referral}
+              onCheckedChange={(checked) => setSectionVisibility(prev => ({ ...prev, show_referral: checked }))}
+            />
+          </div>
+          <Button onClick={saveSectionVisibility} disabled={isSavingSections}>
+            {isSavingSections ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Saqlanmoqda...
