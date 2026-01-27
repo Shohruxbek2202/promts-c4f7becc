@@ -32,7 +32,7 @@ export const Referral = () => {
   const { user } = useAuth();
 
   return (
-    <section id="referral" className="py-24 relative overflow-hidden">
+    <section id="referral" className="py-12 md:py-16 relative overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="relative max-w-5xl mx-auto">
           
