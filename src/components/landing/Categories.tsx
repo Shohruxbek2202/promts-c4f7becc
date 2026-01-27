@@ -97,7 +97,7 @@ export const Categories = () => {
 
   if (isLoading) {
     return (
-      <section id="categories" className="py-24 relative">
+      <section id="categories" className="py-12 md:py-16 relative">
         <div className="container mx-auto px-4">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -108,7 +108,7 @@ export const Categories = () => {
   }
 
   return (
-    <section id="categories" className="py-24 relative">
+    <section id="categories" className="py-12 md:py-16 relative">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div

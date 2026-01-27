@@ -66,7 +66,7 @@ const itemVariants = {
 
 export const Features = () => {
   return (
-    <section id="features" className="py-24 bg-background">
+    <section id="features" className="py-12 md:py-16 bg-background">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
@@ -74,7 +74,7 @@ export const Features = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-16"
+          className="text-center mb-10"
         >
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             Nima uchun bizni <span className="text-primary">tanlash</span> kerak?

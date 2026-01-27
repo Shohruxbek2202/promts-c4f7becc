@@ -80,7 +80,7 @@ export const Pricing = () => {
   const popularPlan = plans.find(p => p.slug === "monthly") || plans[1];
 
   return (
-    <section id="pricing" className="py-24 relative">
+    <section id="pricing" className="py-12 md:py-16 relative">
       <div className="container relative mx-auto px-4">
         {/* Section Header */}
         <motion.div
@@ -88,7 +88,7 @@ export const Pricing = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-10"
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight mb-4">
             Oddiy va <span className="text-primary">tushunarli</span> narxlar

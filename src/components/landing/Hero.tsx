@@ -46,7 +46,7 @@ export const Hero = () => {
   }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-background" />
       
@@ -71,7 +71,7 @@ export const Hero = () => {
       </div>
 
       {/* Content */}
-      <div className="container relative z-10 mx-auto px-4 pt-24 pb-16">
+      <div className="container relative z-10 mx-auto px-4 pt-20 pb-12">
         <div className="max-w-4xl mx-auto text-center">
           {/* Main Headline with iPhone-style Selection Highlight */}
           <motion.h1
@@ -136,7 +136,7 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-24 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto"
+            className="mt-16 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto"
           >
             {[
               { icon: Target, value: stats.prompts > 0 ? `${stats.prompts}+` : "0", label: "Promtlar" },
