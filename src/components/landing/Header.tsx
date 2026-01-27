@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Sparkles, LogOut, LayoutDashboard, Shield, Moon, Sun, CreditCard, Crown } from "lucide-react";
+import { Menu, X, Sparkles, LogOut, LayoutDashboard, Shield, Moon, Sun, CreditCard, Crown, ArrowRight } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
@@ -78,16 +78,13 @@ export const Header = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50 glass"
+      className="fixed top-4 left-4 right-4 z-50 glass rounded-2xl max-w-6xl mx-auto"
     >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 md:h-18">
+      <div className="px-4 md:px-6">
+        <div className="flex items-center justify-between h-14">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg">
-              <Sparkles className="w-4.5 h-4.5 text-primary-foreground" />
-            </div>
-            <span className="text-lg font-semibold text-foreground tracking-tight">
+            <span className="text-lg font-bold text-foreground tracking-tight">
               PromptsHub
             </span>
           </Link>
@@ -200,18 +197,12 @@ export const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <>
-                <Link to="/auth">
-                  <Button variant="ghost" size="sm" className="rounded-full">
-                    Kirish
-                  </Button>
-                </Link>
-                <Link to="/auth">
-                  <Button size="sm" className="rounded-full shadow-lg">
-                    Boshlash
-                  </Button>
-                </Link>
-              </>
+              <Link to="/auth">
+                <Button size="sm" className="rounded-full px-6 bg-primary hover:bg-primary/90 text-primary-foreground">
+                  Obuna bo'lish
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </Link>
             )}
           </div>
 

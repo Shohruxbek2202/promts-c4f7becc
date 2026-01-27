@@ -116,83 +116,54 @@ export const Categories = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="flex items-center justify-between mb-12"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight mb-4">
-            Kategoriyalarni kashf qiling
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+            Kategoriyalar
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {categories.length}+ kategoriya va professional promtlar sizni kutmoqda
-          </p>
+          <Link 
+            to="/prompts" 
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+          >
+            Barchasi
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </motion.div>
 
-        {/* Categories - Vertical Sidebar Style like Apple Notes */}
-        <div className="max-w-4xl mx-auto">
-          <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden shadow-xl">
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-border/50 bg-muted/30">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-red-500" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                <div className="w-3 h-3 rounded-full bg-green-500" />
-                <span className="ml-4 text-sm font-medium text-muted-foreground">Kategoriyalar</span>
-              </div>
-            </div>
-
-            {/* Categories List */}
-            <div className="divide-y divide-border/30">
-              {categories.map((category, index) => (
-                <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.3, delay: index * 0.03 }}
-                >
-                  <Link 
-                    to={`/prompts?category=${category.slug}`}
-                    className="group flex items-center gap-4 px-6 py-4 hover:bg-primary/5 transition-all duration-200"
-                  >
-                    {/* Icon */}
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradientColors[index % gradientColors.length]} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
-                      {renderIcon(category.icon, index)}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-                        {category.name}
-                      </h3>
-                      {category.description && (
-                        <p className="text-sm text-muted-foreground truncate">
-                          {category.description}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Count Badge */}
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className="text-sm font-medium text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
-                        {promptCounts[category.id] || 0} promt
-                      </span>
-                      <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-4 border-t border-border/50 bg-muted/20">
+        {/* Categories Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {categories.slice(0, 6).map((category, index) => (
+            <motion.div
+              key={category.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+            >
               <Link 
-                to="/prompts" 
-                className="flex items-center justify-center gap-2 text-primary font-medium hover:gap-3 transition-all"
+                to={`/prompts?category=${category.slug}`}
+                className="group glass-card flex items-center gap-4 p-5 hover:-translate-y-1 transition-all duration-300"
               >
-                Barcha promtlarni ko'rish
-                <ArrowRight className="w-4 h-4" />
+                {/* Icon */}
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradientColors[index % gradientColors.length]} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                  {renderIcon(category.icon, index)}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                    {category.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {promptCounts[category.id] || 0} promt
+                  </p>
+                </div>
+
+                {/* Arrow */}
+                <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </Link>
-            </div>
-          </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

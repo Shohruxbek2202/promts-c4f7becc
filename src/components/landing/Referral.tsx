@@ -35,9 +35,6 @@ export const Referral = () => {
     <section id="referral" className="py-24 relative overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="relative max-w-5xl mx-auto">
-          {/* Background decoration */}
-          <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl" />
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}

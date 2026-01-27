@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Zap, Target, Play } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
@@ -44,103 +44,85 @@ export const Hero = () => {
     fetchStats();
     fetchHeroText();
   }, []);
+
   return (
-    <section className="relative min-h-screen overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-hero" />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background with gradient overlay */}
+      <div className="absolute inset-0 bg-background" />
       
-      {/* Animated orbs */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Subtle animated gradient orbs */}
+      <div className="absolute inset-0 overflow-hidden opacity-30">
         <motion.div
           animate={{ 
-            x: [0, 50, 0],
-            y: [0, -30, 0],
+            x: [0, 100, 0],
+            y: [0, -50, 0],
           }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl"
+          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px]"
         />
         <motion.div
           animate={{ 
-            x: [0, -40, 0],
-            y: [0, 40, 0],
+            x: [0, -80, 0],
+            y: [0, 60, 0],
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{ 
-            x: [0, 30, 0],
-            y: [0, 20, 0],
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/2 right-1/3 w-[400px] h-[400px] bg-pink-500/5 rounded-full blur-3xl"
+          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[100px]"
         />
       </div>
 
       {/* Content */}
-      <div className="container relative z-10 mx-auto px-4 pt-32 pb-24">
+      <div className="container relative z-10 mx-auto px-4 pt-24 pb-16">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8"
-          >
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-sm font-medium text-foreground">{stats.prompts > 0 ? `${stats.prompts.toLocaleString()}+ professional promtlar` : "Professional promtlar to'plami"}</span>
-          </motion.div>
-
-          {/* Headline */}
+          {/* Main Headline with Blue Highlight Box */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight mb-6"
+            transition={{ duration: 0.7 }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.15] tracking-tight mb-6"
           >
-            Marketing promtlar{" "}
-            <span className="text-gradient">bazasi</span>
+            <span className="inline-block relative">
+              <span className="relative z-10 px-3 py-1 bg-primary text-primary-foreground rounded-lg">
+                Marketing Promtlar
+              </span>
+            </span>
             <br />
-            <span className="text-muted-foreground">eng katta to'plami</span>
+            <span className="text-foreground">Bazasi</span>
           </motion.h1>
 
           {/* Subtitle */}
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
           >
             {stats.prompts > 0 ? `${stats.prompts}+ ${heroText.title}` : heroText.title}. {heroText.subtitle}
           </motion.p>
 
-          {/* CTA Buttons */}
+          {/* CTA Button */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
+            transition={{ duration: 0.7, delay: 0.25 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <Link to={user ? "/dashboard" : "/auth"}>
-              <Button size="lg" className="rounded-full px-8 h-12 shadow-lg shadow-primary/25 text-base">
-                {user ? "Dashboardga o'tish" : "Bepul boshlash"}
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
             <Link to="/prompts">
-              <Button variant="outline" size="lg" className="rounded-full px-8 h-12 glass-button text-base">
-                <Play className="w-4 h-4 mr-2" />
+              <Button 
+                size="lg" 
+                className="rounded-full px-8 h-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 text-base font-medium"
+              >
                 Promtlarni ko'rish
+                <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
           </motion.div>
 
-          {/* Stats */}
+          {/* Stats Section */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-20 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto"
+            className="mt-24 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto"
           >
             {[
               { icon: Target, value: stats.prompts > 0 ? `${stats.prompts}+` : "0", label: "Promtlar" },
@@ -164,37 +146,6 @@ export const Hero = () => {
           </motion.div>
         </div>
       </div>
-
-      {/* Floating elements */}
-      <motion.div
-        animate={{ y: [-8, 8, -8] }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-40 right-[15%] hidden lg:block"
-      >
-        <div className="glass-card w-14 h-14 flex items-center justify-center">
-          <span className="text-2xl">🎯</span>
-        </div>
-      </motion.div>
-
-      <motion.div
-        animate={{ y: [8, -8, 8] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-40 left-[15%] hidden lg:block"
-      >
-        <div className="glass-card w-14 h-14 flex items-center justify-center">
-          <span className="text-2xl">✨</span>
-        </div>
-      </motion.div>
-
-      <motion.div
-        animate={{ y: [-5, 10, -5] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-60 left-[10%] hidden lg:block"
-      >
-        <div className="glass-card w-12 h-12 flex items-center justify-center">
-          <span className="text-xl">🚀</span>
-        </div>
-      </motion.div>
     </section>
   );
 };

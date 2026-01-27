@@ -66,7 +66,7 @@ const itemVariants = {
 
 export const Features = () => {
   return (
-    <section id="features" className="py-24 bg-muted/30">
+    <section id="features" className="py-24 bg-background">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
@@ -76,12 +76,8 @@ export const Features = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 mb-6">
-            <Zap className="w-4 h-4 text-secondary" />
-            <span className="text-sm font-medium text-secondary">Kuchli xususiyatlar</span>
-          </div>
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Nima uchun bizni tanlash kerak?
+            Nima uchun bizni <span className="text-primary">tanlash</span> kerak?
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Professional marketing promtlari bilan vaqtingizni tejang va natijalaringizni maksimal darajada oshiring.
@@ -100,7 +96,7 @@ export const Features = () => {
             <motion.div
               key={feature.title}
               variants={itemVariants}
-              className="group bg-card rounded-2xl p-6 border border-border shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1"
+              className="group glass-card p-6 hover:-translate-y-1 transition-all duration-300"
             >
               <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
                 <feature.icon className="w-7 h-7 text-primary" />
