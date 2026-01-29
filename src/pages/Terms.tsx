@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
-import { Button } from "@/components/ui/button";
-import { FileText, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { FileText } from "lucide-react";
 import { SEOHead, Breadcrumb } from "@/components/seo";
+import { useContactSettings } from "@/hooks/useContactSettings";
 
 const Terms = () => {
+  const { settings } = useContactSettings();
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -100,8 +101,8 @@ const Terms = () => {
               <h2 className="text-xl font-semibold text-foreground mb-4">6. Bog'lanish</h2>
               <p className="text-muted-foreground">
                 Savollaringiz bo'lsa, biz bilan bog'laning:<br />
-                Email: info@shohruxdigital.uz<br />
-                Telefon: +998 90 123 45 67
+                Email: {settings.email}<br />
+                Telefon: {settings.phone}
               </p>
             </div>
           </div>

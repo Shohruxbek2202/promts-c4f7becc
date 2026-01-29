@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
-import { Button } from "@/components/ui/button";
-import { CreditCard, ArrowLeft, CheckCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { CreditCard, CheckCircle } from "lucide-react";
 import { SEOHead, Breadcrumb } from "@/components/seo";
+import { useContactSettings } from "@/hooks/useContactSettings";
 
 const PaymentTerms = () => {
+  const { settings } = useContactSettings();
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -91,7 +92,7 @@ const PaymentTerms = () => {
                 </p>
                 <p>Pul qaytarish uchun:</p>
                 <ul className="list-disc list-inside space-y-2">
-                  <li>info@shohruxdigital.uz ga xat yozing</li>
+                  <li>{settings.email} ga xat yozing</li>
                   <li>To'lov raqami va sababini ko'rsating</li>
                   <li>3-5 ish kuni ichida pul qaytariladi</li>
                 </ul>
@@ -111,8 +112,8 @@ const PaymentTerms = () => {
               <h2 className="text-xl font-semibold text-foreground mb-4">Bog'lanish</h2>
               <p className="text-muted-foreground">
                 To'lov bilan bog'liq savollaringiz bo'lsa:<br />
-                Email: billing@shohruxdigital.uz<br />
-                Telefon: +998 90 123 45 67
+                Email: {settings.email}<br />
+                Telefon: {settings.phone}
               </p>
             </div>
           </div>
