@@ -73,12 +73,12 @@ export const Hero = () => {
               {/* iOS-style handle - top left: dot at TOP, line goes DOWN */}
               <span className="absolute -left-3.5 sm:-left-4 -top-2 flex flex-col items-center">
                 <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-primary rounded-full shadow-lg shadow-primary/40 -mb-1" />
-                <span className="w-0.5 h-6 sm:h-8 bg-primary rounded-full" />
+                <span className="w-0.5 h-8 sm:h-10 bg-primary rounded-full" />
               </span>
               
               {/* iOS-style handle - bottom right: line goes UP, dot at BOTTOM */}
               <span className="absolute -right-3.5 sm:-right-4 -bottom-2 flex flex-col items-center">
-                <span className="w-0.5 h-6 sm:h-8 bg-primary rounded-full" />
+                <span className="w-0.5 h-8 sm:h-10 bg-primary rounded-full" />
                 <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-primary rounded-full shadow-lg shadow-primary/40 -mt-1" />
               </span>
               
