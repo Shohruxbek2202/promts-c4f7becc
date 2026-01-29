@@ -28,16 +28,30 @@ interface SectionSettings {
   show_referral: boolean;
 }
 
+interface PublicStats {
+  users_count: number;
+  prompts_count: number;
+  categories_count: number;
+  lessons_count: number;
+}
+
 const Index = () => {
   const [sectionSettings, setSectionSettings] = useState<SectionSettings>({
     show_pricing: true,
     show_referral: true,
   });
   const [hasActivePlans, setHasActivePlans] = useState(false);
+  const [stats, setStats] = useState<PublicStats>({
+    users_count: 0,
+    prompts_count: 0,
+    categories_count: 0,
+    lessons_count: 0,
+  });
 
   useEffect(() => {
     fetchSettings();
     checkActivePlans();
+    fetchPublicStats();
   }, []);
 
   const fetchSettings = async () => {
@@ -63,6 +77,13 @@ const Index = () => {
       .eq("is_active", true);
     
     setHasActivePlans((count || 0) > 0);
+  };
+
+  const fetchPublicStats = async () => {
+    const { data } = await supabase.rpc("get_public_stats");
+    if (data) {
+      setStats(data as unknown as PublicStats);
+    }
   };
 
   // Pricing only shows if setting is enabled AND there are active plans
@@ -102,29 +123,25 @@ const Index = () => {
   const softwareSchema: SoftwareApplicationSchema = {
     type: "SoftwareApplication",
     name: "PromptsHub - Marketing AI Promtlari",
-    description: "Digital marketing mutaxassislari uchun tayyor AI promtlar bazasi. ChatGPT, Google Ads, Meta Ads uchun optimallashtirilgan.",
+    description: "Digital marketing mutaxassislari uchun O'zbek tilida tayyor AI promtlar bazasi. ChatGPT, Google Ads, Meta Ads uchun optimallashtirilgan.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     offers: {
       price: "0",
       priceCurrency: "UZS",
     },
-    aggregateRating: {
-      ratingValue: 4.8,
-      reviewCount: 150,
-      bestRating: 5,
-    },
     author: {
-      name: "PromptsHub",
-      url: "https://mpbs.uz",
+      name: "ShohruxDigital",
+      url: "https://shohruxdigital.uz",
     },
     featureList: [
-      "500+ tayyor marketing promtlari",
+      "O'zbek tilida tayyor marketing promtlari",
       "Google Ads uchun promtlar",
       "Meta Ads uchun promtlar", 
       "Yandex Direct promtlari",
       "Har hafta yangi promtlar",
-      "Video darsliklar"
+      "Video darsliklar",
+      "3.5+ yillik marketing tajribasi"
     ],
     softwareVersion: "2.0",
     dateModified: new Date().toISOString().split("T")[0],
@@ -136,7 +153,11 @@ const Index = () => {
     questions: [
       {
         question: "PromptsHub nima?",
-        answer: "PromptsHub - bu digital marketing mutaxassislari uchun tayyor AI promtlar bazasi. ChatGPT, Google Ads, Meta Ads va boshqa platformalar uchun optimallashtirilgan promtlarni topishingiz mumkin."
+        answer: "PromptsHub - bu digital marketing mutaxassislari uchun O'zbek tilida tayyor AI promtlar bazasi. Har bir promt ChatGPT tushunishi uchun maxsus optimallashtirilgan."
+      },
+      {
+        question: "Promtlar qaysi tilda yozilgan?",
+        answer: "Promtlar O'zbek tilida tushuntirilgan va AI (ChatGPT, Claude) bilan ishlash uchun maxsus formatda tayyorlangan. Promt matnining o'zi ingliz yoki rus tilida bo'lishi mumkin, chunki AI shu tillarda yaxshiroq ishlaydi."
       },
       {
         question: "Promtlardan qanday foydalanaman?",
@@ -147,29 +168,41 @@ const Index = () => {
         answer: "Ha, asosiy promtlar bepul. Premium promtlar va video darsliklar uchun obuna talab qilinadi."
       },
       {
-        question: "Qaysi platformalar uchun promtlar bor?",
-        answer: "Google Ads, Meta Ads (Facebook, Instagram), Yandex Direct, TikTok Ads, LinkedIn Ads, Email marketing va Content marketing uchun promtlar mavjud."
-      },
-      {
-        question: "Promtlar qanchalik samarali?",
-        answer: "Bizning promtlarimiz 150+ marketing mutaxassisi tomonidan sinovdan o'tkazilgan va o'rtacha 40% vaqtni tejaydi."
+        question: "Loyiha ortida kim bor?",
+        answer: "PromptsHub 3.5+ yillik digital marketing tajribasiga ega ShohruxDigital jamoasi tomonidan yaratilgan. Barcha promtlar real loyihalarda sinovdan o'tkazilgan."
       }
     ]
   };
 
-  // E-E-A-T Trust Signals
+  // E-E-A-T Trust Signals - haqiqiy ma'lumotlar bazadan
   const trustSignals: TrustSignal[] = [
-    { icon: "users", value: "500+", label: "Foydalanuvchilar" },
-    { icon: "star", value: "4.8", label: "O'rtacha baho" },
-    { icon: "check", value: "150+", label: "Tayyor promtlar" },
-    { icon: "award", value: "3+", label: "Yillik tajriba" },
+    { 
+      icon: "users", 
+      value: stats.users_count > 0 ? `${stats.users_count}+` : "—", 
+      label: "Foydalanuvchilar" 
+    },
+    { 
+      icon: "check", 
+      value: stats.prompts_count > 0 ? `${stats.prompts_count}+` : "—", 
+      label: "O'zbek tilida promtlar" 
+    },
+    { 
+      icon: "star", 
+      value: `${stats.categories_count}`, 
+      label: "Kategoriyalar" 
+    },
+    { 
+      icon: "award", 
+      value: "3.5+", 
+      label: "Yillik tajriba" 
+    },
   ];
 
   // Best Fit Brief (AI/GEO optimization)
   const bestFitData: BestFitInfo = {
     title: "PromptsHub kimlar uchun?",
-    subtitle: "AI promtlar bazasidan maksimal foyda olish uchun",
-    tag: "2026 SaaS SEO",
+    subtitle: "O'zbek tilida tushuntirilgan AI promtlar bazasi",
+    tag: "3.5+ yillik tajriba",
     targetAudience: [
       "Digital marketing agentliklari",
       "Freelancer marketologlar",
@@ -181,17 +214,17 @@ const Index = () => {
       "Reklama kampaniyalarini tez ishga tushirish kerak bo'lganda",
       "ChatGPT dan professional natija olishni xohlasangiz",
       "Marketing kontent yaratishda vaqt tejashni istasangiz",
-      "Yangi marketing g'oyalar kerak bo'lganda",
+      "O'zbek tilida tushuntirilgan promtlar kerak bo'lganda",
     ],
     notIdealFor: [
       "Kodlash/dasturlash promtlari izlovchilar",
-      "Shaxsiy foydalanish uchun",
+      "Ingliz tilini bilmaydigan foydalanuvchilar (promtlarning ba'zilari inglizcha)",
     ],
     keyBenefits: [
-      "40% vaqt tejash",
-      "Professional natijalar",
+      "O'zbek tilida tushuntirilgan",
+      "Real loyihalarda sinovdan o'tgan",
+      "3.5+ yillik tajriba asosida",
       "Doimiy yangilanishlar",
-      "O'zbek tilida",
     ],
     ctaText: "Promtlarni ko'rish",
     ctaLink: "/prompts",
