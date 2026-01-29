@@ -31,6 +31,7 @@ const AdminPromptForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [savedPromptId, setSavedPromptId] = useState<string | null>(id || null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -38,6 +39,7 @@ const AdminPromptForm = () => {
     description: "",
     content: "",
     instructions: "",
+    instructions_video_url: "",
     examples: "",
     category_id: "",
     difficulty: "beginner",
@@ -81,6 +83,7 @@ const AdminPromptForm = () => {
         description: data.description || "",
         content: data.content || "",
         instructions: data.instructions || "",
+        instructions_video_url: "",
         examples: data.examples || "",
         category_id: data.category_id || "",
         difficulty: data.difficulty || "beginner",
@@ -91,6 +94,7 @@ const AdminPromptForm = () => {
         seo_description: data.seo_description || "",
         is_published: data.is_published ?? true,
       });
+      setSavedPromptId(data.id);
     }
     setIsLoading(false);
   };
@@ -140,6 +144,7 @@ const AdminPromptForm = () => {
     };
 
     let error;
+    let newPromptId: string | null = null;
 
     if (isEditing) {
       const result = await supabase
@@ -150,8 +155,14 @@ const AdminPromptForm = () => {
     } else {
       const result = await supabase
         .from("prompts")
-        .insert([promptData]);
+        .insert([promptData])
+        .select("id")
+        .single();
       error = result.error;
+      if (result.data) {
+        newPromptId = result.data.id;
+        setSavedPromptId(result.data.id);
+      }
     }
 
     setIsSaving(false);
@@ -160,7 +171,12 @@ const AdminPromptForm = () => {
       toast.error("Xatolik yuz berdi: " + error.message);
     } else {
       toast.success(isEditing ? "Promt yangilandi" : "Promt yaratildi");
-      navigate("/admin/prompts");
+      if (!isEditing && newPromptId) {
+        // Navigate to edit page to allow adding media
+        navigate(`/admin/prompts/${newPromptId}/edit`);
+      } else {
+        navigate("/admin/prompts");
+      }
     }
   };
 
@@ -288,7 +304,7 @@ const AdminPromptForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="instructions">Qo'llanma</Label>
+            <Label htmlFor="instructions">Qo'llanma (matn)</Label>
             <Textarea
               id="instructions"
               value={formData.instructions}
@@ -299,7 +315,20 @@ const AdminPromptForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="examples">Namunalar</Label>
+            <Label htmlFor="instructions_video_url">Qo'llanma video URL (ixtiyoriy)</Label>
+            <Input
+              id="instructions_video_url"
+              value={formData.instructions_video_url}
+              onChange={(e) => setFormData(prev => ({ ...prev, instructions_video_url: e.target.value }))}
+              placeholder="https://youtube.com/watch?v=... yoki https://vimeo.com/..."
+            />
+            <p className="text-xs text-muted-foreground">
+              YouTube yoki Vimeo video havolasini kiriting
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="examples">Namunalar (matn)</Label>
             <Textarea
               id="examples"
               value={formData.examples}
@@ -310,13 +339,16 @@ const AdminPromptForm = () => {
           </div>
         </div>
 
-        {/* Media Manager - only show when editing */}
-        {isEditing && id && (
+        {/* Media Manager - show when prompt is saved */}
+        {savedPromptId && (
           <div className="bg-card rounded-xl p-6 border border-border space-y-6">
             <h2 className="font-display text-lg font-semibold text-foreground">
               Media (Video va Rasmlar)
             </h2>
-            <PromptMediaManager promptId={id} />
+            <p className="text-sm text-muted-foreground">
+              Qo'llanma videolari va natija rasmlarini qo'shing
+            </p>
+            <PromptMediaManager promptId={savedPromptId} />
           </div>
         )}
 

@@ -13,18 +13,18 @@ import {
 const features = [
   {
     icon: FolderTree,
-    title: "4 darajali kategoriya",
-    description: "Chuqur tuzilgan kategoriya tizimi orqali kerakli promtni tez toping.",
+    title: "Kategoriyalangan baza",
+    description: "Tartibli kategoriya tizimi orqali kerakli promtni osonlik bilan toping.",
   },
   {
     icon: FileText,
-    title: "To'liq dokumentatsiya",
-    description: "Har bir promt bilan qadam-baqadam instruksiya va ishlatish misollari.",
+    title: "To'liq qo'llanma",
+    description: "Har bir promt bilan qadam-baqadam instruksiya va video qo'llanmalar.",
   },
   {
     icon: Layers,
-    title: "Versiya nazorati",
-    description: "Promtlarning barcha versiyalarini ko'ring va taqqoslang.",
+    title: "Video darsliklar",
+    description: "AI dan samarali foydalanishni o'rgatuvchi professional video kurslar.",
   },
   {
     icon: Shield,

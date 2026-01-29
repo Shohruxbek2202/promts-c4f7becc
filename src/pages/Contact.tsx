@@ -11,16 +11,16 @@ import {
   Mail, 
   Phone, 
   MapPin,
-  ArrowLeft,
   Send
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SEOHead, Breadcrumb } from "@/components/seo";
+import { useContactSettings } from "@/hooks/useContactSettings";
 
 const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { settings } = useContactSettings();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -138,10 +138,10 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold text-foreground">Email</h3>
                       <a 
-                        href="mailto:info@shohruxdigital.uz" 
+                        href={`mailto:${settings.email}`}
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
-                        info@shohruxdigital.uz
+                        {settings.email}
                       </a>
                     </div>
                   </div>
@@ -157,10 +157,10 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold text-foreground">Telefon</h3>
                       <a 
-                        href="tel:+998901234567" 
+                        href={`tel:${settings.phone.replace(/\s/g, '')}`}
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
-                        +998 90 123 45 67
+                        {settings.phone}
                       </a>
                     </div>
                   </div>
@@ -176,7 +176,7 @@ const Contact = () => {
                     <div>
                       <h3 className="font-semibold text-foreground">Manzil</h3>
                       <p className="text-muted-foreground">
-                        Toshkent shahri, O'zbekiston
+                        {settings.address}
                       </p>
                     </div>
                   </div>
@@ -188,7 +188,9 @@ const Contact = () => {
                   <h3 className="font-semibold text-foreground mb-2">Ijtimoiy tarmoqlar</h3>
                   <div className="flex gap-3">
                     <a 
-                      href="#" 
+                      href={settings.telegram_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="p-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
                       aria-label="Telegram"
                     >
@@ -197,7 +199,9 @@ const Contact = () => {
                       </svg>
                     </a>
                     <a 
-                      href="#" 
+                      href={settings.instagram_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="p-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
                       aria-label="Instagram"
                     >
