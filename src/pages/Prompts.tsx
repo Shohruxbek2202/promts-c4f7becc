@@ -30,6 +30,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { SEOHead, SchemaMarkup, ItemListSchema, Breadcrumb } from "@/components/seo";
+import { PromptRating } from "@/components/prompts/PromptRating";
 
 type DifficultyLevel = "beginner" | "intermediate" | "advanced" | "expert";
 
@@ -55,6 +56,8 @@ interface Prompt {
   view_count: number;
   copy_count: number;
   category_id: string;
+  average_rating: number;
+  rating_count: number;
   categories?: Category;
 }
 
@@ -153,6 +156,7 @@ const Prompts = () => {
       .select(`
         id, title, slug, description, content, instructions, examples, 
         difficulty, is_premium, price, view_count, copy_count, category_id,
+        average_rating, rating_count,
         categories (id, name, slug, icon, description)
       `)
       .eq("is_published", true)
@@ -529,15 +533,24 @@ const Prompts = () => {
                             {selectedPrompt.description}
                           </p>
                         </div>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Eye className="w-3.5 h-3.5" />
-                            {selectedPrompt.view_count || 0}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Copy className="w-3.5 h-3.5" />
-                            {selectedPrompt.copy_count || 0}
-                          </span>
+                        <div className="flex flex-col items-end gap-2 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-4">
+                            <span className="flex items-center gap-1">
+                              <Eye className="w-3.5 h-3.5" />
+                              {selectedPrompt.view_count || 0}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Copy className="w-3.5 h-3.5" />
+                              {selectedPrompt.copy_count || 0}
+                            </span>
+                          </div>
+                          <PromptRating
+                            promptId={selectedPrompt.id}
+                            averageRating={selectedPrompt.average_rating || 0}
+                            ratingCount={selectedPrompt.rating_count || 0}
+                            onRatingChange={fetchPrompts}
+                            size="md"
+                          />
                         </div>
                       </div>
                     </div>
