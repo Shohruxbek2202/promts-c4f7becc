@@ -23,16 +23,15 @@ interface FooterLink {
 }
 
 const supportLinks: FooterLink[] = [
-  { label: "Yordam markazi", href: "#" },
-  { label: "Telegram bot", href: "#" },
-  { label: "FAQ", href: "#" },
-  { label: "Aloqa", href: "#" },
+  { label: "Yordam markazi", href: "/help" },
+  { label: "FAQ", href: "/faq" },
+  { label: "Aloqa", href: "/contact" },
 ];
 
 const legalLinks: FooterLink[] = [
-  { label: "Foydalanish shartlari", href: "#" },
-  { label: "Maxfiylik siyosati", href: "#" },
-  { label: "To'lov shartlari", href: "#" },
+  { label: "Foydalanish shartlari", href: "/terms" },
+  { label: "Maxfiylik siyosati", href: "/privacy" },
+  { label: "To'lov shartlari", href: "/payment-terms" },
 ];
 
 export const Footer = () => {
@@ -192,12 +191,12 @@ export const Footer = () => {
             <ul className="space-y-2.5">
               {supportLinks.map((link) => (
                 <li key={link.label}>
-                  <a 
-                    href={link.href}
+                  <Link 
+                    to={link.href}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -208,12 +207,12 @@ export const Footer = () => {
             <ul className="space-y-2.5">
               {legalLinks.map((link) => (
                 <li key={link.label}>
-                  <a 
-                    href={link.href}
+                  <Link 
+                    to={link.href}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
