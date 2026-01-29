@@ -18,11 +18,11 @@ const faqData = [
     questions: [
       {
         q: "PromptsHub nima?",
-        a: "PromptsHub - bu marketing va biznes uchun maxsus tayyorlangan AI promtlar bazasi. Bu yerda siz ChatGPT, Claude va boshqa AI vositalari uchun professional darajadagi promtlarni topishingiz mumkin."
+        a: "PromptsHub - bu marketing va biznes uchun maxsus tayyorlangan AI promtlar bazasi. Bu yerda siz turli AI vositalari (GPT, Claude, Gemini va boshqalar) uchun professional darajadagi promtlarni topishingiz mumkin."
       },
       {
         q: "Promtlardan qanday foydalanaman?",
-        a: "Promtni nusxalab, istalgan AI vositasiga (ChatGPT, Claude, Gemini va h.k.) qo'ying. Kerakli o'zgarishlarni kiritib, natija oling."
+        a: "Promtni nusxalab, istalgan AI vositasiga (GPT, Claude, Gemini va h.k.) qo'ying. Kerakli o'zgarishlarni kiritib, natija oling."
       },
       {
         q: "Promtlar qaysi tillarda mavjud?",
@@ -52,7 +52,7 @@ const faqData = [
     questions: [
       {
         q: "Promtlar qaysi AI vositalari bilan ishlaydi?",
-        a: "Bizning promtlar ChatGPT, Claude, Gemini, Mistral va boshqa zamonaviy AI modellar bilan ishlaydi."
+        a: "Bizning promtlar GPT, Claude, Gemini, Mistral va boshqa zamonaviy AI modellar bilan ishlaydi."
       },
       {
         q: "Mobil qurilmalarda ishlaydi mi?",
