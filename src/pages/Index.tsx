@@ -33,6 +33,7 @@ interface PublicStats {
   prompts_count: number;
   categories_count: number;
   lessons_count: number;
+  average_rating: number;
 }
 
 const Index = () => {
@@ -46,6 +47,7 @@ const Index = () => {
     prompts_count: 0,
     categories_count: 0,
     lessons_count: 0,
+    average_rating: 0,
   });
 
   useEffect(() => {
@@ -182,12 +184,12 @@ const Index = () => {
       label: "Foydalanuvchilar" 
     },
     { 
-      icon: "check", 
-      value: stats.prompts_count > 0 ? `${stats.prompts_count}+` : "—", 
-      label: "O'zbek tilida promtlar" 
+      icon: "star", 
+      value: stats.average_rating > 0 ? stats.average_rating.toFixed(1) : "—", 
+      label: "O'rtacha baho" 
     },
     { 
-      icon: "star", 
+      icon: "check", 
       value: `${stats.categories_count}`, 
       label: "Kategoriyalar" 
     },

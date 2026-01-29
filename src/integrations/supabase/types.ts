@@ -369,6 +369,41 @@ export type Database = {
           },
         ]
       }
+      prompt_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          prompt_id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prompt_id: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prompt_id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_ratings_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prompt_versions: {
         Row: {
           change_notes: string | null
@@ -406,6 +441,7 @@ export type Database = {
       }
       prompts: {
         Row: {
+          average_rating: number | null
           category_id: string | null
           content: string
           copy_count: number | null
@@ -419,6 +455,7 @@ export type Database = {
           is_premium: boolean | null
           is_published: boolean | null
           price: number | null
+          rating_count: number | null
           seo_description: string | null
           seo_keywords: string[] | null
           seo_title: string | null
@@ -429,6 +466,7 @@ export type Database = {
           view_count: number | null
         }
         Insert: {
+          average_rating?: number | null
           category_id?: string | null
           content: string
           copy_count?: number | null
@@ -442,6 +480,7 @@ export type Database = {
           is_premium?: boolean | null
           is_published?: boolean | null
           price?: number | null
+          rating_count?: number | null
           seo_description?: string | null
           seo_keywords?: string[] | null
           seo_title?: string | null
@@ -452,6 +491,7 @@ export type Database = {
           view_count?: number | null
         }
         Update: {
+          average_rating?: number | null
           category_id?: string | null
           content?: string
           copy_count?: number | null
@@ -465,6 +505,7 @@ export type Database = {
           is_premium?: boolean | null
           is_published?: boolean | null
           price?: number | null
+          rating_count?: number | null
           seo_description?: string | null
           seo_keywords?: string[] | null
           seo_title?: string | null
