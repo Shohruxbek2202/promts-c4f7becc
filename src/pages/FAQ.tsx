@@ -10,6 +10,7 @@ import {
 import { HelpCircle, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { SEOHead, SchemaMarkup, FAQSchema, Breadcrumb } from "@/components/seo";
 
 const faqData = [
   {
@@ -66,17 +67,32 @@ const faqData = [
 ];
 
 const FAQ = () => {
+  // Generate FAQ schema from data
+  const faqQuestions = faqData.flatMap(section => 
+    section.questions.map(q => ({
+      question: q.q,
+      answer: q.a
+    }))
+  );
+
+  const faqSchema: FAQSchema = {
+    type: "FAQPage",
+    questions: faqQuestions
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Ko'p so'raladigan savollar (FAQ)"
+        description="PromptsHub haqida ko'p beriladigan savollar va javoblar. To'lov, obuna, promtlardan foydalanish va texnik savollar."
+        keywords={["FAQ", "savollar", "yordam", "PromptsHub", "AI promtlar"]}
+        canonicalUrl="https://mpbs.uz/faq"
+      />
+      <SchemaMarkup schemas={[faqSchema]} />
       <Header />
       
       <main className="container mx-auto px-4 py-12 pt-24">
-        <Link to="/">
-          <Button variant="ghost" className="mb-6">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Bosh sahifa
-          </Button>
-        </Link>
+        <Breadcrumb items={[{ label: "FAQ" }]} className="mb-6" />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

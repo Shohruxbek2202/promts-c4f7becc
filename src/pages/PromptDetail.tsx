@@ -20,6 +20,7 @@ import {
   Play,
   Image as ImageIcon
 } from "lucide-react";
+import { SEOHead, SchemaMarkup, ProductSchema, Breadcrumb } from "@/components/seo";
 
 type DifficultyLevel = "beginner" | "intermediate" | "advanced" | "expert";
 
@@ -232,18 +233,42 @@ const PromptDetail = () => {
     );
   }
 
+  // SEO Data
+  const productSchema: ProductSchema = {
+    type: "Product",
+    name: prompt.title,
+    description: prompt.description || "",
+    offers: {
+      price: prompt.is_premium ? (prompt.price || 0) : 0,
+      priceCurrency: "UZS",
+      availability: "InStock"
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={prompt.title}
+        description={prompt.description || `${prompt.title} - AI marketing promti. Professional darajadagi promt bilan vaqtingizni tejang.`}
+        keywords={["AI promt", prompt.title, prompt.categories?.name || "marketing", "ChatGPT"]}
+        canonicalUrl={`https://mpbs.uz/prompt/${prompt.slug}`}
+        ogType="product"
+      />
+      <SchemaMarkup schemas={[productSchema]} />
       <Header />
       
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            {/* Back Link */}
-            <Link to="/prompts" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6">
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Promtlarga qaytish
-            </Link>
+            {/* Breadcrumb */}
+            <Breadcrumb 
+              items={[
+                { label: "Promtlar", href: "/prompts" },
+                ...(prompt.categories ? [{ label: prompt.categories.name, href: `/prompts?category=${prompt.categories.slug}` }] : []),
+                { label: prompt.title }
+              ]} 
+              className="mb-6" 
+            />
 
             {/* Header */}
             <motion.div
