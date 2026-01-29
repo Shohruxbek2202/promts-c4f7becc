@@ -173,12 +173,29 @@ const Prompts = () => {
     const { data } = await query;
     if (data) {
       setPrompts(data as Prompt[]);
-      // Auto-select first prompt if none selected
-      if (data.length > 0 && !selectedPrompt) {
+      
+      // Check if there's a prompt slug in URL
+      const promptSlug = searchParams.get("prompt");
+      if (promptSlug) {
+        const urlPrompt = (data as Prompt[]).find(p => p.slug === promptSlug);
+        if (urlPrompt) {
+          setSelectedPrompt(urlPrompt);
+          // Increment view count
+          incrementViewCount(urlPrompt.id, urlPrompt.view_count || 0);
+        }
+      } else if (data.length > 0 && !selectedPrompt) {
+        // Auto-select first prompt if none selected and no URL param
         setSelectedPrompt(data[0] as Prompt);
       }
     }
     setIsLoading(false);
+  };
+
+  const incrementViewCount = async (promptId: string, currentCount: number) => {
+    await supabase
+      .from("prompts")
+      .update({ view_count: currentCount + 1 })
+      .eq("id", promptId);
   };
 
   const filteredPrompts = prompts.filter(prompt =>
@@ -192,9 +209,28 @@ const Prompts = () => {
     } else {
       searchParams.set("category", slug);
     }
+    searchParams.delete("prompt"); // Clear prompt when changing category
     setSearchParams(searchParams);
     setIsMobileMenuOpen(false);
     setSelectedPrompt(null);
+  };
+
+  const handleSelectPrompt = (prompt: Prompt) => {
+    const newViewCount = (prompt.view_count || 0) + 1;
+    const updatedPrompt = { ...prompt, view_count: newViewCount };
+    
+    setSelectedPrompt(updatedPrompt);
+    // Update URL with prompt slug
+    searchParams.set("prompt", prompt.slug);
+    setSearchParams(searchParams);
+    // Increment view count
+    incrementViewCount(prompt.id, prompt.view_count || 0);
+    // Update local state to reflect new view count
+    setPrompts(prevPrompts => 
+      prevPrompts.map(p => 
+        p.id === prompt.id ? updatedPrompt : p
+      )
+    );
   };
 
   const handleCopyPrompt = async () => {
@@ -215,11 +251,21 @@ const Prompts = () => {
       await navigator.clipboard.writeText(selectedPrompt.content);
       setCopied(true);
       
-      // Update copy count
+      const newCopyCount = (selectedPrompt.copy_count || 0) + 1;
+      
+      // Update copy count in database
       await supabase
         .from("prompts")
-        .update({ copy_count: (selectedPrompt.copy_count || 0) + 1 })
+        .update({ copy_count: newCopyCount })
         .eq("id", selectedPrompt.id);
+      
+      // Update local state to reflect new copy count
+      setPrompts(prevPrompts => 
+        prevPrompts.map(p => 
+          p.id === selectedPrompt.id ? { ...p, copy_count: newCopyCount } : p
+        )
+      );
+      setSelectedPrompt(prev => prev ? { ...prev, copy_count: newCopyCount } : null);
       
       toast({
         title: "Nusxalandi!",
@@ -459,7 +505,7 @@ const Prompts = () => {
                       {filteredPrompts.map((prompt) => (
                         <button
                           key={prompt.id}
-                          onClick={() => setSelectedPrompt(prompt)}
+                          onClick={() => handleSelectPrompt(prompt)}
                           className={`w-full text-left p-3 rounded-lg transition-all ${
                             selectedPrompt?.id === prompt.id
                               ? "bg-primary/20 border border-primary/30"
