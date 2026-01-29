@@ -19,8 +19,8 @@ Allow: /
 User-agent: *
 Allow: /
 
-# Sitemap (Dynamic - generated via edge function)
-Sitemap: https://srrlowsnpjbwcnzdsbjr.supabase.co/functions/v1/sitemap
+# Sitemap
+Sitemap: https://mpbs.uz/sitemap.xml
 
 # Block admin and private pages from indexing
 Disallow: /admin
