@@ -42,6 +42,14 @@ interface Category {
   description: string | null;
 }
 
+interface PromptMedia {
+  id: string;
+  media_type: "video" | "image";
+  url: string;
+  title: string | null;
+  sort_order: number;
+}
+
 interface Prompt {
   id: string;
   title: string;
@@ -92,6 +100,7 @@ const Prompts = () => {
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
+  const [selectedPromptMedia, setSelectedPromptMedia] = useState<PromptMedia[]>([]);
   const [copied, setCopied] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   
@@ -182,6 +191,15 @@ const Prompts = () => {
           setSelectedPrompt(urlPrompt);
           // Increment view count
           incrementViewCount(urlPrompt.id, urlPrompt.view_count || 0);
+          // Fetch media for this prompt
+          const { data: mediaData } = await supabase
+            .from("prompt_media")
+            .select("*")
+            .eq("prompt_id", urlPrompt.id)
+            .order("sort_order");
+          if (mediaData) {
+            setSelectedPromptMedia(mediaData as PromptMedia[]);
+          }
         }
       } else if (data.length > 0 && !selectedPrompt) {
         // Auto-select first prompt if none selected and no URL param
@@ -215,7 +233,7 @@ const Prompts = () => {
     setSelectedPrompt(null);
   };
 
-  const handleSelectPrompt = (prompt: Prompt) => {
+  const handleSelectPrompt = async (prompt: Prompt) => {
     const newViewCount = (prompt.view_count || 0) + 1;
     const updatedPrompt = { ...prompt, view_count: newViewCount };
     
@@ -231,6 +249,32 @@ const Prompts = () => {
         p.id === prompt.id ? updatedPrompt : p
       )
     );
+    
+    // Fetch media for this prompt
+    const { data: mediaData } = await supabase
+      .from("prompt_media")
+      .select("*")
+      .eq("prompt_id", prompt.id)
+      .order("sort_order");
+    
+    if (mediaData) {
+      setSelectedPromptMedia(mediaData as PromptMedia[]);
+    } else {
+      setSelectedPromptMedia([]);
+    }
+  };
+
+  // Helper to convert YouTube URL to embed URL
+  const getEmbedUrl = (url: string): string => {
+    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+    if (ytMatch) {
+      return `https://www.youtube.com/embed/${ytMatch[1]}`;
+    }
+    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+    if (vimeoMatch) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+    }
+    return url;
   };
 
   const handleCopyPrompt = async () => {
@@ -659,6 +703,71 @@ const Prompts = () => {
                             </div>
                           </div>
                         )}
+
+                        {/* Videos */}
+                        {selectedPromptMedia.filter(m => m.media_type === "video").length > 0 && (!selectedPrompt.is_premium || hasPremiumAccess) && (
+                          <div>
+                            <h3 className="text-sm font-semibold text-foreground mb-3">
+                              🎬 Qo'llanma videolari
+                            </h3>
+                            <div className="space-y-4">
+                              {selectedPromptMedia.filter(m => m.media_type === "video").map((video) => (
+                                <div key={video.id} className="space-y-2">
+                                  {video.title && (
+                                    <p className="text-xs font-medium text-muted-foreground">{video.title}</p>
+                                  )}
+                                  {video.url.includes("youtube") || video.url.includes("youtu.be") || video.url.includes("vimeo") ? (
+                                    <div className="aspect-video rounded-xl overflow-hidden">
+                                      <iframe
+                                        src={getEmbedUrl(video.url)}
+                                        className="w-full h-full"
+                                        allowFullScreen
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <video
+                                      src={video.url}
+                                      controls
+                                      className="w-full rounded-xl"
+                                    />
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Images */}
+                        {selectedPromptMedia.filter(m => m.media_type === "image").length > 0 && (!selectedPrompt.is_premium || hasPremiumAccess) && (
+                          <div>
+                            <h3 className="text-sm font-semibold text-foreground mb-3">
+                              🖼️ Natija rasmlari
+                            </h3>
+                            <div className="grid grid-cols-2 gap-3">
+                              {selectedPromptMedia.filter(m => m.media_type === "image").map((image) => (
+                                <a
+                                  key={image.id}
+                                  href={image.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block rounded-lg overflow-hidden hover:opacity-90 transition-opacity border border-border/50"
+                                >
+                                  <img
+                                    src={image.url}
+                                    alt={image.title || "Natija rasmi"}
+                                    className="w-full h-auto"
+                                  />
+                                  {image.title && (
+                                    <p className="text-xs text-muted-foreground p-2 text-center bg-muted/30">
+                                      {image.title}
+                                    </p>
+                                  )}
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </ScrollArea>
 
@@ -795,6 +904,66 @@ const Prompts = () => {
                               <p className="text-sm text-foreground whitespace-pre-wrap">
                                 {selectedPrompt.examples}
                               </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Videos (Mobile) */}
+                        {selectedPromptMedia.filter(m => m.media_type === "video").length > 0 && (!selectedPrompt.is_premium || hasPremiumAccess) && (
+                          <div>
+                            <h3 className="text-sm font-semibold text-foreground mb-2">
+                              🎬 Qo'llanma videolari
+                            </h3>
+                            <div className="space-y-3">
+                              {selectedPromptMedia.filter(m => m.media_type === "video").map((video) => (
+                                <div key={video.id} className="space-y-1">
+                                  {video.title && (
+                                    <p className="text-xs font-medium text-muted-foreground">{video.title}</p>
+                                  )}
+                                  {video.url.includes("youtube") || video.url.includes("youtu.be") || video.url.includes("vimeo") ? (
+                                    <div className="aspect-video rounded-lg overflow-hidden">
+                                      <iframe
+                                        src={getEmbedUrl(video.url)}
+                                        className="w-full h-full"
+                                        allowFullScreen
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <video
+                                      src={video.url}
+                                      controls
+                                      className="w-full rounded-lg"
+                                    />
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Images (Mobile) */}
+                        {selectedPromptMedia.filter(m => m.media_type === "image").length > 0 && (!selectedPrompt.is_premium || hasPremiumAccess) && (
+                          <div>
+                            <h3 className="text-sm font-semibold text-foreground mb-2">
+                              🖼️ Natija rasmlari
+                            </h3>
+                            <div className="grid grid-cols-2 gap-2">
+                              {selectedPromptMedia.filter(m => m.media_type === "image").map((image) => (
+                                <a
+                                  key={image.id}
+                                  href={image.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block rounded-lg overflow-hidden hover:opacity-90 transition-opacity border border-border/50"
+                                >
+                                  <img
+                                    src={image.url}
+                                    alt={image.title || "Natija rasmi"}
+                                    className="w-full h-auto"
+                                  />
+                                </a>
+                              ))}
                             </div>
                           </div>
                         )}
