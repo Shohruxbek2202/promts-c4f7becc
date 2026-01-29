@@ -99,6 +99,88 @@ export interface VideoSchema {
   embedUrl?: string;
 }
 
+// SoftwareApplication Schema (SaaS SEO 2026)
+export interface SoftwareApplicationSchema {
+  type: "SoftwareApplication";
+  name: string;
+  description: string;
+  applicationCategory: string;
+  operatingSystem?: string;
+  offers?: {
+    price: number | string;
+    priceCurrency: string;
+    priceValidUntil?: string;
+  };
+  aggregateRating?: {
+    ratingValue: number;
+    reviewCount: number;
+    bestRating?: number;
+  };
+  author?: {
+    name: string;
+    url?: string;
+  };
+  featureList?: string[];
+  screenshot?: string;
+  softwareVersion?: string;
+  releaseNotes?: string;
+  datePublished?: string;
+  dateModified?: string;
+}
+
+// HowTo Schema (for tutorials and guides)
+export interface HowToSchema {
+  type: "HowTo";
+  name: string;
+  description: string;
+  totalTime?: string;
+  estimatedCost?: {
+    currency: string;
+    value: string;
+  };
+  step: Array<{
+    name: string;
+    text: string;
+    image?: string;
+    url?: string;
+  }>;
+}
+
+// Review Schema (for testimonials and E-E-A-T)
+export interface ReviewSchema {
+  type: "Review";
+  itemReviewed: {
+    type: string;
+    name: string;
+  };
+  reviewRating: {
+    ratingValue: number;
+    bestRating: number;
+  };
+  author: {
+    name: string;
+    jobTitle?: string;
+  };
+  reviewBody: string;
+  datePublished: string;
+}
+
+// Person Schema (for E-E-A-T author credibility)
+export interface PersonSchema {
+  type: "Person";
+  name: string;
+  jobTitle?: string;
+  description?: string;
+  image?: string;
+  url?: string;
+  sameAs?: string[];
+  worksFor?: {
+    name: string;
+    url?: string;
+  };
+  knowsAbout?: string[];
+}
+
 export type SchemaType = 
   | OrganizationSchema 
   | WebSiteSchema 
@@ -107,7 +189,11 @@ export type SchemaType =
   | FAQSchema 
   | BreadcrumbSchema
   | ItemListSchema
-  | VideoSchema;
+  | VideoSchema
+  | SoftwareApplicationSchema
+  | HowToSchema
+  | ReviewSchema
+  | PersonSchema;
 
 interface SchemaMarkupProps {
   schemas: SchemaType[];
@@ -237,6 +323,101 @@ const generateSchema = (schema: SchemaType): object => {
         duration: schema.duration,
         contentUrl: schema.contentUrl,
         embedUrl: schema.embedUrl,
+      };
+
+    case "SoftwareApplication":
+      return {
+        "@context": baseContext,
+        "@type": "SoftwareApplication",
+        name: schema.name,
+        description: schema.description,
+        applicationCategory: schema.applicationCategory,
+        operatingSystem: schema.operatingSystem || "Web",
+        offers: schema.offers ? {
+          "@type": "Offer",
+          price: schema.offers.price,
+          priceCurrency: schema.offers.priceCurrency,
+          priceValidUntil: schema.offers.priceValidUntil,
+        } : undefined,
+        aggregateRating: schema.aggregateRating ? {
+          "@type": "AggregateRating",
+          ratingValue: schema.aggregateRating.ratingValue,
+          reviewCount: schema.aggregateRating.reviewCount,
+          bestRating: schema.aggregateRating.bestRating || 5,
+        } : undefined,
+        author: schema.author ? {
+          "@type": "Organization",
+          name: schema.author.name,
+          url: schema.author.url,
+        } : undefined,
+        featureList: schema.featureList,
+        screenshot: schema.screenshot,
+        softwareVersion: schema.softwareVersion,
+        releaseNotes: schema.releaseNotes,
+        datePublished: schema.datePublished,
+        dateModified: schema.dateModified,
+      };
+
+    case "HowTo":
+      return {
+        "@context": baseContext,
+        "@type": "HowTo",
+        name: schema.name,
+        description: schema.description,
+        totalTime: schema.totalTime,
+        estimatedCost: schema.estimatedCost ? {
+          "@type": "MonetaryAmount",
+          currency: schema.estimatedCost.currency,
+          value: schema.estimatedCost.value,
+        } : undefined,
+        step: schema.step.map((s, index) => ({
+          "@type": "HowToStep",
+          position: index + 1,
+          name: s.name,
+          text: s.text,
+          image: s.image,
+          url: s.url,
+        })),
+      };
+
+    case "Review":
+      return {
+        "@context": baseContext,
+        "@type": "Review",
+        itemReviewed: {
+          "@type": schema.itemReviewed.type,
+          name: schema.itemReviewed.name,
+        },
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: schema.reviewRating.ratingValue,
+          bestRating: schema.reviewRating.bestRating,
+        },
+        author: {
+          "@type": "Person",
+          name: schema.author.name,
+          jobTitle: schema.author.jobTitle,
+        },
+        reviewBody: schema.reviewBody,
+        datePublished: schema.datePublished,
+      };
+
+    case "Person":
+      return {
+        "@context": baseContext,
+        "@type": "Person",
+        name: schema.name,
+        jobTitle: schema.jobTitle,
+        description: schema.description,
+        image: schema.image,
+        url: schema.url,
+        sameAs: schema.sameAs,
+        worksFor: schema.worksFor ? {
+          "@type": "Organization",
+          name: schema.worksFor.name,
+          url: schema.worksFor.url,
+        } : undefined,
+        knowsAbout: schema.knowsAbout,
       };
 
     default:
