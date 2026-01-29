@@ -214,7 +214,7 @@ const Index = () => {
     ],
     idealFor: [
       "Reklama kampaniyalarini tez ishga tushirish kerak bo'lganda",
-      "ChatGPT dan professional natija olishni xohlasangiz",
+      "AI dan professional natija olishni xohlasangiz",
       "Marketing kontent yaratishda vaqt tejashni istasangiz",
       "O'zbek tilida tushuntirilgan promtlar kerak bo'lganda",
     ],
