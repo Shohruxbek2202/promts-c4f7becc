@@ -13,6 +13,12 @@ import PromptDetail from "./pages/PromptDetail";
 import Agency from "./pages/Agency";
 import Lessons from "./pages/Lessons";
 import LessonDetail from "./pages/LessonDetail";
+import FAQ from "./pages/FAQ";
+import HelpCenter from "./pages/HelpCenter";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import PaymentTerms from "./pages/PaymentTerms";
+import Contact from "./pages/Contact";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPrompts from "./pages/admin/AdminPrompts";
@@ -45,6 +51,12 @@ const App = () => (
             <Route path="/agency" element={<Agency />} />
             <Route path="/lessons" element={<Lessons />} />
             <Route path="/lessons/:slug" element={<LessonDetail />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/payment-terms" element={<PaymentTerms />} />
+            <Route path="/contact" element={<Contact />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
