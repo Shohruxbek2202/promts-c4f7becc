@@ -67,19 +67,19 @@ export const Hero = () => {
           >
             {/* Highlighted text with iPhone selection style */}
             <span className="relative inline-block">
-              {/* Selection box background */}
+            {/* Selection box background */}
               <span className="absolute -inset-x-2 sm:-inset-x-3 -inset-y-1 bg-primary/20 rounded-lg" />
               
-              {/* Corner handle - top left with line going DOWN */}
+              {/* iOS-style handle - top left: line UP, then dot */}
               <span className="absolute -left-3 sm:-left-4 -top-2 flex flex-col items-center">
-                <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-primary rounded-full shadow-lg shadow-primary/30" />
-                <span className="w-0.5 h-3 sm:h-4 bg-primary rounded-full -mt-1" />
+                <span className="w-0.5 h-4 sm:h-5 bg-primary rounded-full" />
+                <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-primary rounded-full shadow-lg shadow-primary/40 -mt-0.5" />
               </span>
               
-              {/* Corner handle - bottom right with line going UP */}
+              {/* iOS-style handle - bottom right: dot, then line DOWN */}
               <span className="absolute -right-3 sm:-right-4 -bottom-2 flex flex-col items-center">
-                <span className="w-0.5 h-3 sm:h-4 bg-primary rounded-full -mb-1" />
-                <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-primary rounded-full shadow-lg shadow-primary/30" />
+                <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-primary rounded-full shadow-lg shadow-primary/40 -mb-0.5" />
+                <span className="w-0.5 h-4 sm:h-5 bg-primary rounded-full" />
               </span>
               
               <span className="relative z-10 text-foreground">Marketing Promtlar</span>
