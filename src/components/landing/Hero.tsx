@@ -70,15 +70,15 @@ export const Hero = () => {
             {/* Selection box background */}
               <span className="absolute -inset-x-2 sm:-inset-x-3 -inset-y-1 bg-primary/20 rounded-lg" />
               
-              {/* iOS-style handle - top left: line goes UP from selection, dot at bottom */}
+              {/* iOS-style handle - top left: dot at BOTTOM, line goes UP */}
               <span className="absolute -left-3.5 sm:-left-4 top-0 translate-y-[-100%] flex flex-col items-center">
                 <span className="w-0.5 h-5 sm:h-6 bg-primary rounded-full" />
-                <span className="w-3 h-3 sm:w-4 sm:h-4 bg-primary rounded-full shadow-lg shadow-primary/40 -mt-1" />
+                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-primary rounded-full shadow-lg shadow-primary/40 -mt-1" />
               </span>
               
-              {/* iOS-style handle - bottom right: dot at top, line goes DOWN from selection */}
+              {/* iOS-style handle - bottom right: dot at TOP, line goes DOWN */}
               <span className="absolute -right-3.5 sm:-right-4 bottom-0 translate-y-[100%] flex flex-col items-center">
-                <span className="w-3 h-3 sm:w-4 sm:h-4 bg-primary rounded-full shadow-lg shadow-primary/40 -mb-1" />
+                <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-primary rounded-full shadow-lg shadow-primary/40 -mb-1" />
                 <span className="w-0.5 h-5 sm:h-6 bg-primary rounded-full" />
               </span>
               
