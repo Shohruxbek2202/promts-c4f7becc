@@ -14,6 +14,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SEOHead, Breadcrumb } from "@/components/seo";
 
 const helpCategories = [
   {
@@ -63,15 +64,16 @@ const contactMethods = [
 const HelpCenter = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Yordam markazi"
+        description="PromptsHub yordam markazi. Qo'llanmalar, video darsliklar va tez-tez so'raladigan savollar."
+        keywords={["yordam", "help center", "qo'llanma", "support"]}
+        canonicalUrl="https://mpbs.uz/help"
+      />
       <Header />
       
       <main className="container mx-auto px-4 py-12 pt-24">
-        <Link to="/">
-          <Button variant="ghost" className="mb-6">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Bosh sahifa
-          </Button>
-        </Link>
+        <Breadcrumb items={[{ label: "Yordam markazi" }]} className="mb-6" />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

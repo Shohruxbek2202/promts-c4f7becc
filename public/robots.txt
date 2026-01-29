@@ -1,7 +1,13 @@
+# PromptsHub - Marketing AI Promtlari
+# https://mpbs.uz
+
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
+Allow: /
+
+User-agent: Yandex
 Allow: /
 
 User-agent: Twitterbot
@@ -12,3 +18,21 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Sitemap (Dynamic - generated via edge function)
+Sitemap: https://srrlowsnpjbwcnzdsbjr.supabase.co/functions/v1/sitemap
+
+# Block admin and private pages from indexing
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /dashboard
+Disallow: /payment
+Disallow: /auth
+
+# Allow static assets
+Allow: /assets/*
+Allow: /*.js
+Allow: /*.css
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.svg

@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { SEOHead, SchemaMarkup, ItemListSchema, Breadcrumb } from "@/components/seo";
 
 type DifficultyLevel = "beginner" | "intermediate" | "advanced" | "expert";
 
@@ -330,12 +331,47 @@ const Prompts = () => {
     </div>
   );
 
+  // SEO Data
+  const seoTitle = selectedCategory 
+    ? `${currentCategoryName} AI Promtlari - ${filteredPrompts.length}+ Tayyor Shablonlar`
+    : "AI Marketing Promtlari - Tayyor Shablonlar Bazasi";
+  
+  const seoDescription = selectedCategory
+    ? `${currentCategoryName} uchun ${filteredPrompts.length}+ tayyor AI promtlar. Marketing kampaniyalaringizni tezlashtiring.`
+    : "Google Ads, Meta Ads, Content Marketing va boshqa sohalar uchun tayyor AI promtlar. Vaqtingizni tejang, natijani oshiring.";
+
+  const itemListSchema: ItemListSchema = {
+    type: "ItemList",
+    name: seoTitle,
+    numberOfItems: filteredPrompts.length,
+    itemListElement: filteredPrompts.slice(0, 10).map((prompt, index) => ({
+      position: index + 1,
+      name: prompt.title,
+      url: `https://mpbs.uz/prompt/${prompt.slug}`
+    }))
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={seoTitle}
+        description={seoDescription}
+        keywords={["AI promtlar", "marketing promtlari", currentCategoryName, "ChatGPT", "tayyor shablonlar"]}
+        canonicalUrl={selectedCategory ? `https://mpbs.uz/prompts?category=${selectedCategory}` : "https://mpbs.uz/prompts"}
+      />
+      <SchemaMarkup schemas={[itemListSchema]} />
       <Header />
       
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
+          <Breadcrumb 
+            items={selectedCategory 
+              ? [{ label: "Promtlar", href: "/prompts" }, { label: currentCategoryName }]
+              : [{ label: "Promtlar" }]
+            } 
+            className="mb-4" 
+          />
+          
           {/* Search Bar */}
           <div className="relative max-w-xl mx-auto mb-6">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />

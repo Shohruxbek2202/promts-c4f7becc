@@ -16,6 +16,7 @@ import {
   BookOpen,
   Filter
 } from "lucide-react";
+import { SEOHead, Breadcrumb } from "@/components/seo";
 
 interface Lesson {
   id: string;
@@ -109,10 +110,17 @@ const Lessons = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Marketing Video Darslari - AI va Digital Marketing Kurslari"
+        description="AI va digital marketing bo'yicha to'liq video kurslar. ChatGPT, Google Ads, Meta Ads va boshqa mavzular bo'yicha amaliy darslar."
+        keywords={["marketing darslar", "video kurslar", "AI o'rganish", "digital marketing", "ChatGPT darslar"]}
+        canonicalUrl="https://mpbs.uz/lessons"
+      />
       <Header />
       
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
+          <Breadcrumb items={[{ label: "Darslar" }]} className="mb-6" />
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

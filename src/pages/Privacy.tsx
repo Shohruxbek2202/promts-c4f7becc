@@ -4,19 +4,21 @@ import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { Shield, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SEOHead, Breadcrumb } from "@/components/seo";
 
 const Privacy = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Maxfiylik siyosati"
+        description="PromptsHub maxfiylik siyosati. Sizning ma'lumotlaringiz qanday to'planadi, ishlatiladi va himoya qilinadi."
+        keywords={["maxfiylik", "privacy policy", "ma'lumotlar himoyasi"]}
+        canonicalUrl="https://mpbs.uz/privacy"
+      />
       <Header />
       
       <main className="container mx-auto px-4 py-12 pt-24">
-        <Link to="/">
-          <Button variant="ghost" className="mb-6">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Bosh sahifa
-          </Button>
-        </Link>
+        <Breadcrumb items={[{ label: "Maxfiylik siyosati" }]} className="mb-6" />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   BookOpen
 } from "lucide-react";
+import { SEOHead, SchemaMarkup, VideoSchema, Breadcrumb } from "@/components/seo";
 
 interface Lesson {
   id: string;
@@ -168,10 +169,27 @@ const LessonDetail = () => {
 
   if (!lesson) return null;
 
+  // SEO Schema
+  const videoSchema: VideoSchema = {
+    type: "VideoObject",
+    name: lesson.title,
+    description: lesson.description || `${lesson.title} - marketing darsi`,
+    thumbnailUrl: lesson.thumbnail_url || undefined,
+    uploadDate: new Date().toISOString(),
+    duration: lesson.duration_minutes ? `PT${lesson.duration_minutes}M` : undefined,
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${lesson.title} - Video Dars`}
+        description={lesson.description || `${lesson.title} - marketing va AI bo'yicha amaliy video dars.`}
+        keywords={["video dars", lesson.title, lesson.categories?.name || "marketing", "o'rganish"]}
+        canonicalUrl={`https://mpbs.uz/lessons/${lesson.slug}`}
+      />
+      <SchemaMarkup schemas={[videoSchema]} />
       <Header />
-      
+
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
           <motion.div
@@ -179,14 +197,14 @@ const LessonDetail = () => {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-4xl mx-auto"
           >
-            {/* Back Button */}
-            <Link
-              to="/lessons"
-              className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Darslarga qaytish
-            </Link>
+            {/* Breadcrumb */}
+            <Breadcrumb 
+              items={[
+                { label: "Darslar", href: "/lessons" },
+                { label: lesson.title }
+              ]} 
+              className="mb-6" 
+            />
 
             {/* Video Player or Locked State */}
             {hasAccess ? (

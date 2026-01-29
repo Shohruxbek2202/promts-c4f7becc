@@ -17,6 +17,7 @@ import {
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
+import { SEOHead, Breadcrumb } from "@/components/seo";
 
 const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,15 +36,16 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Biz bilan bog'laning"
+        description="PromptsHub bilan bog'laning. Savollar, takliflar yoki yordam uchun biz bilan bog'laning."
+        keywords={["aloqa", "bog'lanish", "contact", "yordam"]}
+        canonicalUrl="https://mpbs.uz/contact"
+      />
       <Header />
       
       <main className="container mx-auto px-4 py-12 pt-24">
-        <Link to="/">
-          <Button variant="ghost" className="mb-6">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Bosh sahifa
-          </Button>
-        </Link>
+        <Breadcrumb items={[{ label: "Aloqa" }]} className="mb-6" />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
