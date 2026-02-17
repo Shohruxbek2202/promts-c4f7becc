@@ -30,6 +30,10 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminLessons from "./pages/admin/AdminLessons";
 import AdminLessonForm from "./pages/admin/AdminLessonForm";
 import AdminPricingPlans from "./pages/admin/AdminPricingPlans";
+import AdminCourses from "./pages/admin/AdminCourses";
+import AdminCourseForm from "./pages/admin/AdminCourseForm";
+import AdminCourseLessons from "./pages/admin/AdminCourseLessons";
+import AdminCourseLessonForm from "./pages/admin/AdminCourseLessonForm";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -71,6 +75,12 @@ const App = () => (
               <Route path="lessons" element={<AdminLessons />} />
               <Route path="lessons/new" element={<AdminLessonForm />} />
               <Route path="lessons/:id/edit" element={<AdminLessonForm />} />
+              <Route path="courses" element={<AdminCourses />} />
+              <Route path="courses/new" element={<AdminCourseForm />} />
+              <Route path="courses/:id/edit" element={<AdminCourseForm />} />
+              <Route path="courses/:courseId/lessons" element={<AdminCourseLessons />} />
+              <Route path="courses/:courseId/lessons/new" element={<AdminCourseLessonForm />} />
+              <Route path="courses/:courseId/lessons/:lessonId/edit" element={<AdminCourseLessonForm />} />
               <Route path="pricing" element={<AdminPricingPlans />} />
             </Route>
             
