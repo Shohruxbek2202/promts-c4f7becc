@@ -82,7 +82,7 @@ const Dashboard = () => {
         .from("profiles")
         .select("*")
         .eq("user_id", user!.id)
-        .single();
+        .maybeSingle();
       
       setProfile(profileData);
 
@@ -438,7 +438,7 @@ const Dashboard = () => {
               ) : (
                 <div className="grid sm:grid-cols-2 gap-4">
                   {purchasedCourses.map((item) => (
-                    <Link key={item.id} to={`/courses?course=${item.course.slug}`}>
+                    <Link key={item.id} to={`/course/${item.course.slug}`}>
                       <div className="group rounded-xl border border-border/50 overflow-hidden hover:border-primary/30 transition-all">
                         {item.course.cover_image_url ? (
                           <img src={item.course.cover_image_url} alt={item.course.title} className="w-full h-32 object-cover" />

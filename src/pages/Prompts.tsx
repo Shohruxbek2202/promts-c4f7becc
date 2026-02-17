@@ -123,7 +123,7 @@ const Prompts = () => {
       .from("profiles")
       .select("subscription_type")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
     if (data) setProfile(data);
   };
 

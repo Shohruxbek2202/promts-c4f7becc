@@ -18,6 +18,7 @@ const authSchema = z.object({
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -35,6 +36,19 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (isForgotPassword) {
+      if (!email.trim()) { toast.error("Emailni kiriting"); return; }
+      setIsSubmitting(true);
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth`,
+        });
+        if (error) { toast.error(error.message); }
+        else { toast.success("Parolni tiklash havolasi emailga yuborildi!"); setIsForgotPassword(false); }
+      } finally { setIsSubmitting(false); }
+      return;
+    }
+
     const result = authSchema.safeParse({ email, password });
     if (!result.success) {
       toast.error(result.error.errors[0].message);
@@ -238,10 +252,12 @@ const Auth = () => {
           {/* Form Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
-              {isLogin ? "Xush kelibsiz!" : "Yangi hisob yarating"}
+              {isForgotPassword ? "Parolni tiklash" : isLogin ? "Xush kelibsiz!" : "Yangi hisob yarating"}
             </h2>
             <p className="text-muted-foreground">
-              {isLogin
+              {isForgotPassword
+                ? "Emailingizni kiriting, parolni tiklash havolasi yuboriladi"
+                : isLogin
                 ? "Hisobingizga kirish uchun ma'lumotlarni kiriting"
                 : "Ro'yxatdan o'ting va promtlardan foydalaning"}
             </p>
@@ -266,32 +282,41 @@ const Auth = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground font-medium">Parol</Label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-12 pr-12 h-12 rounded-xl bg-background/50 border-border/50 focus:border-primary transition-colors"
-                    required
-                    minLength={6}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
+              {!isForgotPassword && (
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-foreground font-medium">Parol</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-12 pr-12 h-12 rounded-xl bg-background/50 border-border/50 focus:border-primary transition-colors"
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  {isLogin && (
+                    <div className="text-right">
+                      <button type="button" onClick={() => setIsForgotPassword(true)} className="text-xs text-primary hover:underline">
+                        Parolni unutdingizmi?
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               {/* Referral Code - Only show on signup */}
-              {!isLogin && (
+              {!isLogin && !isForgotPassword && (
                 <motion.div 
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -329,31 +354,35 @@ const Auth = () => {
                   </div>
                 ) : (
                   <>
-                    {isLogin ? "Kirish" : "Ro'yxatdan o'tish"}
+                    {isForgotPassword ? "Havolani yuborish" : isLogin ? "Kirish" : "Ro'yxatdan o'tish"}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </>
                 )}
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <button
-                type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {isLogin ? (
-                  <>
-                    Hisobingiz yo'qmi?{" "}
-                    <span className="text-primary font-medium hover:underline">Ro'yxatdan o'ting</span>
-                  </>
-                ) : (
-                  <>
-                    Allaqachon hisobingiz bormi?{" "}
-                    <span className="text-primary font-medium hover:underline">Kiring</span>
-                  </>
-                )}
-              </button>
+            <div className="mt-6 text-center space-y-2">
+              {isForgotPassword ? (
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(false)}
+                  className="text-sm text-primary font-medium hover:underline"
+                >
+                  Kirishga qaytish
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => { setIsLogin(!isLogin); setIsForgotPassword(false); }}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {isLogin ? (
+                    <>Hisobingiz yo'qmi?{" "}<span className="text-primary font-medium hover:underline">Ro'yxatdan o'ting</span></>
+                  ) : (
+                    <>Allaqachon hisobingiz bormi?{" "}<span className="text-primary font-medium hover:underline">Kiring</span></>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 

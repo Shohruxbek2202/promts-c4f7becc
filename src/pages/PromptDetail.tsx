@@ -130,11 +130,8 @@ const PromptDetail = () => {
       
       if (mediaData) setMedia(mediaData as PromptMedia[]);
       
-      // Update view count
-      await supabase
-        .from("prompts")
-        .update({ view_count: (data.view_count || 0) + 1 })
-        .eq("id", data.id);
+      // Update view count via RPC
+      await supabase.rpc("increment_prompt_view_count", { prompt_id: data.id });
     }
     setIsLoading(false);
   };
@@ -185,11 +182,8 @@ const PromptDetail = () => {
       setCopied(true);
       toast.success("Promt nusxalandi!");
 
-      // Update copy count
-      await supabase
-        .from("prompts")
-        .update({ copy_count: (prompt.copy_count || 0) + 1 })
-        .eq("id", prompt.id);
+      // Update copy count via RPC
+      await supabase.rpc("increment_prompt_copy_count", { prompt_id: prompt.id });
 
       setTimeout(() => setCopied(false), 2000);
     } catch {

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { SEOHead, Breadcrumb } from "@/components/seo";
+import DOMPurify from "dompurify";
 
 interface Course {
   id: string;
@@ -323,29 +324,34 @@ const Courses = () => {
                         <div>
                           <h3 className="font-semibold text-foreground mb-3">Kurs dasturi ({courseLessons.length} dars)</h3>
                           <div className="space-y-2">
-                            {courseLessons.map((lesson, i) => (
-                              <div key={lesson.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/20 border border-border/30">
-                                <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground flex-shrink-0">{i + 1}</div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-foreground truncate">{lesson.title}</p>
-                                  {lesson.duration_minutes && <p className="text-xs text-muted-foreground">{lesson.duration_minutes} daqiqa</p>}
-                                </div>
-                                {lesson.is_preview ? (
-                                  <Badge variant="outline" className="text-xs flex-shrink-0">Bepul</Badge>
-                                ) : !hasPurchased(selectedCourse.id) ? (
-                                  <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                                ) : (
-                                  <Play className="w-4 h-4 text-primary flex-shrink-0" />
-                                )}
-                              </div>
-                            ))}
+                            {courseLessons.map((lesson, i) => {
+                              const accessible = hasPurchased(selectedCourse.id) || lesson.is_preview;
+                              const Wrapper = accessible ? Link : "div" as any;
+                              const wrapperProps = accessible ? { to: `/course/${selectedCourse.slug}/lesson/${lesson.slug}` } : {};
+                              return (
+                                <Wrapper key={lesson.id} {...wrapperProps} className={`flex items-center gap-3 p-3 rounded-lg bg-muted/20 border border-border/30 ${accessible ? "hover:bg-muted/40 cursor-pointer transition-colors" : ""}`}>
+                                  <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground flex-shrink-0">{i + 1}</div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-foreground truncate">{lesson.title}</p>
+                                    {lesson.duration_minutes && <p className="text-xs text-muted-foreground">{lesson.duration_minutes} daqiqa</p>}
+                                  </div>
+                                  {lesson.is_preview ? (
+                                    <Badge variant="outline" className="text-xs flex-shrink-0">Bepul</Badge>
+                                  ) : !hasPurchased(selectedCourse.id) ? (
+                                    <Lock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                                  ) : (
+                                    <Play className="w-4 h-4 text-primary flex-shrink-0" />
+                                  )}
+                                </Wrapper>
+                              );
+                            })}
                           </div>
                         </div>
                       )}
 
                       {/* HTML Content */}
                       {selectedCourse.content_html && (
-                        <div className="prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: selectedCourse.content_html }} />
+                        <div className="prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedCourse.content_html) }} />
                       )}
                     </div>
                   </ScrollArea>
@@ -382,17 +388,21 @@ const Courses = () => {
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Darslar</h3>
                     <div className="space-y-2">
-                      {courseLessons.map((lesson, i) => (
-                        <div key={lesson.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/20">
-                          <span className="text-xs font-medium text-muted-foreground w-6 text-center">{i + 1}</span>
-                          <span className="text-sm text-foreground flex-1 truncate">{lesson.title}</span>
-                          {lesson.is_preview ? <Badge variant="outline" className="text-xs">Bepul</Badge> : !hasPurchased(selectedCourse.id) ? <Lock className="w-3.5 h-3.5 text-muted-foreground" /> : <Play className="w-3.5 h-3.5 text-primary" />}
-                        </div>
-                      ))}
+                      {courseLessons.map((lesson, i) => {
+                        const accessible = hasPurchased(selectedCourse.id) || lesson.is_preview;
+                        const content = (
+                          <div key={lesson.id} className={`flex items-center gap-3 p-3 rounded-lg bg-muted/20 ${accessible ? "hover:bg-muted/40 cursor-pointer" : ""}`}>
+                            <span className="text-xs font-medium text-muted-foreground w-6 text-center">{i + 1}</span>
+                            <span className="text-sm text-foreground flex-1 truncate">{lesson.title}</span>
+                            {lesson.is_preview ? <Badge variant="outline" className="text-xs">Bepul</Badge> : !hasPurchased(selectedCourse.id) ? <Lock className="w-3.5 h-3.5 text-muted-foreground" /> : <Play className="w-3.5 h-3.5 text-primary" />}
+                          </div>
+                        );
+                        return accessible ? <Link key={lesson.id} to={`/course/${selectedCourse.slug}/lesson/${lesson.slug}`}>{content}</Link> : content;
+                      })}
                     </div>
                   </div>
                 )}
-                {selectedCourse.content_html && <div className="prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: selectedCourse.content_html }} />}
+                {selectedCourse.content_html && <div className="prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedCourse.content_html) }} />}
               </div>
             </div>
           )}
