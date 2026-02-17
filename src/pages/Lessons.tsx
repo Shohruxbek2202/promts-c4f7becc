@@ -164,7 +164,7 @@ const Lessons = () => {
       .from("profiles")
       .select("subscription_type, subscription_expires_at")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     if (profile) {
       const hasValidSubscription = 
