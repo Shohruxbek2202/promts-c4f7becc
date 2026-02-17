@@ -201,8 +201,8 @@ const Prompts = () => {
             setSelectedPromptMedia(mediaData as PromptMedia[]);
           }
         }
-      } else if (data.length > 0 && !selectedPrompt) {
-        // Auto-select first prompt if none selected and no URL param
+      } else if (data.length > 0 && !selectedPrompt && window.innerWidth >= 1024) {
+        // Auto-select first prompt only on desktop
         setSelectedPrompt(data[0] as Prompt);
       }
     }
@@ -502,7 +502,7 @@ const Prompts = () => {
             animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm overflow-hidden shadow-2xl"
           >
-            <div className="flex h-[75vh]">
+            <div className="flex h-[calc(100vh-220px)] md:h-[75vh]">
               {/* Column 1: Categories (Desktop only) */}
               <div className="hidden lg:flex w-56 border-r border-border/50 bg-card/50 flex-col flex-shrink-0">
                 <div className="px-4 py-3 border-b border-border/50 flex items-center gap-2">

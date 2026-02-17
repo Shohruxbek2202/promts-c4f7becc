@@ -66,7 +66,7 @@ const HelpCenter = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Yordam markazi"
-        description="PromptsHub yordam markazi. Qo'llanmalar, video darsliklar va tez-tez so'raladigan savollar."
+        description="MPBS.uz yordam markazi. Qo'llanmalar, video darsliklar va tez-tez so'raladigan savollar."
         keywords={["yordam", "help center", "qo'llanma", "support"]}
         canonicalUrl="https://mpbs.uz/help"
       />

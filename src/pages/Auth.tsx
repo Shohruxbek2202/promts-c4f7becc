@@ -151,7 +151,7 @@ const Auth = () => {
               <Sparkles className="w-7 h-7 text-primary-foreground" />
             </div>
             <span className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              PromptsHub
+              MPBS.uz
             </span>
           </Link>
 
@@ -230,7 +230,7 @@ const Auth = () => {
                 <Sparkles className="w-6 h-6 text-primary-foreground" />
               </div>
               <span className="text-2xl font-bold text-foreground">
-                PromptsHub
+                MPBS.uz
               </span>
             </Link>
           </div>

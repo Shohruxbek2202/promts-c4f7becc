@@ -137,7 +137,7 @@ export const Footer = () => {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2.5 mb-4">
               <span className="text-lg font-bold text-foreground">
-                PromptsHub
+                MPBS.uz
               </span>
             </Link>
             <p className="text-muted-foreground mb-6 max-w-sm leading-relaxed">
