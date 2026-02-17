@@ -15,6 +15,7 @@ import Lessons from "./pages/Lessons";
 import LessonDetail from "./pages/LessonDetail";
 import Courses from "./pages/Courses";
 import CoursePayment from "./pages/CoursePayment";
+import CourseLessonView from "./pages/CourseLessonView";
 import FAQ from "./pages/FAQ";
 import HelpCenter from "./pages/HelpCenter";
 import Terms from "./pages/Terms";
@@ -60,6 +61,8 @@ const App = () => (
             <Route path="/lessons/:slug" element={<LessonDetail />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/course-payment/:slug" element={<CoursePayment />} />
+            <Route path="/course/:courseSlug/lesson/:lessonSlug" element={<CourseLessonView />} />
+            <Route path="/course/:courseSlug" element={<CourseLessonView />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/help" element={<HelpCenter />} />
             <Route path="/terms" element={<Terms />} />

@@ -23,12 +23,17 @@ interface Payment {
   admin_notes: string | null;
   created_at: string;
   approved_at: string | null;
+  course_id: string | null;
+  plan_id: string | null;
   profiles?: {
     email: string;
     full_name: string;
   };
   pricing_plans?: {
     name: string;
+  };
+  courses?: {
+    title: string;
   };
 }
 
@@ -75,7 +80,7 @@ const AdminPayments = () => {
     const { data: paymentsData, error: paymentsError } = await supabase
       .from("payments")
       .select(`
-        id, amount, status, receipt_url, admin_notes, created_at, approved_at, user_id, plan_id
+        id, amount, status, receipt_url, admin_notes, created_at, approved_at, user_id, plan_id, course_id
       `)
       .order("created_at", { ascending: false });
 
@@ -94,6 +99,7 @@ const AdminPayments = () => {
     // Get unique user IDs and plan IDs
     const userIds = [...new Set(paymentsData.map(p => p.user_id))];
     const planIds = [...new Set(paymentsData.filter(p => p.plan_id).map(p => p.plan_id))];
+    const courseIds = [...new Set(paymentsData.filter(p => p.course_id).map(p => p.course_id))];
 
     // Fetch profiles for these users
     const { data: profilesData } = await supabase
@@ -107,19 +113,68 @@ const AdminPayments = () => {
       .select("id, name")
       .in("id", planIds);
 
+    // Fetch courses
+    let coursesData: { id: string; title: string }[] | null = null;
+    if (courseIds.length > 0) {
+      const { data } = await supabase
+        .from("courses")
+        .select("id, title")
+        .in("id", courseIds);
+      coursesData = data;
+    }
+
     // Create lookup maps
     const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
     const plansMap = new Map(plansData?.map(p => [p.id, p]) || []);
+    const coursesMap = new Map(coursesData?.map(c => [c.id, c]) || []);
 
     // Combine data
     const combinedPayments = paymentsData.map(payment => ({
       ...payment,
       profiles: profilesMap.get(payment.user_id) || null,
       pricing_plans: plansMap.get(payment.plan_id) || null,
+      courses: coursesMap.get(payment.course_id) || null,
     }));
 
     setPayments(combinedPayments as unknown as Payment[]);
     setIsLoading(false);
+  };
+
+  const handleReferralCommission = async (userId: string, paymentId: string) => {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id, referred_by")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (profile?.referred_by) {
+      const { data: payment } = await supabase
+        .from("payments")
+        .select("amount")
+        .eq("id", paymentId)
+        .maybeSingle();
+
+      if (payment) {
+        const commissionAmount = Number(payment.amount) * 0.10;
+        await supabase.from("referral_transactions").insert({
+          referrer_id: profile.referred_by,
+          referred_user_id: profile.id,
+          payment_id: paymentId,
+          amount: commissionAmount,
+        });
+        const { data: referrerProfile } = await supabase
+          .from("profiles")
+          .select("referral_earnings")
+          .eq("id", profile.referred_by)
+          .maybeSingle();
+        if (referrerProfile) {
+          await supabase
+            .from("profiles")
+            .update({ referral_earnings: (referrerProfile.referral_earnings || 0) + commissionAmount })
+            .eq("id", profile.referred_by);
+        }
+      }
+    }
   };
 
   const handlePaymentAction = async (paymentId: string, action: PaymentStatus, notes?: string) => {
@@ -135,7 +190,7 @@ const AdminPayments = () => {
     // Get payment details first
     const { data: paymentData } = await supabase
       .from("payments")
-      .select("user_id, plan_id, pricing_plans(subscription_type, duration_days)")
+      .select("user_id, plan_id, course_id, pricing_plans(subscription_type, duration_days)")
       .eq("id", paymentId)
       .single();
 
@@ -149,91 +204,76 @@ const AdminPayments = () => {
       return;
     }
 
-    // If approved, update user subscription
-    if (action === "approved" && paymentData?.plan_id) {
-      const plan = paymentData.pricing_plans as unknown as { subscription_type: string; duration_days: number | null };
-      
-      if (plan) {
-        let expiresAt: string | null = null;
+    // If approved, update user subscription or grant course access
+    if (action === "approved") {
+      // Handle plan-based payments
+      if (paymentData?.plan_id) {
+        const plan = paymentData.pricing_plans as unknown as { subscription_type: string; duration_days: number | null };
         
-        // Calculate expiration date based on plan duration
-        if (plan.duration_days && plan.subscription_type !== "lifetime") {
-          const expireDate = new Date();
-          expireDate.setDate(expireDate.getDate() + plan.duration_days);
-          expiresAt = expireDate.toISOString();
-        }
-
-        // Check if VIP plan to enable agency access
-        const isVipPlan = plan.subscription_type === "vip";
-
-        const profileUpdate: Record<string, unknown> = {
-          subscription_type: plan.subscription_type,
-          subscription_expires_at: expiresAt,
-        };
-
-        if (isVipPlan) {
-          profileUpdate.has_agency_access = true;
-          profileUpdate.agency_access_expires_at = expiresAt;
-        }
-
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .update(profileUpdate)
-          .eq("user_id", paymentData.user_id);
-
-        if (profileError) {
-          console.error("Error updating profile:", profileError);
-          toast.error("To'lov tasdiqlandi, lekin profil yangilanmadi");
-        } else {
-          // Handle referral commission
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("id, referred_by")
-            .eq("user_id", paymentData.user_id)
-            .single();
-
-          if (profile?.referred_by) {
-            // Get payment amount for commission calculation (10%)
-            const { data: payment } = await supabase
-              .from("payments")
-              .select("amount")
-              .eq("id", paymentId)
-              .single();
-
-            if (payment) {
-              const commissionAmount = Number(payment.amount) * 0.10;
-
-              // Create referral transaction
-              await supabase.from("referral_transactions").insert({
-                referrer_id: profile.referred_by,
-                referred_user_id: profile.id,
-                payment_id: paymentId,
-                amount: commissionAmount,
-              });
-
-              // Update referrer's earnings
-              const { data: referrerProfile } = await supabase
-                .from("profiles")
-                .select("referral_earnings")
-                .eq("id", profile.referred_by)
-                .single();
-                
-              if (referrerProfile) {
-                await supabase
-                  .from("profiles")
-                  .update({ 
-                    referral_earnings: (referrerProfile.referral_earnings || 0) + commissionAmount 
-                  })
-                  .eq("id", profile.referred_by);
-              }
-            }
+        if (plan) {
+          let expiresAt: string | null = null;
+          
+          if (plan.duration_days && plan.subscription_type !== "lifetime") {
+            const expireDate = new Date();
+            expireDate.setDate(expireDate.getDate() + plan.duration_days);
+            expiresAt = expireDate.toISOString();
           }
 
-          toast.success("To'lov tasdiqlandi va obuna yangilandi");
+          const isVipPlan = plan.subscription_type === "vip";
+
+          const profileUpdate: Record<string, unknown> = {
+            subscription_type: plan.subscription_type,
+            subscription_expires_at: expiresAt,
+          };
+
+          if (isVipPlan) {
+            profileUpdate.has_agency_access = true;
+            profileUpdate.agency_access_expires_at = expiresAt;
+          }
+
+          const { error: profileError } = await supabase
+            .from("profiles")
+            .update(profileUpdate)
+            .eq("user_id", paymentData.user_id);
+
+          if (profileError) {
+            console.error("Error updating profile:", profileError);
+            toast.error("To'lov tasdiqlandi, lekin profil yangilanmadi");
+          } else {
+            await handleReferralCommission(paymentData.user_id, paymentId);
+            toast.success("To'lov tasdiqlandi va obuna yangilandi");
+          }
         }
       }
+      
+      // Handle course-based payments
+      if (paymentData?.course_id) {
+        const { error: courseError } = await supabase
+          .from("user_courses")
+          .insert({
+            user_id: paymentData.user_id,
+            course_id: paymentData.course_id,
+            payment_id: paymentId,
+          });
+
+        if (courseError) {
+          if (courseError.code === '23505') {
+            toast.success("To'lov tasdiqlandi (kurs allaqachon ochilgan)");
+          } else {
+            console.error("Error granting course access:", courseError);
+            toast.error("To'lov tasdiqlandi, lekin kurs ochilmadi");
+          }
+        } else {
+          await handleReferralCommission(paymentData.user_id, paymentId);
+          toast.success("To'lov tasdiqlandi va kurs ochildi");
+        }
+      }
+
+      if (!paymentData?.plan_id && !paymentData?.course_id) {
+        toast.success("To'lov tasdiqlandi");
+      }
     } else {
-      toast.success(action === "approved" ? "To'lov tasdiqlandi" : "To'lov rad etildi");
+      toast.success("To'lov rad etildi");
     }
     
     fetchPayments();
@@ -335,7 +375,7 @@ const AdminPayments = () => {
                             {Number(payment.amount).toLocaleString()} so'm
                           </span>
                           <span className="text-muted-foreground">
-                            {payment.pricing_plans?.name}
+                            {payment.pricing_plans?.name || payment.courses?.title || "—"}
                           </span>
                           <Badge className={statusConfig[payment.status].color}>
                             {statusConfig[payment.status].label}

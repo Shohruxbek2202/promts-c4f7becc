@@ -948,6 +948,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_prompt_copy_count: {
+        Args: { prompt_id: string }
+        Returns: undefined
+      }
+      increment_prompt_view_count: {
+        Args: { prompt_id: string }
+        Returns: undefined
+      }
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
