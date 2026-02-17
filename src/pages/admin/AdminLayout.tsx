@@ -24,6 +24,7 @@ const navItems = [
   { href: "/admin/lessons", icon: PlayCircle, label: "Darslar" },
   { href: "/admin/categories", icon: FolderOpen, label: "Kategoriyalar" },
   { href: "/admin/pricing", icon: CreditCard, label: "Tariflar" },
+  { href: "/admin/payment-methods", icon: CreditCard, label: "To'lov usullari" },
   { href: "/admin/users", icon: Users, label: "Foydalanuvchilar" },
   { href: "/admin/payments", icon: CreditCard, label: "To'lovlar" },
   { href: "/admin/settings", icon: Settings, label: "Sozlamalar" },

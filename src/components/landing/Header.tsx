@@ -63,6 +63,7 @@ export const Header = () => {
     { href: "/#features", label: "Xususiyatlar", hashOnly: true },
     { href: "/#categories", label: "Kategoriyalar", hashOnly: true },
     ...(showPricing ? [{ href: "/#pricing", label: "Narxlar", hashOnly: true }] : []),
+    { href: "/courses", label: "Kurslar", hashOnly: false },
     { href: "/lessons", label: "Darslar", hashOnly: false },
   ];
 
