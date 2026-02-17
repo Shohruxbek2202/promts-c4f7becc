@@ -10,15 +10,18 @@ import {
   LogOut,
   Sparkles,
   ChevronRight,
-  FolderOpen
+  FolderOpen,
+  GraduationCap,
+  PlayCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const navItems = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
+  { href: "/admin/courses", icon: GraduationCap, label: "Kurslar" },
   { href: "/admin/prompts", icon: FileText, label: "Promtlar" },
-  { href: "/admin/lessons", icon: FileText, label: "Darslar" },
+  { href: "/admin/lessons", icon: PlayCircle, label: "Darslar" },
   { href: "/admin/categories", icon: FolderOpen, label: "Kategoriyalar" },
   { href: "/admin/pricing", icon: CreditCard, label: "Tariflar" },
   { href: "/admin/users", icon: Users, label: "Foydalanuvchilar" },
