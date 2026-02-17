@@ -12,7 +12,7 @@ const Privacy = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Maxfiylik siyosati"
-        description="PromptsHub maxfiylik siyosati. Sizning ma'lumotlaringiz qanday to'planadi, ishlatiladi va himoya qilinadi."
+        description="MPBS.uz maxfiylik siyosati. Sizning ma'lumotlaringiz qanday to'planadi, ishlatiladi va himoya qilinadi."
         keywords={["maxfiylik", "privacy policy", "ma'lumotlar himoyasi"]}
         canonicalUrl="https://mpbs.uz/privacy"
       />
@@ -41,7 +41,7 @@ const Privacy = () => {
             <div className="bg-card border border-border rounded-xl p-6 mb-6">
               <h2 className="text-xl font-semibold text-foreground mb-4">1. Kirish</h2>
               <p className="text-muted-foreground">
-                PromptsHub sizning maxfiyligingizni muhim deb biladi. Ushbu siyosat biz qanday 
+                MPBS.uz sizning maxfiyligingizni muhim deb biladi. Ushbu siyosat biz qanday 
                 ma'lumotlarni to'plashimiz, qanday ishlatishimiz va himoya qilishimizni tushuntiradi.
               </p>
             </div>

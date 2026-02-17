@@ -95,7 +95,7 @@ const Index = () => {
   // Schema.org - Organization
   const organizationSchema: OrganizationSchema = {
     type: "Organization",
-    name: "PromptsHub",
+    name: "MPBS.uz",
     url: "https://mpbs.uz",
     logo: "https://mpbs.uz/favicon.ico",
     description: "Marketing promtlari bazasi. Google Ads, Meta Ads, Yandex Direct va boshqa platformalar uchun tayyor promtlar.",
@@ -113,7 +113,7 @@ const Index = () => {
   // Schema.org - WebSite with SearchAction
   const websiteSchema: WebSiteSchema = {
     type: "WebSite",
-    name: "PromptsHub",
+    name: "MPBS.uz",
     url: "https://mpbs.uz",
     potentialAction: {
       target: "https://mpbs.uz/prompts?search={search_term_string}",
@@ -124,8 +124,8 @@ const Index = () => {
   // Schema.org - SoftwareApplication (SaaS SEO 2026)
   const softwareSchema: SoftwareApplicationSchema = {
     type: "SoftwareApplication",
-    name: "PromptsHub - Marketing AI Promtlari",
-    description: "Digital marketing mutaxassislari uchun O'zbek tilida tayyor AI promtlar bazasi. ChatGPT, Google Ads, Meta Ads uchun optimallashtirilgan.",
+    name: "MPBS.uz - Marketing AI Promtlari",
+    description: "Digital marketing mutaxassislari uchun O'zbek tilida tayyor AI promtlar bazasi. AI, Google Ads, Meta Ads uchun optimallashtirilgan.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     offers: {
@@ -154,8 +154,8 @@ const Index = () => {
     type: "FAQPage",
     questions: [
       {
-        question: "PromptsHub nima?",
-        answer: "PromptsHub - bu digital marketing mutaxassislari uchun O'zbek tilida tayyor AI promtlar bazasi. Har bir promt ChatGPT tushunishi uchun maxsus optimallashtirilgan."
+        question: "MPBS.uz nima?",
+        answer: "MPBS.uz - bu digital marketing mutaxassislari uchun O'zbek tilida tayyor AI promtlar bazasi. Har bir promt AI tushunishi uchun maxsus optimallashtirilgan."
       },
       {
         question: "Promtlar qaysi tilda yozilgan?",
@@ -166,12 +166,12 @@ const Index = () => {
         answer: "Promtni nusxalab, ChatGPT yoki boshqa AI vositasiga joylashtiring. O'zingizning mahsulot/xizmat ma'lumotlaringizni qo'shing va natija oling."
       },
       {
-        question: "PromptsHub bepulmi?",
+        question: "MPBS.uz bepulmi?",
         answer: "Ha, asosiy promtlar bepul. Premium promtlar va video darsliklar uchun obuna talab qilinadi."
       },
       {
         question: "Loyiha ortida kim bor?",
-        answer: "PromptsHub 3.5+ yillik digital marketing tajribasiga ega ShohruxDigital jamoasi tomonidan yaratilgan. Barcha promtlar real loyihalarda sinovdan o'tkazilgan."
+        answer: "MPBS.uz 3.5+ yillik digital marketing tajribasiga ega ShohruxDigital jamoasi tomonidan yaratilgan. Barcha promtlar real loyihalarda sinovdan o'tkazilgan."
       }
     ]
   };
@@ -202,7 +202,7 @@ const Index = () => {
 
   // Best Fit Brief (AI/GEO optimization)
   const bestFitData: BestFitInfo = {
-    title: "PromptsHub kimlar uchun?",
+    title: "MPBS.uz kimlar uchun?",
     subtitle: "O'zbek tilida tushuntirilgan AI promtlar bazasi",
     tag: "3.5+ yillik tajriba",
     targetAudience: [
@@ -234,7 +234,7 @@ const Index = () => {
 
   // Comparison Table (AI crawlers uchun strukturalangan)
   const comparisonProducts: ComparisonProduct[] = [
-    { name: "PromptsHub", isHighlighted: true, price: "Bepul / Premium" },
+    { name: "MPBS.uz", isHighlighted: true, price: "Bepul / Premium" },
     { name: "PromptBase", price: "$4.99/promt" },
     { name: "AIPRM", price: "$9/oy" },
     { name: "O'zingiz yozish", price: "Bepul" },
@@ -244,39 +244,39 @@ const Index = () => {
     {
       name: "O'zbek tilida",
       description: "Mahalliy bozor uchun optimallashtirilgan",
-      values: { "PromptsHub": true, "PromptBase": false, "AIPRM": false, "O'zingiz yozish": true },
+      values: { "MPBS.uz": true, "PromptBase": false, "AIPRM": false, "O'zingiz yozish": true },
     },
     {
       name: "Marketing ixtisoslashuvi",
       description: "Digital marketing uchun maxsus",
-      values: { "PromptsHub": true, "PromptBase": "partial", "AIPRM": "partial", "O'zingiz yozish": false },
+      values: { "MPBS.uz": true, "PromptBase": "partial", "AIPRM": "partial", "O'zingiz yozish": false },
     },
     {
       name: "Video darsliklar",
       description: "Qo'llanma va treninglar",
-      values: { "PromptsHub": true, "PromptBase": false, "AIPRM": false, "O'zingiz yozish": false },
+      values: { "MPBS.uz": true, "PromptBase": false, "AIPRM": false, "O'zingiz yozish": false },
     },
     {
       name: "Doimiy yangilanishlar",
       description: "Haftalik yangi promtlar",
-      values: { "PromptsHub": true, "PromptBase": "partial", "AIPRM": true, "O'zingiz yozish": false },
+      values: { "MPBS.uz": true, "PromptBase": "partial", "AIPRM": true, "O'zingiz yozish": false },
     },
     {
       name: "Mahalliy to'lov",
       description: "O'zbekiston kartalaridan to'lash",
-      values: { "PromptsHub": true, "PromptBase": false, "AIPRM": false, "O'zingiz yozish": true },
+      values: { "MPBS.uz": true, "PromptBase": false, "AIPRM": false, "O'zingiz yozish": true },
     },
     {
       name: "Qo'llab-quvvatlash",
       description: "Telegram orqali yordam",
-      values: { "PromptsHub": true, "PromptBase": false, "AIPRM": "partial", "O'zingiz yozish": false },
+      values: { "MPBS.uz": true, "PromptBase": false, "AIPRM": "partial", "O'zingiz yozish": false },
     },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="PromptsHub - Marketing Promtlari Bazasi | AI Promtlar O'zbekistonda"
+        title="MPBS.uz - Marketing Promts Bases | AI Promtlar O'zbekistonda"
         description="Digital marketing uchun tayyor AI promtlar. Google Ads, Meta Ads, Yandex Direct promtlari. ChatGPT bilan professional natijalar. 500+ foydalanuvchi ishonchi."
         keywords={[
           "AI promtlar",
@@ -314,7 +314,7 @@ const Index = () => {
         
         {/* Comparison Table - AI crawlers uchun */}
         <ComparisonTable
-          title="Nima uchun PromptsHub?"
+          title="Nima uchun MPBS.uz?"
           description="Boshqa platformalar bilan taqqoslash"
           products={comparisonProducts}
           features={comparisonFeatures}

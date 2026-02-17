@@ -13,7 +13,7 @@ export interface SEOProps {
 }
 
 const DEFAULT_OG_IMAGE = "https://storage.googleapis.com/gpt-engineer-file-uploads/Tq6i61a5t3Op2BcRpxsDZkE8P723/social-images/social-1768461706421-ChatGPT Image Jan 14, 2026, 10_53_40 PM.png";
-const SITE_NAME = "PromptsHub";
+const SITE_NAME = "MPBS.uz";
 const TWITTER_HANDLE = "@ShohruxDigital";
 
 export const SEOHead = ({
