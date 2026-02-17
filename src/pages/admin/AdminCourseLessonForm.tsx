@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, Save, Upload, Link as LinkIcon, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -168,7 +169,7 @@ const AdminCourseLessonForm = () => {
             <div className="space-y-2"><Label>Slug</Label><Input value={formData.slug} onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))} /></div>
           </div>
           <div className="space-y-2"><Label>Tavsif</Label><Textarea value={formData.description} onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))} rows={3} /></div>
-          <div className="space-y-2"><Label>Kontent (HTML)</Label><Textarea value={formData.content_html} onChange={(e) => setFormData((p) => ({ ...p, content_html: e.target.value }))} rows={6} placeholder="<p>Dars matni...</p>" /></div>
+          <div className="space-y-2"><Label>Kontent</Label><RichTextEditor value={formData.content_html} onChange={(val) => setFormData((p) => ({ ...p, content_html: val }))} placeholder="Dars matni..." /></div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2"><Label>Davomiylik (daqiqa)</Label><Input type="number" value={formData.duration_minutes} onChange={(e) => setFormData((p) => ({ ...p, duration_minutes: Number(e.target.value) }))} min={0} /></div>
             <div className="space-y-2"><Label>Tartib raqami</Label><Input type="number" value={formData.sort_order} onChange={(e) => setFormData((p) => ({ ...p, sort_order: Number(e.target.value) }))} /></div>

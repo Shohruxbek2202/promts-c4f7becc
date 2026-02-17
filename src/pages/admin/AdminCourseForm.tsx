@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { Switch } from "@/components/ui/switch";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -147,8 +148,8 @@ const AdminCourseForm = () => {
             <Textarea id="description" value={formData.description} onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))} placeholder="Kurs haqida qisqa ma'lumot" rows={3} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="content_html">To'liq tavsif (HTML)</Label>
-            <Textarea id="content_html" value={formData.content_html} onChange={(e) => setFormData((p) => ({ ...p, content_html: e.target.value }))} placeholder="<p>Kurs haqida to'liq ma'lumot...</p>" rows={6} />
+            <Label>To'liq tavsif</Label>
+            <RichTextEditor value={formData.content_html} onChange={(val) => setFormData((p) => ({ ...p, content_html: val }))} placeholder="Kurs haqida to'liq ma'lumot..." />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">

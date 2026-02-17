@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -304,13 +305,11 @@ const AdminPromptForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="instructions">Qo'llanma (matn)</Label>
-            <Textarea
-              id="instructions"
+            <Label>Qo'llanma</Label>
+            <RichTextEditor
               value={formData.instructions}
-              onChange={(e) => setFormData(prev => ({ ...prev, instructions: e.target.value }))}
+              onChange={(val) => setFormData(prev => ({ ...prev, instructions: val }))}
               placeholder="Promtdan qanday foydalanish kerak..."
-              rows={4}
             />
           </div>
 
@@ -328,13 +327,11 @@ const AdminPromptForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="examples">Namunalar (matn)</Label>
-            <Textarea
-              id="examples"
+            <Label>Namunalar</Label>
+            <RichTextEditor
               value={formData.examples}
-              onChange={(e) => setFormData(prev => ({ ...prev, examples: e.target.value }))}
+              onChange={(val) => setFormData(prev => ({ ...prev, examples: val }))}
               placeholder="Ishlatish namunalari..."
-              rows={4}
             />
           </div>
         </div>
