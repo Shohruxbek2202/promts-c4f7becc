@@ -13,6 +13,8 @@ import PromptDetail from "./pages/PromptDetail";
 import Agency from "./pages/Agency";
 import Lessons from "./pages/Lessons";
 import LessonDetail from "./pages/LessonDetail";
+import Courses from "./pages/Courses";
+import CoursePayment from "./pages/CoursePayment";
 import FAQ from "./pages/FAQ";
 import HelpCenter from "./pages/HelpCenter";
 import Terms from "./pages/Terms";
@@ -34,6 +36,7 @@ import AdminCourses from "./pages/admin/AdminCourses";
 import AdminCourseForm from "./pages/admin/AdminCourseForm";
 import AdminCourseLessons from "./pages/admin/AdminCourseLessons";
 import AdminCourseLessonForm from "./pages/admin/AdminCourseLessonForm";
+import AdminPaymentMethods from "./pages/admin/AdminPaymentMethods";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +58,8 @@ const App = () => (
             <Route path="/agency" element={<Agency />} />
             <Route path="/lessons" element={<Lessons />} />
             <Route path="/lessons/:slug" element={<LessonDetail />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/course-payment/:slug" element={<CoursePayment />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/help" element={<HelpCenter />} />
             <Route path="/terms" element={<Terms />} />
@@ -82,6 +87,7 @@ const App = () => (
               <Route path="courses/:courseId/lessons/new" element={<AdminCourseLessonForm />} />
               <Route path="courses/:courseId/lessons/:lessonId/edit" element={<AdminCourseLessonForm />} />
               <Route path="pricing" element={<AdminPricingPlans />} />
+              <Route path="payment-methods" element={<AdminPaymentMethods />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />

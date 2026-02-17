@@ -16,7 +16,8 @@ import {
   Sparkles,
   Building2,
   LogOut,
-  BarChart3
+  BarChart3,
+  GraduationCap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -64,9 +65,10 @@ const Dashboard = () => {
   const { user, isLoading, signOut } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [purchasedPrompts, setPurchasedPrompts] = useState<PurchasedPrompt[]>([]);
+  const [purchasedCourses, setPurchasedCourses] = useState<{ id: string; purchased_at: string; course: { id: string; title: string; slug: string; lessons_count: number; cover_image_url: string | null } }[]>([]);
   const [referralTransactions, setReferralTransactions] = useState<ReferralTransaction[]>([]);
   const [loadingData, setLoadingData] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "stats" | "prompts" | "referrals">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "stats" | "courses" | "prompts" | "referrals">("overview");
 
   useEffect(() => {
     if (user) {
@@ -108,6 +110,19 @@ const Dashboard = () => {
             prompt: Array.isArray(p.prompt) ? p.prompt[0] : p.prompt
           }));
         setPurchasedPrompts(mappedPrompts);
+      }
+
+      // Fetch purchased courses
+      const { data: coursesData } = await supabase
+        .from("user_courses")
+        .select(`id, purchased_at, course:courses (id, title, slug, lessons_count, cover_image_url)`)
+        .eq("user_id", user!.id)
+        .order("purchased_at", { ascending: false });
+      if (coursesData) {
+        const mapped = coursesData
+          .filter((c): c is typeof c & { course: NonNullable<typeof c.course> } => c.course !== null)
+          .map(c => ({ id: c.id, purchased_at: c.purchased_at, course: Array.isArray(c.course) ? c.course[0] : c.course }));
+        setPurchasedCourses(mapped);
       }
 
       if (profileData) {
@@ -304,6 +319,7 @@ const Dashboard = () => {
           {[
             { id: "overview", label: "Umumiy", icon: User },
             { id: "stats", label: "Statistika", icon: BarChart3 },
+            { id: "courses", label: "Kurslar", icon: GraduationCap },
             { id: "prompts", label: "Promptlar", icon: FileText },
             { id: "referrals", label: "Referrallar", icon: Gift },
           ].map((tab) => (
@@ -400,6 +416,51 @@ const Dashboard = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <UserStatsChart />
+          </motion.div>
+        )}
+
+        {activeTab === "courses" && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
+            <div className="p-6 border-b border-border/50">
+              <h2 className="text-lg font-semibold text-foreground">Sotib olingan kurslar</h2>
+              <p className="text-sm text-muted-foreground mt-1">Sizga tegishli barcha kurslar</p>
+            </div>
+            <div className="p-6">
+              {purchasedCourses.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                    <GraduationCap className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground mb-4">Siz hali hech qanday kurs sotib olmagansiz</p>
+                  <Link to="/courses"><Button>Kurslarni ko'rish</Button></Link>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {purchasedCourses.map((item) => (
+                    <Link key={item.id} to={`/courses?course=${item.course.slug}`}>
+                      <div className="group rounded-xl border border-border/50 overflow-hidden hover:border-primary/30 transition-all">
+                        {item.course.cover_image_url ? (
+                          <img src={item.course.cover_image_url} alt={item.course.title} className="w-full h-32 object-cover" />
+                        ) : (
+                          <div className="w-full h-32 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                            <GraduationCap className="w-8 h-8 text-primary/30" />
+                          </div>
+                        )}
+                        <div className="p-4">
+                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{item.course.title}</h3>
+                          <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                            <span>{item.course.lessons_count} dars</span>
+                            <span>•</span>
+                            <span>{new Date(item.purchased_at).toLocaleDateString("uz-UZ")}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
 
