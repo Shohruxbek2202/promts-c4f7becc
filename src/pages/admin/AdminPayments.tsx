@@ -392,16 +392,23 @@ const AdminPayments = () => {
 
                     <div className="flex items-center gap-3">
                       {payment.receipt_url && (
-                        <a
-                          href={payment.receipt_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            const { data } = await supabase.storage
+                              .from("receipts")
+                              .createSignedUrl(payment.receipt_url!, 3600);
+                            if (data?.signedUrl) {
+                              window.open(data.signedUrl, "_blank");
+                            } else {
+                              toast.error("Chekni ochishda xatolik");
+                            }
+                          }}
                         >
-                          <Button variant="outline" size="sm">
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            Chek
-                          </Button>
-                        </a>
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Chek
+                        </Button>
                       )}
                       
                       {payment.status === "pending" && (

@@ -85,14 +85,12 @@ const CoursePayment = () => {
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       const { error: uploadError } = await supabase.storage.from("receipts").upload(fileName, receiptFile);
       if (uploadError) throw uploadError;
-      const { data: urlData } = supabase.storage.from("receipts").getPublicUrl(fileName);
-
       const { error: paymentError } = await supabase.from("payments").insert({
         user_id: user.id,
         course_id: course.id,
         amount: course.discount_price || course.price,
         status: "pending",
-        receipt_url: urlData.publicUrl,
+        receipt_url: fileName,
         payment_method: "manual",
       });
       if (paymentError) throw paymentError;
