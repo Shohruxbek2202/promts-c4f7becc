@@ -169,12 +169,7 @@ const Payment = () => {
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from("receipts")
-        .getPublicUrl(fileName);
-
-      // Create payment record
+      // Create payment record with file path (private bucket)
       const { error: paymentError } = await supabase
         .from("payments")
         .insert({
@@ -182,7 +177,7 @@ const Payment = () => {
           plan_id: selectedPlan,
           amount: plan.price,
           status: "pending",
-          receipt_url: urlData.publicUrl,
+          receipt_url: fileName,
         });
 
       if (paymentError) throw paymentError;
