@@ -56,7 +56,7 @@ const LessonDetail = () => {
       `)
       .eq("slug", slug)
       .eq("is_published", true)
-      .single();
+      .maybeSingle();
 
     if (data) {
       setLesson(data as unknown as Lesson);
@@ -73,7 +73,7 @@ const LessonDetail = () => {
       .from("profiles")
       .select("subscription_type, subscription_expires_at")
       .eq("user_id", user.id)
-      .single();
+      .maybeSingle();
 
     if (profile) {
       const hasValidSubscription = 

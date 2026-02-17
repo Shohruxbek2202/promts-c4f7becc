@@ -49,7 +49,7 @@ const CoursePayment = () => {
 
   const fetchCourse = async () => {
     setIsLoading(true);
-    const { data } = await supabase.from("courses").select("id, title, slug, price, discount_price, cover_image_url, lessons_count").eq("slug", slug).eq("is_published", true).single();
+    const { data } = await supabase.from("courses").select("id, title, slug, price, discount_price, cover_image_url, lessons_count").eq("slug", slug).eq("is_published", true).maybeSingle();
     if (data) {
       setCourse(data);
       if (user) {

@@ -209,11 +209,8 @@ const Prompts = () => {
     setIsLoading(false);
   };
 
-  const incrementViewCount = async (promptId: string, currentCount: number) => {
-    await supabase
-      .from("prompts")
-      .update({ view_count: currentCount + 1 })
-      .eq("id", promptId);
+  const incrementViewCount = async (promptId: string, _currentCount: number) => {
+    await supabase.rpc("increment_prompt_view_count", { prompt_id: promptId });
   };
 
   const filteredPrompts = prompts.filter(prompt =>
@@ -297,11 +294,8 @@ const Prompts = () => {
       
       const newCopyCount = (selectedPrompt.copy_count || 0) + 1;
       
-      // Update copy count in database
-      await supabase
-        .from("prompts")
-        .update({ copy_count: newCopyCount })
-        .eq("id", selectedPrompt.id);
+      // Update copy count in database via RPC
+      await supabase.rpc("increment_prompt_copy_count", { prompt_id: selectedPrompt.id });
       
       // Update local state to reflect new copy count
       setPrompts(prevPrompts => 
