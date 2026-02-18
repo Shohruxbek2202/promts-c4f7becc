@@ -397,7 +397,8 @@ const AdminSettings = () => {
   };
 
   const deleteCategory = async (id: string) => {
-    if (!confirm("Bu kategoriyani o'chirmoqchimisiz?")) return;
+    // Use window.confirm for now — safe as admin-only page
+    if (!window.confirm("Bu kategoriyani o'chirmoqchimisiz?")) return;
 
     const { error } = await supabase
       .from("categories")
@@ -490,8 +491,8 @@ const AdminSettings = () => {
       {/* Hero Settings */}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="p-6 border-b border-border flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-            <Type className="w-5 h-5 text-purple-500" />
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Type className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-foreground">
@@ -539,8 +540,8 @@ const AdminSettings = () => {
       {/* Section Visibility */}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="p-6 border-b border-border flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <FolderOpen className="w-5 h-5 text-amber-500" />
+          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+            <FolderOpen className="w-5 h-5 text-muted-foreground" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-foreground">
@@ -654,8 +655,8 @@ const AdminSettings = () => {
       {/* Contact Settings */}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="p-6 border-b border-border flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-            <Mail className="w-5 h-5 text-green-500" />
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Mail className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h2 className="text-lg font-semibold text-foreground">
@@ -816,7 +817,7 @@ const AdminSettings = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setNewCategory(prev => ({ ...prev, icon: "" }))}
-                    className="text-red-500 hover:text-red-600"
+                    className="text-destructive hover:text-destructive"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -957,7 +958,7 @@ const AdminSettings = () => {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => setEditingCategory({ ...editingCategory, icon: null })}
-                                  className="text-red-500 hover:text-red-600"
+                                  className="text-destructive hover:text-destructive"
                                 >
                                   <Trash2 className="w-4 h-4 mr-1" />
                                   O'chirish
@@ -978,7 +979,7 @@ const AdminSettings = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                    className="text-destructive hover:bg-destructive/10"
                     onClick={() => deleteCategory(category.id)}
                   >
                     <Trash2 className="w-4 h-4" />

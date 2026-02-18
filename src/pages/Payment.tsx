@@ -215,11 +215,11 @@ const Payment = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
-        return <Badge className="bg-green-500/10 text-green-600 border-0"><Check className="h-3 w-3 mr-1" />Tasdiqlangan</Badge>;
+        return <Badge variant="secondary" className="gap-1 border-0"><Check className="h-3 w-3 mr-1" />Tasdiqlangan</Badge>;
       case "rejected":
-        return <Badge className="bg-red-500/10 text-red-600 border-0"><X className="h-3 w-3 mr-1" />Rad etilgan</Badge>;
+        return <Badge variant="destructive" className="gap-1 border-0"><X className="h-3 w-3 mr-1" />Rad etilgan</Badge>;
       default:
-        return <Badge className="bg-amber-500/10 text-amber-600 border-0"><Clock className="h-3 w-3 mr-1" />Kutilmoqda</Badge>;
+        return <Badge variant="outline" className="gap-1"><Clock className="h-3 w-3 mr-1" />Kutilmoqda</Badge>;
     }
   };
 
