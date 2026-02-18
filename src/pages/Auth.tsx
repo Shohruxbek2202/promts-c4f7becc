@@ -119,10 +119,9 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
+          // Link referral after short delay so profile trigger fires
           if (referralCode.trim()) {
-            setTimeout(async () => {
-              await linkReferralCode(referralCode.trim());
-            }, 1000);
+            setTimeout(() => linkReferralCode(referralCode.trim()), 2000);
           }
           toast.success("Ro'yxatdan muvaffaqiyatli o'tdingiz! Emailingizni tasdiqlang.", { duration: 6000 });
           setIsLogin(true);

@@ -27,12 +27,16 @@ interface PendingPayment {
   id: string;
   amount: number;
   created_at: string;
+  course_id: string | null;
   profiles?: {
     email: string;
     full_name: string;
   };
   pricing_plans?: {
     name: string;
+  };
+  courses?: {
+    title: string;
   };
 }
 
@@ -53,24 +57,19 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     setIsLoading(true);
-    
-    // Fetch counts
     const [usersResult, promptsResult, pendingResult, revenueResult] = await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }),
       supabase.from("prompts").select("id", { count: "exact", head: true }),
       supabase.from("payments").select("id", { count: "exact", head: true }).eq("status", "pending"),
       supabase.from("payments").select("amount").eq("status", "approved"),
     ]);
-
     const totalRevenue = revenueResult.data?.reduce((sum, p) => sum + (Number(p.amount) || 0), 0) || 0;
-
     setStats({
       totalUsers: usersResult.count || 0,
       totalPrompts: promptsResult.count || 0,
       pendingPayments: pendingResult.count || 0,
       totalRevenue,
     });
-    
     setIsLoading(false);
   };
 
@@ -78,9 +77,10 @@ const AdminDashboard = () => {
     const { data } = await supabase
       .from("payments")
       .select(`
-        id, amount, created_at,
+        id, amount, created_at, course_id,
         profiles!payments_user_id_fkey (email, full_name),
-        pricing_plans (name)
+        pricing_plans (name),
+        courses (title)
       `)
       .eq("status", "pending")
       .order("created_at", { ascending: false })
@@ -89,8 +89,44 @@ const AdminDashboard = () => {
     if (data) setPendingPayments(data as unknown as PendingPayment[]);
   };
 
+  // ── Referral commission (same logic as AdminPayments) ──
+  const handleReferralCommission = async (userId: string, paymentId: string) => {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id, referred_by")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!profile?.referred_by) return;
+
+    const { data: payment } = await supabase
+      .from("payments")
+      .select("amount")
+      .eq("id", paymentId)
+      .maybeSingle();
+
+    if (!payment) return;
+
+    const commissionAmount = Number(payment.amount) * 0.10;
+    await supabase.from("referral_transactions").insert({
+      referrer_id: profile.referred_by,
+      referred_user_id: profile.id,
+      payment_id: paymentId,
+      amount: commissionAmount,
+    });
+    const { data: referrer } = await supabase
+      .from("profiles")
+      .select("referral_earnings")
+      .eq("id", profile.referred_by)
+      .maybeSingle();
+    if (referrer) {
+      await supabase.from("profiles")
+        .update({ referral_earnings: (referrer.referral_earnings || 0) + commissionAmount })
+        .eq("id", profile.referred_by);
+    }
+  };
+
   const handlePaymentAction = async (paymentId: string, action: "approved" | "rejected") => {
-    // Get payment details to update subscription / grant course access
     const { data: paymentData } = await supabase
       .from("payments")
       .select("user_id, plan_id, course_id, pricing_plans(subscription_type, duration_days)")
@@ -105,7 +141,9 @@ const AdminDashboard = () => {
       })
       .eq("id", paymentId);
 
-    if (!error && action === "approved") {
+    if (error) return;
+
+    if (action === "approved") {
       // ── Plan-based payment ──
       if (paymentData?.plan_id) {
         const plan = paymentData.pricing_plans as unknown as { subscription_type: string; duration_days: number | null };
@@ -126,6 +164,8 @@ const AdminDashboard = () => {
             subscription_expires_at: expiresAt,
             ...(subType === "vip" ? { has_agency_access: true, agency_access_expires_at: expiresAt } : {}),
           }).eq("user_id", paymentData.user_id);
+          // ✅ Referral commission credited
+          await handleReferralCommission(paymentData.user_id, paymentId);
         }
       }
 
@@ -138,23 +178,20 @@ const AdminDashboard = () => {
             course_id: paymentData.course_id,
             payment_id: paymentId,
           });
-        if (courseError && courseError.code !== "23505") {
-          console.error("Error granting course access from dashboard:", courseError);
+        if (!courseError || courseError.code === "23505") {
+          // ✅ Referral commission credited
+          await handleReferralCommission(paymentData.user_id, paymentId);
         }
       }
 
-      // ── Send email notification ──
+      // ── Email notification ──
       try {
-        await supabase.functions.invoke("send-payment-email", {
-          body: { paymentId, action },
-        });
+        await supabase.functions.invoke("send-payment-email", { body: { paymentId, action } });
       } catch (e) { console.error("Email notification failed:", e); }
     }
 
-    if (!error) {
-      fetchPendingPayments();
-      fetchStats();
-    }
+    fetchPendingPayments();
+    fetchStats();
   };
 
   const statCards = [
@@ -254,7 +291,7 @@ const AdminDashboard = () => {
                     {payment.profiles?.full_name || payment.profiles?.email || "Noma'lum"}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {payment.pricing_plans?.name} - {Number(payment.amount).toLocaleString()} so'm
+                    {payment.pricing_plans?.name || payment.courses?.title || "—"} — {Number(payment.amount).toLocaleString()} so'm
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(payment.created_at).toLocaleDateString("uz-UZ")}

@@ -157,7 +157,7 @@ const Payment = () => {
     const plan = plans.find(p => p.id === selectedPlan);
     if (!plan) return;
 
-    // Duplicate payment check
+    // Duplicate payment check — plan_id bo'yicha tekshirish
     const { data: existingPending } = await supabase
       .from("payments")
       .select("id")
@@ -165,10 +165,27 @@ const Payment = () => {
       .eq("plan_id", selectedPlan)
       .eq("status", "pending")
       .maybeSingle();
-    
+
     if (existingPending) {
       toast.warning("Bu tarif uchun to'lov allaqachon kutilmoqda. Admin tasdiqlashini kuting.");
       return;
+    }
+
+    // Agar foydalanuvchi allaqachon shu obunaga ega bo'lsa ogohlantir
+    const { data: currentProfile } = await supabase
+      .from("profiles")
+      .select("subscription_type, subscription_expires_at")
+      .eq("user_id", user!.id)
+      .maybeSingle();
+
+    if (currentProfile?.subscription_type === plan.subscription_type &&
+        currentProfile.subscription_expires_at &&
+        new Date(currentProfile.subscription_expires_at) > new Date()) {
+      const daysLeft = Math.ceil(
+        (new Date(currentProfile.subscription_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      );
+      toast.warning(`Siz allaqachon ${plan.name} obunasiga egasiz. ${daysLeft} kun qoldi.`, { duration: 5000 });
+      // Proceed anyway (user may want to extend)
     }
 
     setUploading(true);
