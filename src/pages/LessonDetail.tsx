@@ -37,6 +37,7 @@ const LessonDetail = () => {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
+  const [signedVideoUrl, setSignedVideoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetchLesson();
@@ -44,6 +45,21 @@ const LessonDetail = () => {
       checkAccess();
     }
   }, [slug, user]);
+
+  // Fetch signed URL for private video files
+  useEffect(() => {
+    if (!lesson?.video_file_url || !user || !hasAccess) { setSignedVideoUrl(null); return; }
+    const url = lesson.video_file_url;
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      setSignedVideoUrl(url);
+      return;
+    }
+    supabase.functions.invoke("get-video-url", {
+      body: { filePath: url, bucket: "lesson-videos" },
+    }).then(({ data }) => {
+      if (data?.signedUrl) setSignedVideoUrl(data.signedUrl);
+    });
+  }, [lesson?.video_file_url, user, hasAccess]);
 
   const fetchLesson = async () => {
     setIsLoading(true);
@@ -88,14 +104,19 @@ const LessonDetail = () => {
   const getVideoEmbed = () => {
     if (!lesson) return null;
 
-    // If there's an uploaded video file
+    // If there's an uploaded video file — use signed URL for private bucket
     if (lesson.video_file_url) {
+      if (!signedVideoUrl) {
+        return <div className="w-full aspect-video rounded-xl bg-muted flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
+      }
       return (
         <video
-          src={lesson.video_file_url}
+          src={signedVideoUrl}
           controls
+          controlsList="nodownload noremoteplayback"
           className="w-full aspect-video rounded-xl"
           poster={lesson.thumbnail_url || undefined}
+          onContextMenu={(e) => e.preventDefault()}
         />
       );
     }
@@ -221,7 +242,7 @@ const LessonDetail = () => {
                       className="w-full h-full object-cover blur-sm"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-purple-500/20" />
+                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20" />
                   )}
                 </div>
                 <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center rounded-xl">
