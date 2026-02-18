@@ -88,18 +88,18 @@ export const UserStatsChart = () => {
         });
       }
 
-      // Generate mock view data for demo (in real app, you'd track this in DB)
+      // No real view tracking yet — show 0 for all days
       const last7Days: ViewData[] = [];
       for (let i = 6; i >= 0; i--) {
         const date = new Date();
         date.setDate(date.getDate() - i);
         last7Days.push({
           date: date.toLocaleDateString("uz-UZ", { weekday: "short" }),
-          views: Math.floor(Math.random() * 15) + 1,
+          views: 0,
         });
       }
       setViewData(last7Days);
-      setTotalViews(last7Days.reduce((sum, d) => sum + d.views, 0));
+      setTotalViews(0);
     } catch (error) {
       console.error("Error fetching user stats:", error);
     } finally {
