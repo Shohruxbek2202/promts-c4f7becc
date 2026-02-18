@@ -137,7 +137,7 @@ export const Footer = () => {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2.5 mb-4">
               <span className="text-lg font-bold text-foreground">
-                Productiviy.uz
+                MPBS.uz
               </span>
             </Link>
             <p className="text-muted-foreground mb-6 max-w-sm leading-relaxed">
@@ -222,7 +222,7 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-8 pt-6 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Productiviy.uz. Barcha huquqlar himoyalangan.
+            © {new Date().getFullYear()} ShohruxDigital.uz. Barcha huquqlar himoyalangan.
           </p>
           <div className="flex items-center gap-3">
             <a 
