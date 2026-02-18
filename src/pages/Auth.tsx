@@ -79,15 +79,15 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
-          toast.success("Ro'yxatdan muvaffaqiyatli o'tdingiz!");
-          
           if (referralCode.trim()) {
             setTimeout(async () => {
               await linkReferralCode(referralCode.trim());
             }, 1000);
           }
-          
-          navigate("/");
+          // Show email verification notice instead of redirecting
+          toast.success("Ro'yxatdan muvaffaqiyatli o'tdingiz! Emailingizni tasdiqlang.", { duration: 6000 });
+          setIsLogin(true);
+          setPassword("");
         }
       }
     } finally {
@@ -140,7 +140,7 @@ const Auth = () => {
       {/* Left Side - Decorative */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         {/* Background Effects */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10" />
         <motion.div
           animate={{ 
             x: [0, 30, 0],
@@ -155,7 +155,7 @@ const Auth = () => {
             y: [0, 30, 0],
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-3xl"
+          className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-secondary/10 rounded-full blur-3xl"
         />
 
         {/* Content */}

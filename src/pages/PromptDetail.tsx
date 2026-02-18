@@ -56,10 +56,10 @@ interface Prompt {
 }
 
 const difficultyColors: Record<DifficultyLevel, string> = {
-  beginner: "bg-green-100 text-green-700",
-  intermediate: "bg-blue-100 text-blue-700",
-  advanced: "bg-orange-100 text-orange-700",
-  expert: "bg-red-100 text-red-700",
+  beginner: "bg-primary/10 text-primary",
+  intermediate: "bg-secondary/10 text-secondary-foreground",
+  advanced: "bg-destructive/10 text-destructive",
+  expert: "bg-destructive/20 text-destructive",
 };
 
 const difficultyLabels: Record<DifficultyLevel, string> = {
@@ -285,7 +285,7 @@ const PromptDetail = () => {
                     Premium - {prompt.price?.toLocaleString()} so'm
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="text-green-600 border-green-200">
+                  <Badge variant="outline" className="text-primary border-primary/30">
                     Bepul
                   </Badge>
                 )}
@@ -405,7 +405,7 @@ const PromptDetail = () => {
               {prompt.examples && hasAccess && (
                 <div className="bg-card rounded-2xl border border-border overflow-hidden">
                   <div className="flex items-center gap-2 px-6 py-4 border-b border-border bg-muted/30">
-                    <BookOpen className="w-5 h-5 text-green-600" />
+                    <BookOpen className="w-5 h-5 text-primary" />
                     <span className="font-medium">Namuna</span>
                   </div>
                   <div className="p-6">
