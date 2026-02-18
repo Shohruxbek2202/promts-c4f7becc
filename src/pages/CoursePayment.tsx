@@ -79,6 +79,21 @@ const CoursePayment = () => {
 
   const handleSubmitPayment = async () => {
     if (!user || !course || !receiptFile) { toast.error("Barcha maydonlarni to'ldiring"); return; }
+    
+    // Double-click protection: check pending payment already exists
+    const { data: existingPending } = await supabase
+      .from("payments")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("course_id", course.id)
+      .eq("status", "pending")
+      .maybeSingle();
+    
+    if (existingPending) {
+      toast.warning("Bu kurs uchun to'lov allaqachon kutilmoqda. Admin tasdiqlashini kuting.");
+      return;
+    }
+
     setUploading(true);
     try {
       const fileExt = receiptFile.name.split(".").pop();

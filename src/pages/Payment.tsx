@@ -156,6 +156,20 @@ const Payment = () => {
     const plan = plans.find(p => p.id === selectedPlan);
     if (!plan) return;
 
+    // Duplicate payment check
+    const { data: existingPending } = await supabase
+      .from("payments")
+      .select("id")
+      .eq("user_id", user!.id)
+      .eq("plan_id", selectedPlan)
+      .eq("status", "pending")
+      .maybeSingle();
+    
+    if (existingPending) {
+      toast.warning("Bu tarif uchun to'lov allaqachon kutilmoqda. Admin tasdiqlashini kuting.");
+      return;
+    }
+
     setUploading(true);
 
     try {
