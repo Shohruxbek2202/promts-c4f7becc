@@ -161,7 +161,7 @@ const Dashboard = () => {
 
   const copyReferralLink = () => {
     if (profile?.referral_code) {
-      const link = `${window.location.origin}/auth?ref=${profile.referral_code}`;
+      const link = `https://mpbs.uz/auth?ref=${profile.referral_code}`;
       navigator.clipboard.writeText(link);
       toast.success("Referral havola nusxalandi!");
     }
