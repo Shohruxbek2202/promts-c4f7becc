@@ -81,11 +81,12 @@ const Profile = () => {
     setUploading(true);
     try {
       const ext = file.name.split(".").pop();
-      const filePath = `avatars/${user.id}.${ext}`;
+      // Use prompt-media public bucket for avatars (subfolder: avatars/)
+      const filePath = `avatars/${user.id}-${Date.now()}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from("prompt-media")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, file, { upsert: false });
 
       if (uploadError) throw uploadError;
 
@@ -93,13 +94,15 @@ const Profile = () => {
         .from("prompt-media")
         .getPublicUrl(filePath);
 
-      const newUrl = urlData.publicUrl + `?t=${Date.now()}`;
+      const newUrl = urlData.publicUrl;
       setAvatarUrl(newUrl);
 
-      await supabase
+      const { error: updateError } = await supabase
         .from("profiles")
         .update({ avatar_url: newUrl })
         .eq("user_id", user.id);
+
+      if (updateError) throw updateError;
 
       toast.success("Avatar yangilandi!");
     } catch (err) {
