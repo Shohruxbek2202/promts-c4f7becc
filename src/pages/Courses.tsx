@@ -89,13 +89,16 @@ const Courses = () => {
   }, [selectedCategory, categories]);
 
   const fetchCategories = async () => {
-    const { data } = await supabase.from("categories").select("id, name, slug, icon").eq("is_active", true).order("sort_order");
-    if (data) {
-      setCategories(data);
+    // Parallel fetch: categories + all published courses (for counting)
+    const [{ data: catData }, { data: allCourses }] = await Promise.all([
+      supabase.from("categories").select("id, name, slug, icon").eq("is_active", true).order("sort_order"),
+      supabase.from("courses").select("category_id").eq("is_published", true),
+    ]);
+    if (catData) {
+      setCategories(catData);
       const counts: Record<string, number> = {};
-      for (const cat of data) {
-        const { count } = await supabase.from("courses").select("id", { count: "exact", head: true }).eq("category_id", cat.id).eq("is_published", true);
-        counts[cat.id] = count || 0;
+      for (const course of allCourses || []) {
+        if (course.category_id) counts[course.category_id] = (counts[course.category_id] || 0) + 1;
       }
       setCourseCounts(counts);
     }

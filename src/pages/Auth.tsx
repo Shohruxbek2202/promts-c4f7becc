@@ -29,7 +29,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (user && !isLoading) {
-      navigate("/");
+      navigate("/dashboard");
     }
   }, [user, isLoading, navigate]);
 
@@ -68,7 +68,7 @@ const Auth = () => {
           }
         } else {
           toast.success("Muvaffaqiyatli kirdingiz!");
-          navigate("/");
+          navigate("/dashboard");
         }
       } else {
         const { error } = await signUp(email, password);
