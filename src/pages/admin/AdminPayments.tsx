@@ -141,39 +141,57 @@ const AdminPayments = () => {
   };
 
   const handleReferralCommission = async (userId: string, paymentId: string) => {
+    // Check if referral transaction already exists for this payment
+    const { data: existingTx } = await supabase
+      .from("referral_transactions")
+      .select("id")
+      .eq("payment_id", paymentId)
+      .maybeSingle();
+
+    if (existingTx) return; // Already processed
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("id, referred_by")
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (profile?.referred_by) {
-      const { data: payment } = await supabase
-        .from("payments")
-        .select("amount")
-        .eq("id", paymentId)
-        .maybeSingle();
+    if (!profile?.referred_by) return;
 
-      if (payment) {
-        const commissionAmount = Number(payment.amount) * 0.10;
-        await supabase.from("referral_transactions").insert({
-          referrer_id: profile.referred_by,
-          referred_user_id: profile.id,
-          payment_id: paymentId,
-          amount: commissionAmount,
-        });
-        const { data: referrerProfile } = await supabase
-          .from("profiles")
-          .select("referral_earnings")
-          .eq("id", profile.referred_by)
-          .maybeSingle();
-        if (referrerProfile) {
-          await supabase
-            .from("profiles")
-            .update({ referral_earnings: (referrerProfile.referral_earnings || 0) + commissionAmount })
-            .eq("id", profile.referred_by);
-        }
-      }
+    const { data: payment } = await supabase
+      .from("payments")
+      .select("amount")
+      .eq("id", paymentId)
+      .maybeSingle();
+
+    if (!payment) return;
+
+    const commissionAmount = Math.round(Number(payment.amount) * 0.10);
+
+    const { error: txError } = await supabase.from("referral_transactions").insert({
+      referrer_id: profile.referred_by,
+      referred_user_id: profile.id,
+      payment_id: paymentId,
+      amount: commissionAmount,
+    });
+
+    if (txError) {
+      console.error("Referral transaction error:", txError);
+      return;
+    }
+
+    // Atomically increment referral_earnings
+    const { data: referrerProfile } = await supabase
+      .from("profiles")
+      .select("referral_earnings")
+      .eq("id", profile.referred_by)
+      .maybeSingle();
+
+    if (referrerProfile !== null) {
+      await supabase
+        .from("profiles")
+        .update({ referral_earnings: (referrerProfile?.referral_earnings || 0) + commissionAmount })
+        .eq("id", profile.referred_by);
     }
   };
 
@@ -282,6 +300,8 @@ const AdminPayments = () => {
       }
 
       if (!paymentData?.plan_id && !paymentData?.course_id) {
+        // prompt or other payment — still process referral
+        await handleReferralCommission(paymentData!.user_id, paymentId);
         toast.success("To'lov tasdiqlandi");
       }
     } else {
