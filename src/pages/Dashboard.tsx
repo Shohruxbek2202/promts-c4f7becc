@@ -71,6 +71,16 @@ const Dashboard = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "stats" | "courses" | "prompts" | "referrals">("overview");
 
+  // Subscription expiry warning (7 days)
+  const subscriptionExpiryWarning = (() => {
+    if (!profile?.subscription_expires_at || profile.subscription_type === "lifetime") return null;
+    const expiresAt = new Date(profile.subscription_expires_at);
+    const now = new Date();
+    const daysLeft = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    if (daysLeft > 0 && daysLeft <= 7) return daysLeft;
+    return null;
+  })();
+
   useEffect(() => {
     if (user) {
       fetchDashboardData();
@@ -216,6 +226,30 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Subscription Expiry Warning Banner */}
+        {subscriptionExpiryWarning !== null && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 flex items-center gap-3 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-5 py-4"
+          >
+            <span className="text-xl">⚠️</span>
+            <div className="flex-1">
+              <p className="font-semibold text-yellow-600 dark:text-yellow-400">
+                Obunangiz {subscriptionExpiryWarning} kun ichida tugaydi!
+              </p>
+              <p className="text-sm text-yellow-600/80 dark:text-yellow-400/80">
+                Uzluksiz foydalanish uchun obunani yangilang
+              </p>
+            </div>
+            <Link to="/payment">
+              <Button size="sm" className="bg-yellow-500 hover:bg-yellow-600 text-white border-0 shrink-0">
+                Yangilash
+              </Button>
+            </Link>
+          </motion.div>
+        )}
+
         {/* Welcome Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

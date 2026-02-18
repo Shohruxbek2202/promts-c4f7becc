@@ -241,6 +241,12 @@ const AdminPayments = () => {
             toast.error("To'lov tasdiqlandi, lekin profil yangilanmadi");
           } else {
             await handleReferralCommission(paymentData.user_id, paymentId);
+            // Send email notification
+            try {
+              await supabase.functions.invoke("send-payment-email", {
+                body: { paymentId, action: "approved" },
+              });
+            } catch (e) { console.error("Email notification failed:", e); }
             toast.success("To'lov tasdiqlandi va obuna yangilandi");
           }
         }
@@ -265,6 +271,12 @@ const AdminPayments = () => {
           }
         } else {
           await handleReferralCommission(paymentData.user_id, paymentId);
+          // Send email notification
+          try {
+            await supabase.functions.invoke("send-payment-email", {
+              body: { paymentId, action: "approved" },
+            });
+          } catch (e) { console.error("Email notification failed:", e); }
           toast.success("To'lov tasdiqlandi va kurs ochildi");
         }
       }
@@ -273,6 +285,12 @@ const AdminPayments = () => {
         toast.success("To'lov tasdiqlandi");
       }
     } else {
+      // Rejected — send email notification
+      try {
+        await supabase.functions.invoke("send-payment-email", {
+          body: { paymentId, action: "rejected" },
+        });
+      } catch (e) { console.error("Email notification failed:", e); }
       toast.success("To'lov rad etildi");
     }
     

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,6 +87,8 @@ interface Profile {
   subscription_type: string | null;
 }
 
+const PAGE_SIZE = 20;
+
 const Prompts = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -97,12 +99,16 @@ const Prompts = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [promptCounts, setPromptCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [pageOffset, setPageOffset] = useState(0);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const [selectedPromptMedia, setSelectedPromptMedia] = useState<PromptMedia[]>([]);
   const [copied, setCopied] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
   
   const selectedCategory = searchParams.get("category") || "";
 
@@ -129,7 +135,10 @@ const Prompts = () => {
 
   useEffect(() => {
     if (categories.length > 0) {
-      fetchPrompts();
+      setPrompts([]);
+      setPageOffset(0);
+      setHasMore(true);
+      fetchPrompts(0, true);
     }
   }, [selectedCategory, categories]);
 
@@ -158,8 +167,10 @@ const Prompts = () => {
     }
   };
 
-  const fetchPrompts = async () => {
-    setIsLoading(true);
+  const fetchPrompts = useCallback(async (offset: number, reset = false) => {
+    if (reset) setIsLoading(true);
+    else setIsLoadingMore(true);
+
     let query = supabase
       .from("prompts")
       .select(`
@@ -170,7 +181,8 @@ const Prompts = () => {
       `)
       .eq("is_published", true)
       .eq("is_agency_only", false)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(offset, offset + PAGE_SIZE - 1);
 
     if (selectedCategory) {
       const category = categories.find(c => c.slug === selectedCategory);
@@ -181,33 +193,49 @@ const Prompts = () => {
 
     const { data } = await query;
     if (data) {
-      setPrompts(data as Prompt[]);
-      
-      // Check if there's a prompt slug in URL
-      const promptSlug = searchParams.get("prompt");
-      if (promptSlug) {
-        const urlPrompt = (data as Prompt[]).find(p => p.slug === promptSlug);
-        if (urlPrompt) {
-          setSelectedPrompt(urlPrompt);
-          // Increment view count
-          incrementViewCount(urlPrompt.id, urlPrompt.view_count || 0);
-          // Fetch media for this prompt
-          const { data: mediaData } = await supabase
-            .from("prompt_media")
-            .select("*")
-            .eq("prompt_id", urlPrompt.id)
-            .order("sort_order");
-          if (mediaData) {
-            setSelectedPromptMedia(mediaData as PromptMedia[]);
+      const newPrompts = data as Prompt[];
+      setPrompts(prev => reset ? newPrompts : [...prev, ...newPrompts]);
+      setHasMore(newPrompts.length === PAGE_SIZE);
+      setPageOffset(offset + newPrompts.length);
+
+      if (reset) {
+        // Check if there's a prompt slug in URL
+        const promptSlug = searchParams.get("prompt");
+        if (promptSlug) {
+          const urlPrompt = newPrompts.find(p => p.slug === promptSlug);
+          if (urlPrompt) {
+            setSelectedPrompt(urlPrompt);
+            incrementViewCount(urlPrompt.id, urlPrompt.view_count || 0);
+            const { data: mediaData } = await supabase
+              .from("prompt_media")
+              .select("*")
+              .eq("prompt_id", urlPrompt.id)
+              .order("sort_order");
+            if (mediaData) setSelectedPromptMedia(mediaData as PromptMedia[]);
           }
+        } else if (newPrompts.length > 0 && !selectedPrompt && window.innerWidth >= 1024) {
+          setSelectedPrompt(newPrompts[0]);
         }
-      } else if (data.length > 0 && !selectedPrompt && window.innerWidth >= 1024) {
-        // Auto-select first prompt only on desktop
-        setSelectedPrompt(data[0] as Prompt);
       }
     }
-    setIsLoading(false);
-  };
+    if (reset) setIsLoading(false);
+    else setIsLoadingMore(false);
+  }, [selectedCategory, categories]);
+
+  // Infinite scroll via IntersectionObserver
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !isLoading) {
+          fetchPrompts(pageOffset);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, isLoadingMore, isLoading, pageOffset, fetchPrompts]);
 
   const incrementViewCount = async (promptId: string, _currentCount: number) => {
     await supabase.rpc("increment_prompt_view_count", { prompt_id: promptId });
@@ -577,6 +605,15 @@ const Prompts = () => {
                           </div>
                         </button>
                       ))}
+                      {/* Infinite scroll sentinel */}
+                      <div ref={sentinelRef} className="py-2 flex justify-center">
+                        {isLoadingMore && (
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+                        )}
+                        {!hasMore && prompts.length > 0 && (
+                          <p className="text-xs text-muted-foreground">Barcha promtlar yuklandi</p>
+                        )}
+                      </div>
                     </div>
                   )}
                 </ScrollArea>
@@ -632,7 +669,7 @@ const Prompts = () => {
                             promptId={selectedPrompt.id}
                             averageRating={selectedPrompt.average_rating || 0}
                             ratingCount={selectedPrompt.rating_count || 0}
-                            onRatingChange={fetchPrompts}
+                            onRatingChange={() => fetchPrompts(0, true)}
                             size="md"
                           />
                         </div>
