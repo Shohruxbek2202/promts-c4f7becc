@@ -90,6 +90,13 @@ const AdminDashboard = () => {
   };
 
   const handlePaymentAction = async (paymentId: string, action: "approved" | "rejected") => {
+    // Get payment details to update subscription
+    const { data: paymentData } = await supabase
+      .from("payments")
+      .select("user_id, plan_id, course_id, pricing_plans(subscription_type, duration_days)")
+      .eq("id", paymentId)
+      .maybeSingle();
+
     const { error } = await supabase
       .from("payments")
       .update({ 
@@ -97,6 +104,28 @@ const AdminDashboard = () => {
         approved_at: action === "approved" ? new Date().toISOString() : null,
       })
       .eq("id", paymentId);
+
+    if (!error && action === "approved" && paymentData?.plan_id) {
+      const plan = paymentData.pricing_plans as unknown as { subscription_type: string; duration_days: number | null };
+      if (plan) {
+        let expiresAt: string | null = null;
+        if (plan.duration_days && plan.subscription_type !== "lifetime") {
+          const d = new Date();
+          d.setDate(d.getDate() + plan.duration_days);
+          expiresAt = d.toISOString();
+        }
+        const validTypes = ["free", "single", "monthly", "yearly", "lifetime", "vip"] as const;
+        type SubType = typeof validTypes[number];
+        const subType = validTypes.includes(plan.subscription_type as SubType) 
+          ? plan.subscription_type as SubType 
+          : "free" as SubType;
+        await supabase.from("profiles").update({
+          subscription_type: subType,
+          subscription_expires_at: expiresAt,
+          ...(subType === "vip" ? { has_agency_access: true, agency_access_expires_at: expiresAt } : {}),
+        }).eq("user_id", paymentData.user_id);
+      }
+    }
 
     if (!error) {
       fetchPendingPayments();
@@ -109,25 +138,25 @@ const AdminDashboard = () => {
       icon: Users, 
       label: "Foydalanuvchilar", 
       value: stats.totalUsers,
-      color: "bg-blue-500/10 text-blue-600"
+      color: "bg-primary/10 text-primary"
     },
     { 
       icon: FileText, 
       label: "Promtlar", 
       value: stats.totalPrompts,
-      color: "bg-green-500/10 text-green-600"
+      color: "bg-secondary/50 text-secondary-foreground"
     },
     { 
       icon: CreditCard, 
       label: "Kutilayotgan to'lovlar", 
       value: stats.pendingPayments,
-      color: "bg-orange-500/10 text-orange-600"
+      color: "bg-destructive/10 text-destructive"
     },
     { 
       icon: TrendingUp, 
       label: "Jami daromad", 
       value: `${stats.totalRevenue.toLocaleString()} so'm`,
-      color: "bg-purple-500/10 text-purple-600"
+      color: "bg-primary/10 text-primary"
     },
   ];
 
@@ -172,8 +201,8 @@ const AdminDashboard = () => {
       >
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-orange-600" />
+            <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-destructive" />
             </div>
             <div>
               <h2 className="font-display font-semibold text-foreground">
@@ -210,8 +239,7 @@ const AdminDashboard = () => {
                 <div className="flex gap-2">
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="text-green-600 hover:bg-green-50"
+                    variant="default"
                     onClick={() => handlePaymentAction(payment.id, "approved")}
                   >
                     <CheckCircle className="w-4 h-4 mr-1" />
@@ -219,8 +247,7 @@ const AdminDashboard = () => {
                   </Button>
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="text-red-600 hover:bg-red-50"
+                    variant="destructive"
                     onClick={() => handlePaymentAction(payment.id, "rejected")}
                   >
                     <XCircle className="w-4 h-4 mr-1" />
