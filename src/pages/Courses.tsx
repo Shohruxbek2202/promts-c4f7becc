@@ -72,12 +72,19 @@ const Courses = () => {
   const [courseCounts, setCourseCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [courseLessons, setCourseLessons] = useState<CourseLesson[]>([]);
   const [purchasedCourseIds, setPurchasedCourseIds] = useState<string[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const selectedCategory = searchParams.get("category") || "";
+
+  // Debounce search 400ms
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
     fetchCategories();
@@ -86,7 +93,7 @@ const Courses = () => {
 
   useEffect(() => {
     if (categories.length > 0 || selectedCategory === "") fetchCourses();
-  }, [selectedCategory, categories]);
+  }, [selectedCategory, categories, debouncedSearch]);
 
   const fetchCategories = async () => {
     // Parallel fetch: categories + all published courses (for counting)
@@ -113,6 +120,11 @@ const Courses = () => {
     if (selectedCategory) {
       const cat = categories.find(c => c.slug === selectedCategory);
       if (cat) query = query.eq("category_id", cat.id);
+    }
+
+    // Server-side search
+    if (debouncedSearch.trim()) {
+      query = query.or(`title.ilike.%${debouncedSearch.trim()}%,description.ilike.%${debouncedSearch.trim()}%`);
     }
 
     const { data } = await query;
@@ -165,10 +177,9 @@ const Courses = () => {
 
   const formatPrice = (price: number) => new Intl.NumberFormat("uz-UZ").format(price) + " so'm";
 
-  const filteredCourses = courses.filter(c =>
-    c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // filteredCourses is now handled server-side
+  const filteredCourses = courses;
+
 
   const totalCoursesCount = Object.values(courseCounts).reduce((a, b) => a + b, 0);
   const currentCategoryName = selectedCategory

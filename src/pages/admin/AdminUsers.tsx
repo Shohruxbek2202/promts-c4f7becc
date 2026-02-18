@@ -126,14 +126,36 @@ const AdminUsers = () => {
   };
 
   const updateSubscription = async (profileId: string, subscriptionType: SubscriptionType) => {
+    // Calculate expiry based on subscription type
+    let expiresAt: string | null = null;
+    if (subscriptionType === "monthly") {
+      expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    } else if (subscriptionType === "yearly") {
+      expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+    } else if (subscriptionType === "single") {
+      expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 kun
+    } else if (subscriptionType === "vip") {
+      expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(); // 1 yil
+    }
+    // lifetime va free uchun null
+
+    const updateData: Record<string, unknown> = {
+      subscription_type: subscriptionType,
+      subscription_expires_at: expiresAt,
+    };
+
+    // VIP uchun agency access ham berish
+    if (subscriptionType === "vip") {
+      updateData.has_agency_access = true;
+      updateData.agency_access_expires_at = expiresAt;
+    } else if (subscriptionType === "free") {
+      updateData.has_agency_access = false;
+      updateData.agency_access_expires_at = null;
+    }
+
     const { error } = await supabase
       .from("profiles")
-      .update({ 
-        subscription_type: subscriptionType,
-        subscription_expires_at: subscriptionType === "lifetime" || subscriptionType === "free" 
-          ? null 
-          : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-      })
+      .update(updateData)
       .eq("id", profileId);
 
     if (!error) {
@@ -286,12 +308,22 @@ const AdminUsers = () => {
                             <DropdownMenuItem
                               onClick={() => updateSubscription(user.id, "monthly")}
                             >
-                              Oylik obuna berish
+                              Oylik obuna berish (30 kun)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => updateSubscription(user.id, "yearly")}
+                            >
+                              Yillik obuna berish (365 kun)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => updateSubscription(user.id, "vip")}
+                            >
+                              VIP obuna berish (1 yil + Agency)
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => updateSubscription(user.id, "lifetime")}
                             >
-                              Lifetime berish
+                              Lifetime berish (cheksiz)
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => updateSubscription(user.id, "free")}
