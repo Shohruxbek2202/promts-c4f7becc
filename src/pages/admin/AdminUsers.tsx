@@ -51,18 +51,33 @@ const AdminUsers = () => {
   const [userRoles, setUserRoles] = useState<Record<string, string[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce search 400ms
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(debouncedSearch);
+  }, [debouncedSearch]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (search = "") => {
     setIsLoading(true);
-    
-    const { data: profiles } = await supabase
+
+    let query = supabase
       .from("profiles")
       .select("*")
       .order("created_at", { ascending: false });
+
+    if (search.trim()) {
+      query = query.or(
+        `email.ilike.%${search.trim()}%,full_name.ilike.%${search.trim()}%`
+      );
+    }
+
+    const { data: profiles } = await query;
 
     if (profiles) {
       setUsers(profiles as Profile[]);
@@ -98,7 +113,7 @@ const AdminUsers = () => {
 
       if (!error) {
         toast.success("Admin roli olib tashlandi");
-        fetchUsers();
+        fetchUsers(debouncedSearch);
       }
     } else {
       // Add admin role
@@ -108,7 +123,7 @@ const AdminUsers = () => {
 
       if (!error) {
         toast.success("Admin roli berildi");
-        fetchUsers();
+        fetchUsers(debouncedSearch);
       }
     }
   };
@@ -121,7 +136,7 @@ const AdminUsers = () => {
 
     if (!error) {
       toast.success(hasAccess ? "Agency kirish bekor qilindi" : "Agency kirish berildi");
-      fetchUsers();
+      fetchUsers(debouncedSearch);
     }
   };
 
@@ -160,14 +175,12 @@ const AdminUsers = () => {
 
     if (!error) {
       toast.success("Obuna yangilandi");
-      fetchUsers();
+      fetchUsers(debouncedSearch);
     }
   };
 
-  const filteredUsers = users.filter(user =>
-    user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // filteredUsers is now handled server-side
+  const filteredUsers = users;
 
   return (
     <div className="space-y-6">

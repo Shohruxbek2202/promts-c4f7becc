@@ -43,12 +43,13 @@ export const StatsCharts = () => {
   const fetchData = async () => {
     setIsLoading(true);
     
-    // Fetch approved payments
+    // Fetch approved payments — get ALL rows with range to avoid 1000-row limit
     const { data: payments } = await supabase
       .from("payments")
       .select("amount, created_at, approved_at")
       .eq("status", "approved")
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true })
+      .range(0, 9999);
 
     if (payments) {
       const groupedData = groupPaymentsByPeriod(payments, period);

@@ -71,8 +71,9 @@ const CoursePayment = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { toast.error("Fayl hajmi 5MB dan kichik bo'lishi kerak"); return; }
-      if (!file.type.startsWith("image/")) { toast.error("Faqat rasm fayllari qabul qilinadi"); return; }
+      if (file.size > 10 * 1024 * 1024) { toast.error("Fayl hajmi 10MB dan kichik bo'lishi kerak"); return; }
+      const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
+      if (!allowed.includes(file.type)) { toast.error("Rasm (JPG, PNG, WEBP) yoki PDF fayl yuklang"); return; }
       setReceiptFile(file);
     }
   };
@@ -190,10 +191,10 @@ const CoursePayment = () => {
                 <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2"><Upload className="w-5 h-5 text-primary" /> Chekni yuklash</h2>
                 <div className="space-y-4">
                   <div className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors">
-                    <Input type="file" accept="image/*" onChange={handleFileChange} className="hidden" id="receipt-upload" />
+                    <Input type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" id="receipt-upload" />
                     <Label htmlFor="receipt-upload" className="cursor-pointer flex flex-col items-center gap-3">
                       <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center"><Upload className="h-8 w-8 text-primary" /></div>
-                      {receiptFile ? <div><p className="font-medium text-primary">{receiptFile.name}</p><p className="text-sm text-muted-foreground">Boshqa fayl tanlash</p></div> : <div><p className="font-medium text-foreground">Chekni yuklang</p><p className="text-sm text-muted-foreground">PNG, JPG - 5MB gacha</p></div>}
+                      {receiptFile ? <div><p className="font-medium text-primary">{receiptFile.name}</p><p className="text-sm text-muted-foreground">Boshqa fayl tanlash</p></div> : <div><p className="font-medium text-foreground">Chekni yuklang</p><p className="text-sm text-muted-foreground">PNG, JPG, PDF — 10MB gacha</p></div>}
                     </Label>
                   </div>
                   <Button className="w-full h-12 rounded-xl" onClick={handleSubmitPayment} disabled={!receiptFile || uploading}>

@@ -157,25 +157,27 @@ const Prompts = () => {
   }, [selectedCategory, categories, debouncedSearch]);
 
   const fetchCategories = async () => {
-    const { data: categoriesData } = await supabase
-      .from("categories")
-      .select("id, name, slug, icon, description")
-      .eq("is_active", true)
-      .order("sort_order");
-    
+    // Parallel: categories + all prompts category_id (for counting) — eliminates N+1
+    const [{ data: categoriesData }, { data: allPrompts }] = await Promise.all([
+      supabase
+        .from("categories")
+        .select("id, name, slug, icon, description")
+        .eq("is_active", true)
+        .order("sort_order"),
+      supabase
+        .from("prompts")
+        .select("category_id")
+        .eq("is_published", true)
+        .eq("is_agency_only", false),
+    ]);
+
     if (categoriesData) {
       setCategories(categoriesData);
-      
-      // Fetch prompt counts for each category
+
+      // Build counts map in-memory — no extra queries
       const counts: Record<string, number> = {};
-      for (const cat of categoriesData) {
-        const { count } = await supabase
-          .from("prompts")
-          .select("id", { count: "exact", head: true })
-          .eq("category_id", cat.id)
-          .eq("is_published", true)
-          .eq("is_agency_only", false);
-        counts[cat.id] = count || 0;
+      for (const p of allPrompts || []) {
+        if (p.category_id) counts[p.category_id] = (counts[p.category_id] || 0) + 1;
       }
       setPromptCounts(counts);
     }
