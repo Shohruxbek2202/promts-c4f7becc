@@ -24,6 +24,9 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [referralCode, setReferralCode] = useState(searchParams.get("ref") || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Brute-force protection
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
   const { signIn, signUp, user, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -33,8 +36,33 @@ const Auth = () => {
     }
   }, [user, isLoading, navigate]);
 
+  // Lockout countdown
+  const [lockoutSecondsLeft, setLockoutSecondsLeft] = useState(0);
+  useEffect(() => {
+    if (!lockoutUntil) return;
+    const interval = setInterval(() => {
+      const left = Math.ceil((lockoutUntil - Date.now()) / 1000);
+      if (left <= 0) {
+        setLockoutUntil(null);
+        setLoginAttempts(0);
+        setLockoutSecondsLeft(0);
+      } else {
+        setLockoutSecondsLeft(left);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lockoutUntil]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Brute-force check (only for login)
+    if (isLogin && !isForgotPassword) {
+      if (lockoutUntil && Date.now() < lockoutUntil) {
+        toast.error(`Juda ko'p urinish. ${lockoutSecondsLeft} soniya kuting.`);
+        return;
+      }
+    }
     
     if (isForgotPassword) {
       if (!email.trim()) { toast.error("Emailni kiriting"); return; }
@@ -61,12 +89,24 @@ const Auth = () => {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          if (error.message.includes("Invalid login")) {
-            toast.error("Email yoki parol noto'g'ri");
+          const newAttempts = loginAttempts + 1;
+          setLoginAttempts(newAttempts);
+          if (newAttempts >= 5) {
+            const lockDuration = 30 * 1000; // 30 seconds
+            setLockoutUntil(Date.now() + lockDuration);
+            setLockoutSecondsLeft(30);
+            toast.error("5 ta noto'g'ri urinish. 30 soniya kuting.", { duration: 5000 });
           } else {
-            toast.error(error.message);
+            const remaining = 5 - newAttempts;
+            if (error.message.includes("Invalid login")) {
+              toast.error(`Email yoki parol noto'g'ri. ${remaining} ta urinish qoldi.`);
+            } else {
+              toast.error(error.message);
+            }
           }
         } else {
+          setLoginAttempts(0);
+          setLockoutUntil(null);
           toast.success("Muvaffaqiyatli kirdingiz!");
           navigate("/dashboard");
         }
@@ -84,7 +124,6 @@ const Auth = () => {
               await linkReferralCode(referralCode.trim());
             }, 1000);
           }
-          // Show email verification notice instead of redirecting
           toast.success("Ro'yxatdan muvaffaqiyatli o'tdingiz! Emailingizni tasdiqlang.", { duration: 6000 });
           setIsLogin(true);
           setPassword("");
@@ -341,17 +380,26 @@ const Auth = () => {
                 </motion.div>
               )}
 
+              {/* Lockout warning */}
+              {lockoutUntil && lockoutSecondsLeft > 0 && (
+                <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive text-center">
+                  🔒 {lockoutSecondsLeft} soniya kuting...
+                </div>
+              )}
+
               <Button
                 type="submit"
                 size="lg"
                 className="w-full h-12 rounded-xl text-base font-medium shadow-lg shadow-primary/25"
-                disabled={isSubmitting}
+                disabled={isSubmitting || (isLogin && !!lockoutUntil && lockoutSecondsLeft > 0)}
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     Kutib turing...
                   </div>
+                ) : lockoutUntil && lockoutSecondsLeft > 0 ? (
+                  <>🔒 {lockoutSecondsLeft}s</>
                 ) : (
                   <>
                     {isForgotPassword ? "Havolani yuborish" : isLogin ? "Kirish" : "Ro'yxatdan o'tish"}
