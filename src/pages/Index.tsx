@@ -276,7 +276,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Productiviy.uz - Marketing Promts Bases | AI Promtlar O'zbekistonda"
+        title="MPBS.uz - Marketing Promts Bases | AI Promtlar O'zbekistonda"
         description="Digital marketing uchun tayyor AI promtlar. Google Ads, Meta Ads, Yandex Direct promtlari. ChatGPT bilan professional natijalar. 500+ foydalanuvchi ishonchi."
         keywords={[
           "AI promtlar",
