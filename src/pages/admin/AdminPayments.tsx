@@ -192,7 +192,7 @@ const AdminPayments = () => {
       .from("payments")
       .select("user_id, plan_id, course_id, pricing_plans(subscription_type, duration_days)")
       .eq("id", paymentId)
-      .single();
+      .maybeSingle();
 
     const { error } = await supabase
       .from("payments")
@@ -396,9 +396,16 @@ const AdminPayments = () => {
                           variant="outline"
                           size="sm"
                           onClick={async () => {
+                            const url = payment.receipt_url!;
+                            // If it's already a full URL (old format), open directly
+                            if (url.startsWith("http://") || url.startsWith("https://")) {
+                              window.open(url, "_blank");
+                              return;
+                            }
+                            // New format: relative path — generate signed URL
                             const { data } = await supabase.storage
                               .from("receipts")
-                              .createSignedUrl(payment.receipt_url!, 3600);
+                              .createSignedUrl(url, 3600);
                             if (data?.signedUrl) {
                               window.open(data.signedUrl, "_blank");
                             } else {
@@ -415,7 +422,7 @@ const AdminPayments = () => {
                         <>
                           <Button
                             size="sm"
-                            className="bg-green-600 hover:bg-green-700"
+                            variant="default"
                             onClick={() => handlePaymentAction(payment.id, "approved")}
                           >
                             <CheckCircle className="w-4 h-4 mr-2" />
@@ -423,8 +430,7 @@ const AdminPayments = () => {
                           </Button>
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:bg-red-50"
+                            variant="destructive"
                             onClick={() => handlePaymentAction(payment.id, "rejected")}
                           >
                             <XCircle className="w-4 h-4 mr-2" />

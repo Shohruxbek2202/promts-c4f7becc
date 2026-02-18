@@ -52,7 +52,7 @@ const CourseLessonView = () => {
   const [materials, setMaterials] = useState<CourseMaterial[]>([]);
   const [courseTitle, setCourseTitle] = useState("");
   const [courseId, setCourseId] = useState("");
-  const [hasAccess, setHasAccess] = useState(false);
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null); // null = still loading
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -127,26 +127,30 @@ const CourseLessonView = () => {
 
   const canViewLesson = (lesson: CourseLesson) => hasAccess || lesson.is_preview;
 
-  if (authLoading || isLoading) {
+  if (authLoading || isLoading || hasAccess === null) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>;
   }
 
   if (!user) return <Navigate to="/auth" replace />;
 
   if (!hasAccess && !currentLesson?.is_preview) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="pt-24 pb-16">
-          <div className="container mx-auto px-4 text-center">
-            <Lock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-foreground mb-2">Kursga kirish cheklangan</h1>
-            <p className="text-muted-foreground mb-6">Bu kursni ko'rish uchun sotib oling</p>
-            <Link to="/courses"><Button>Kurslarga qaytish</Button></Link>
-          </div>
-        </main>
-      </div>
-    );
+    // If we have lessons but none is a preview and user has no access, show locked
+    const hasAnyPreview = lessons.some(l => l.is_preview);
+    if (!hasAnyPreview || (currentLesson && !currentLesson.is_preview)) {
+      return (
+        <div className="min-h-screen bg-background">
+          <Header />
+          <main className="pt-24 pb-16">
+            <div className="container mx-auto px-4 text-center">
+              <Lock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h1 className="text-2xl font-bold text-foreground mb-2">Kursga kirish cheklangan</h1>
+              <p className="text-muted-foreground mb-6">Bu kursni ko'rish uchun sotib oling</p>
+              <Link to="/courses"><Button>Kurslarga qaytish</Button></Link>
+            </div>
+          </main>
+        </div>
+      );
+    }
   }
 
   return (
