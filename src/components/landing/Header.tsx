@@ -122,7 +122,7 @@ export const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5">
             <span className="text-lg font-bold text-foreground tracking-tight">
-              MPBS.uz
+              Productiviy.uz
             </span>
           </Link>
 
