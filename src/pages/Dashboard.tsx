@@ -297,11 +297,11 @@ const Dashboard = () => {
             transition={{ delay: 0.2 }}
             className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:border-primary/30 transition-all duration-300"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-blue-500" />
+                <div className="w-12 h-12 rounded-xl bg-secondary/50 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-secondary-foreground" />
                 </div>
               </div>
               <p className="text-3xl font-bold text-foreground">{purchasedPrompts.length}</p>
@@ -315,11 +315,11 @@ const Dashboard = () => {
             transition={{ delay: 0.3 }}
             className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:border-primary/30 transition-all duration-300"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center">
-                  <Gift className="w-6 h-6 text-green-500" />
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Gift className="w-6 h-6 text-primary" />
                 </div>
               </div>
               <p className="text-3xl font-bold text-foreground">
@@ -336,11 +336,11 @@ const Dashboard = () => {
               transition={{ delay: 0.4 }}
               className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:border-primary/30 transition-all duration-300"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-purple-500" />
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                    <Building2 className="w-6 h-6 text-accent" />
                   </div>
                   <Badge variant="default">Faol</Badge>
                 </div>
