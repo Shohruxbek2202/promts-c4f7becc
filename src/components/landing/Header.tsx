@@ -210,7 +210,7 @@ export const Header = () => {
                   {hasAgencyAccess && (
                     <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
                       <Link to="/agency">
-                        <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                        <Crown className="mr-2 h-4 w-4 text-primary" />
                         Agentlik
                       </Link>
                     </DropdownMenuItem>
@@ -326,7 +326,7 @@ export const Header = () => {
                       {hasAgencyAccess && (
                         <Link to="/agency" onClick={() => setIsMenuOpen(false)}>
                           <Button variant="ghost" className="w-full justify-start rounded-lg">
-                            <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                            <Crown className="mr-2 h-4 w-4 text-primary" />
                             Agentlik
                           </Button>
                         </Link>
