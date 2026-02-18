@@ -38,6 +38,7 @@ import AdminCourseForm from "./pages/admin/AdminCourseForm";
 import AdminCourseLessons from "./pages/admin/AdminCourseLessons";
 import AdminCourseLessonForm from "./pages/admin/AdminCourseLessonForm";
 import AdminPaymentMethods from "./pages/admin/AdminPaymentMethods";
+import AdminReferralWithdrawals from "./pages/admin/AdminReferralWithdrawals";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 
@@ -93,6 +94,7 @@ const App = () => (
               <Route path="courses/:courseId/lessons/:lessonId/edit" element={<AdminCourseLessonForm />} />
               <Route path="pricing" element={<AdminPricingPlans />} />
               <Route path="payment-methods" element={<AdminPaymentMethods />} />
+              <Route path="referral-withdrawals" element={<AdminReferralWithdrawals />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />

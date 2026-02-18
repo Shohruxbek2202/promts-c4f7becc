@@ -794,6 +794,69 @@ export type Database = {
           },
         ]
       }
+      referral_withdrawals: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          card_holder: string | null
+          card_number: string | null
+          created_at: string
+          id: string
+          plan_id: string | null
+          profile_id: string
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          card_holder?: string | null
+          card_number?: string | null
+          created_at?: string
+          id?: string
+          plan_id?: string | null
+          profile_id: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          card_holder?: string | null
+          card_number?: string | null
+          created_at?: string
+          id?: string
+          plan_id?: string | null
+          profile_id?: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_withdrawals_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_withdrawals_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settings: {
         Row: {
           created_at: string
