@@ -70,10 +70,10 @@ interface Prompt {
 }
 
 const difficultyColors: Record<DifficultyLevel, string> = {
-  beginner: "bg-green-500/10 text-green-600 dark:text-green-400",
-  intermediate: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-  advanced: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
-  expert: "bg-red-500/10 text-red-600 dark:text-red-400",
+  beginner: "bg-primary/10 text-primary",
+  intermediate: "bg-secondary/50 text-secondary-foreground",
+  advanced: "bg-destructive/10 text-destructive",
+  expert: "bg-destructive/20 text-destructive font-semibold",
 };
 
 const difficultyLabels: Record<DifficultyLevel, string> = {
@@ -369,7 +369,7 @@ const Prompts = () => {
       return <span className="text-base">{defaultCategoryIcons[slug]}</span>;
     }
 
-    return <FolderOpen className="w-4 h-4 text-amber-500" />;
+    return <FolderOpen className="w-4 h-4 text-muted-foreground" />;
   };
 
   const totalPromptsCount = Object.values(promptCounts).reduce((a, b) => a + b, 0);
@@ -500,9 +500,9 @@ const Prompts = () => {
               {/* Column 1: Categories (Desktop only) */}
               <div className="hidden lg:flex w-56 border-r border-border/50 bg-card/50 flex-col flex-shrink-0">
                 <div className="px-4 py-3 border-b border-border/50 flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                  <div className="w-3 h-3 rounded-full bg-green-500" />
+                  <div className="w-3 h-3 rounded-full bg-destructive/80" />
+                  <div className="w-3 h-3 rounded-full bg-primary/50" />
+                  <div className="w-3 h-3 rounded-full bg-primary" />
                 </div>
 
                 <div className="px-4 py-2">
@@ -557,7 +557,7 @@ const Prompts = () => {
                             {prompt.is_premium ? (
                               <Lock className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                             ) : (
-                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-green-600 border-green-600/30">
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-primary border-primary/30">
                                 Bepul
                               </Badge>
                             )}
@@ -602,7 +602,7 @@ const Prompts = () => {
                                 Premium
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="text-green-600 border-green-600/30 text-xs">
+                              <Badge variant="outline" className="text-primary border-primary/30 text-xs">
                                 Bepul
                               </Badge>
                             )}
@@ -676,7 +676,7 @@ const Prompts = () => {
                             <h3 className="text-sm font-semibold text-foreground mb-3">
                               📋 Qo'llanma
                             </h3>
-                            <div className="rounded-xl bg-blue-500/5 border border-blue-500/20 p-4">
+                            <div className="rounded-xl bg-primary/5 border border-primary/20 p-4">
                               <p className="text-sm text-foreground whitespace-pre-wrap">
                                 {selectedPrompt.instructions}
                               </p>
@@ -690,7 +690,7 @@ const Prompts = () => {
                             <h3 className="text-sm font-semibold text-foreground mb-3">
                               💡 Misollar
                             </h3>
-                            <div className="rounded-xl bg-green-500/5 border border-green-500/20 p-4">
+                            <div className="rounded-xl bg-secondary/30 border border-border/50 p-4">
                               <p className="text-sm text-foreground whitespace-pre-wrap">
                                 {selectedPrompt.examples}
                               </p>
@@ -839,7 +839,7 @@ const Prompts = () => {
                               Premium
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="text-green-600 border-green-600/30 text-xs">
+                            <Badge variant="outline" className="text-primary border-primary/30 text-xs">
                               Bepul
                             </Badge>
                           )}
@@ -881,7 +881,7 @@ const Prompts = () => {
                             <h3 className="text-sm font-semibold text-foreground mb-2">
                               📋 Qo'llanma
                             </h3>
-                            <div className="rounded-xl bg-blue-500/5 border border-blue-500/20 p-3">
+                            <div className="rounded-xl bg-primary/5 border border-primary/20 p-3">
                               <p className="text-sm text-foreground whitespace-pre-wrap">
                                 {selectedPrompt.instructions}
                               </p>
@@ -894,7 +894,7 @@ const Prompts = () => {
                             <h3 className="text-sm font-semibold text-foreground mb-2">
                               💡 Misollar
                             </h3>
-                            <div className="rounded-xl bg-green-500/5 border border-green-500/20 p-3">
+                            <div className="rounded-xl bg-secondary/30 border border-border/50 p-3">
                               <p className="text-sm text-foreground whitespace-pre-wrap">
                                 {selectedPrompt.examples}
                               </p>

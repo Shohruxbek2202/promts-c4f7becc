@@ -38,9 +38,9 @@ interface Payment {
 }
 
 const statusConfig: Record<PaymentStatus, { label: string; color: string; icon: typeof Clock }> = {
-  pending: { label: "Kutilmoqda", color: "bg-orange-100 text-orange-700", icon: Clock },
-  approved: { label: "Tasdiqlangan", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  rejected: { label: "Rad etilgan", color: "bg-red-100 text-red-700", icon: XCircle },
+  pending: { label: "Kutilmoqda", color: "bg-destructive/10 text-destructive", icon: Clock },
+  approved: { label: "Tasdiqlangan", color: "bg-primary/10 text-primary", icon: CheckCircle },
+  rejected: { label: "Rad etilgan", color: "bg-muted text-muted-foreground", icon: XCircle },
 };
 
 const AdminPayments = () => {
@@ -354,7 +354,7 @@ const AdminPayments = () => {
               <div
                 key={payment.id}
                 className={`bg-card rounded-xl border ${
-                  payment.status === "pending" ? "border-orange-200" : "border-border"
+                  payment.status === "pending" ? "border-destructive/30" : "border-border"
                 } overflow-hidden`}
               >
                 <div className="p-6">
