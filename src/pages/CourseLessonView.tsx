@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Navigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -44,6 +44,27 @@ const getEmbedUrl = (url: string): string => {
   return url;
 };
 
+// Fetch signed URL from edge function for private video files
+const useSignedVideoUrl = (filePath: string | null | undefined, user: { id: string } | null) => {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!filePath || !user) { setSignedUrl(null); return; }
+    // If it's already a full URL (YouTube/Vimeo/old public), use as-is
+    if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+      setSignedUrl(filePath);
+      return;
+    }
+    supabase.functions.invoke("get-video-url", {
+      body: { filePath, bucket: "lesson-videos" },
+    }).then(({ data }) => {
+      if (data?.signedUrl) setSignedUrl(data.signedUrl);
+    });
+  }, [filePath, user]);
+
+  return signedUrl;
+};
+
 const CourseLessonView = () => {
   const { courseSlug, lessonSlug } = useParams();
   const { user, isLoading: authLoading } = useAuth();
@@ -54,6 +75,8 @@ const CourseLessonView = () => {
   const [courseId, setCourseId] = useState("");
   const [hasAccess, setHasAccess] = useState<boolean | null>(null); // null = still loading
   const [isLoading, setIsLoading] = useState(true);
+
+  const signedVideoUrl = useSignedVideoUrl(currentLesson?.video_file_url, user);
 
   useEffect(() => {
     if (courseSlug && user) fetchCourseData();
@@ -173,7 +196,11 @@ const CourseLessonView = () => {
                   {(currentLesson.video_url || currentLesson.video_file_url) && (
                     <div className="aspect-video rounded-xl overflow-hidden bg-black mb-6">
                       {currentLesson.video_file_url ? (
-                        <video src={currentLesson.video_file_url} controls className="w-full h-full" controlsList="nodownload" />
+                        signedVideoUrl ? (
+                          <video src={signedVideoUrl} controls className="w-full h-full" controlsList="nodownload noremoteplayback" onContextMenu={(e) => e.preventDefault()} />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
+                        )
                       ) : currentLesson.video_url && (currentLesson.video_url.includes("youtube") || currentLesson.video_url.includes("youtu.be") || currentLesson.video_url.includes("vimeo")) ? (
                         <iframe src={getEmbedUrl(currentLesson.video_url)} className="w-full h-full" allowFullScreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
                       ) : currentLesson.video_url ? (
