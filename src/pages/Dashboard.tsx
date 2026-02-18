@@ -18,6 +18,7 @@ import {
   LogOut,
   BarChart3,
   GraduationCap,
+  Settings,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -200,6 +201,12 @@ const Dashboard = () => {
             )}
             <Link to="/payment">
               <Button variant="outline" size="sm" className="text-xs sm:text-sm px-2 sm:px-3">To'lov</Button>
+            </Link>
+            <Link to="/profile">
+              <Button variant="ghost" size="sm" className="gap-1 px-2 sm:px-3">
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline text-xs">Profil</span>
+              </Button>
             </Link>
             <Button variant="ghost" size="sm" onClick={handleSignOut} className="px-2">
               <LogOut className="w-4 h-4" />

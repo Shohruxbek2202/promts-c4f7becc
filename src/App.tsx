@@ -39,6 +39,7 @@ import AdminCourseLessons from "./pages/admin/AdminCourseLessons";
 import AdminCourseLessonForm from "./pages/admin/AdminCourseLessonForm";
 import AdminPaymentMethods from "./pages/admin/AdminPaymentMethods";
 import NotFound from "./pages/NotFound";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/payment-terms" element={<PaymentTerms />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/profile" element={<Profile />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
