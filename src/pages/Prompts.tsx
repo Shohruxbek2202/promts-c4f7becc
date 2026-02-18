@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -89,6 +89,16 @@ interface Profile {
 
 const PAGE_SIZE = 20;
 
+// Debounce hook for search
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debouncedValue;
+};
+
 const Prompts = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -109,6 +119,9 @@ const Prompts = () => {
   const [copied, setCopied] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Server-side search with 400ms debounce
+  const debouncedSearch = useDebounce(searchQuery, 400);
   
   const selectedCategory = searchParams.get("category") || "";
 
@@ -133,6 +146,7 @@ const Prompts = () => {
     if (data) setProfile(data);
   };
 
+  // Reset and refetch when category or search changes
   useEffect(() => {
     if (categories.length > 0) {
       setPrompts([]);
@@ -140,7 +154,7 @@ const Prompts = () => {
       setHasMore(true);
       fetchPrompts(0, true);
     }
-  }, [selectedCategory, categories]);
+  }, [selectedCategory, categories, debouncedSearch]);
 
   const fetchCategories = async () => {
     const { data: categoriesData } = await supabase
@@ -191,6 +205,13 @@ const Prompts = () => {
       }
     }
 
+    // Server-side search: filter by title or description
+    if (debouncedSearch.trim()) {
+      query = query.or(
+        `title.ilike.%${debouncedSearch.trim()}%,description.ilike.%${debouncedSearch.trim()}%`
+      );
+    }
+
     const { data } = await query;
     if (data) {
       const newPrompts = data as Prompt[];
@@ -199,7 +220,6 @@ const Prompts = () => {
       setPageOffset(offset + newPrompts.length);
 
       if (reset) {
-        // Check if there's a prompt slug in URL
         const promptSlug = searchParams.get("prompt");
         if (promptSlug) {
           const urlPrompt = newPrompts.find(p => p.slug === promptSlug);
@@ -220,7 +240,7 @@ const Prompts = () => {
     }
     if (reset) setIsLoading(false);
     else setIsLoadingMore(false);
-  }, [selectedCategory, categories]);
+  }, [selectedCategory, categories, debouncedSearch]);
 
   // Infinite scroll via IntersectionObserver
   useEffect(() => {
@@ -241,10 +261,8 @@ const Prompts = () => {
     await supabase.rpc("increment_prompt_view_count", { prompt_id: promptId });
   };
 
-  const filteredPrompts = prompts.filter(prompt =>
-    prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    prompt.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // filteredPrompts = prompts (server-side filtering is now handled in fetchPrompts)
+  const filteredPrompts = prompts;
 
   const handleCategoryChange = (slug: string) => {
     if (slug === selectedCategory) {
