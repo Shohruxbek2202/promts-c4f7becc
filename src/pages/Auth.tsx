@@ -111,7 +111,7 @@ const Auth = () => {
           navigate("/dashboard");
         }
       } else {
-        const { error } = await signUp(email, password);
+        const { data: signUpData, error } = await signUp(email, password);
         if (error) {
           if (error.message.includes("already registered")) {
             toast.error("Bu email allaqachon ro'yxatdan o'tgan");
@@ -119,9 +119,9 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
-          // Link referral after short delay so profile trigger fires
-          if (referralCode.trim()) {
-            setTimeout(() => linkReferralCode(referralCode.trim()), 2000);
+          // Link referral code immediately using the new user's ID from signup response
+          if (referralCode.trim() && signUpData?.user?.id) {
+            await linkReferralCode(referralCode.trim(), signUpData.user.id);
           }
           toast.success("Ro'yxatdan muvaffaqiyatli o'tdingiz! Emailingizni tasdiqlang.", { duration: 6000 });
           setIsLogin(true);
@@ -133,7 +133,7 @@ const Auth = () => {
     }
   };
 
-  const linkReferralCode = async (code: string) => {
+  const linkReferralCode = async (code: string, newUserId: string) => {
     try {
       const { data: referrer } = await supabase
         .from("profiles")
@@ -142,13 +142,12 @@ const Auth = () => {
         .maybeSingle();
 
       if (referrer) {
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-        if (currentUser) {
-          await supabase
-            .from("profiles")
-            .update({ referred_by: referrer.id })
-            .eq("user_id", currentUser.id);
-        }
+        // Wait briefly for the profile trigger to create the new user's profile
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        await supabase
+          .from("profiles")
+          .update({ referred_by: referrer.id })
+          .eq("user_id", newUserId);
       }
     } catch (error) {
       console.error("Error linking referral:", error);
