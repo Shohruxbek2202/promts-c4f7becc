@@ -75,6 +75,7 @@ const Agency = () => {
   const [promptCounts, setPromptCounts] = useState<Record<string, number>>({});
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [hasAccess, setHasAccess] = useState(false);
   const [checkingAccess, setCheckingAccess] = useState(true);
@@ -88,6 +89,12 @@ const Agency = () => {
     }
   }, [user, isLoading]);
 
+  // Debounce search query 400ms
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   useEffect(() => {
     if (hasAccess) {
       fetchCategories();
@@ -98,7 +105,7 @@ const Agency = () => {
     if (hasAccess && categories.length > 0) {
       fetchPrompts();
     }
-  }, [hasAccess, selectedCategory, categories]);
+  }, [hasAccess, selectedCategory, categories, debouncedSearch]);
 
   const checkAgencyAccess = async () => {
     const { data } = await supabase
@@ -161,15 +168,20 @@ const Agency = () => {
       }
     }
 
+    // Server-side search
+    if (debouncedSearch.trim()) {
+      query = query.or(
+        `title.ilike.%${debouncedSearch.trim()}%,description.ilike.%${debouncedSearch.trim()}%`
+      );
+    }
+
     const { data } = await query;
     if (data) setPrompts(data as Prompt[]);
     setIsLoadingData(false);
   };
 
-  const filteredPrompts = prompts.filter(prompt =>
-    prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    prompt.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // filteredPrompts is now from server (no client-side filter needed)
+  const filteredPrompts = prompts;
 
   const handleCategoryChange = (slug: string) => {
     if (slug === selectedCategory) {

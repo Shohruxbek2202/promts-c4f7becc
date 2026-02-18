@@ -158,18 +158,14 @@ Deno.serve(async (req) => {
         </div>
       `;
 
-    // Send email via Supabase Auth Admin (uses SMTP configured in project)
-    const { error: emailError } = await supabase.auth.admin.generateLink({
-      type: "magiclink",
-      email: profile.email,
-    });
-
-    // Use Supabase built-in email via admin API
-    // We'll use the resend-compatible approach via fetch
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     
     if (RESEND_API_KEY) {
-      // Use Resend if API key is configured
+      // Use Resend to send email
+      // Note: 'from' domain must be verified in Resend dashboard.
+      // Using onboarding@resend.dev as fallback for testing if custom domain not set up.
+      const fromAddress = "MPBS.uz <onboarding@resend.dev>";
+
       const emailResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -177,7 +173,7 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "MPBS.uz <noreply@mpbs.uz>",
+          from: fromAddress,
           to: [profile.email],
           subject,
           html: htmlBody,
@@ -187,13 +183,13 @@ Deno.serve(async (req) => {
       if (!emailResponse.ok) {
         const errText = await emailResponse.text();
         console.error("Resend error:", errText);
-        return new Response(JSON.stringify({ error: "Email sending failed", details: errText }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        // Don't fail the whole request — log and continue
+        console.log(`Failed to send email to ${profile.email}: ${errText}`);
+      } else {
+        console.log(`Email sent to ${profile.email} (${action})`);
       }
     } else {
-      // Fallback: log the email (no SMTP configured)
+      // Fallback: log the email (no RESEND_API_KEY configured)
       console.log(`EMAIL TO: ${profile.email}`);
       console.log(`SUBJECT: ${subject}`);
       console.log("No RESEND_API_KEY configured. Email logged only.");
