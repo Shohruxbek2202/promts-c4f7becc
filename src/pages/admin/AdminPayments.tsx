@@ -223,9 +223,11 @@ const AdminPayments = () => {
     }
 
     // If approved, update user subscription or grant course access
-    if (action === "approved") {
+    if (action === "approved" && paymentData) {
+      let successMessage = "To'lov tasdiqlandi";
+
       // Handle plan-based payments
-      if (paymentData?.plan_id) {
+      if (paymentData.plan_id) {
         const plan = paymentData.pricing_plans as unknown as { subscription_type: string; duration_days: number | null };
         
         if (plan) {
@@ -258,20 +260,13 @@ const AdminPayments = () => {
             console.error("Error updating profile:", profileError);
             toast.error("To'lov tasdiqlandi, lekin profil yangilanmadi");
           } else {
-            await handleReferralCommission(paymentData.user_id, paymentId);
-            // Send email notification
-            try {
-              await supabase.functions.invoke("send-payment-email", {
-                body: { paymentId, action: "approved" },
-              });
-            } catch (e) { console.error("Email notification failed:", e); }
-            toast.success("To'lov tasdiqlandi va obuna yangilandi");
+            successMessage = "To'lov tasdiqlandi va obuna yangilandi";
           }
         }
       }
       
       // Handle course-based payments
-      if (paymentData?.course_id) {
+      if (paymentData.course_id) {
         const { error: courseError } = await supabase
           .from("user_courses")
           .insert({
@@ -282,28 +277,27 @@ const AdminPayments = () => {
 
         if (courseError) {
           if (courseError.code === '23505') {
-            toast.success("To'lov tasdiqlandi (kurs allaqachon ochilgan)");
+            successMessage = "To'lov tasdiqlandi (kurs allaqachon ochilgan)";
           } else {
             console.error("Error granting course access:", courseError);
             toast.error("To'lov tasdiqlandi, lekin kurs ochilmadi");
           }
         } else {
-          await handleReferralCommission(paymentData.user_id, paymentId);
-          // Send email notification
-          try {
-            await supabase.functions.invoke("send-payment-email", {
-              body: { paymentId, action: "approved" },
-            });
-          } catch (e) { console.error("Email notification failed:", e); }
-          toast.success("To'lov tasdiqlandi va kurs ochildi");
+          successMessage = "To'lov tasdiqlandi va kurs ochildi";
         }
       }
 
-      if (!paymentData?.plan_id && !paymentData?.course_id) {
-        // prompt or other payment — still process referral
-        await handleReferralCommission(paymentData!.user_id, paymentId);
-        toast.success("To'lov tasdiqlandi");
-      }
+      // Always process referral commission for ANY approved payment
+      await handleReferralCommission(paymentData.user_id, paymentId);
+
+      // Always send email notification
+      try {
+        await supabase.functions.invoke("send-payment-email", {
+          body: { paymentId, action: "approved" },
+        });
+      } catch (e) { console.error("Email notification failed:", e); }
+      
+      toast.success(successMessage);
     } else {
       // Rejected — send email notification
       try {
