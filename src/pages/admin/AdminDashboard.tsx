@@ -90,7 +90,7 @@ const AdminDashboard = () => {
   };
 
   const handlePaymentAction = async (paymentId: string, action: "approved" | "rejected") => {
-    // Get payment details to update subscription
+    // Get payment details to update subscription / grant course access
     const { data: paymentData } = await supabase
       .from("payments")
       .select("user_id, plan_id, course_id, pricing_plans(subscription_type, duration_days)")
@@ -105,26 +105,50 @@ const AdminDashboard = () => {
       })
       .eq("id", paymentId);
 
-    if (!error && action === "approved" && paymentData?.plan_id) {
-      const plan = paymentData.pricing_plans as unknown as { subscription_type: string; duration_days: number | null };
-      if (plan) {
-        let expiresAt: string | null = null;
-        if (plan.duration_days && plan.subscription_type !== "lifetime") {
-          const d = new Date();
-          d.setDate(d.getDate() + plan.duration_days);
-          expiresAt = d.toISOString();
+    if (!error && action === "approved") {
+      // ── Plan-based payment ──
+      if (paymentData?.plan_id) {
+        const plan = paymentData.pricing_plans as unknown as { subscription_type: string; duration_days: number | null };
+        if (plan) {
+          let expiresAt: string | null = null;
+          if (plan.duration_days && plan.subscription_type !== "lifetime") {
+            const d = new Date();
+            d.setDate(d.getDate() + plan.duration_days);
+            expiresAt = d.toISOString();
+          }
+          const validTypes = ["free", "single", "monthly", "yearly", "lifetime", "vip"] as const;
+          type SubType = typeof validTypes[number];
+          const subType = validTypes.includes(plan.subscription_type as SubType) 
+            ? plan.subscription_type as SubType 
+            : "free" as SubType;
+          await supabase.from("profiles").update({
+            subscription_type: subType,
+            subscription_expires_at: expiresAt,
+            ...(subType === "vip" ? { has_agency_access: true, agency_access_expires_at: expiresAt } : {}),
+          }).eq("user_id", paymentData.user_id);
         }
-        const validTypes = ["free", "single", "monthly", "yearly", "lifetime", "vip"] as const;
-        type SubType = typeof validTypes[number];
-        const subType = validTypes.includes(plan.subscription_type as SubType) 
-          ? plan.subscription_type as SubType 
-          : "free" as SubType;
-        await supabase.from("profiles").update({
-          subscription_type: subType,
-          subscription_expires_at: expiresAt,
-          ...(subType === "vip" ? { has_agency_access: true, agency_access_expires_at: expiresAt } : {}),
-        }).eq("user_id", paymentData.user_id);
       }
+
+      // ── Course-based payment ──
+      if (paymentData?.course_id) {
+        const { error: courseError } = await supabase
+          .from("user_courses")
+          .insert({
+            user_id: paymentData.user_id,
+            course_id: paymentData.course_id,
+            payment_id: paymentId,
+          });
+        if (courseError && courseError.code !== "23505") {
+          console.error("Error granting course access from dashboard:", courseError);
+        }
+      }
+
+      // ── Send email notification ──
+      try {
+        await supabase.functions.invoke("send-payment-email", {
+          body: { paymentId, action },
+        });
+      } catch (e) { console.error("Email notification failed:", e); }
     }
 
     if (!error) {

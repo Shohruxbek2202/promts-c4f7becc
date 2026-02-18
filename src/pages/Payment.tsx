@@ -131,12 +131,13 @@ const Payment = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Fayl hajmi 5MB dan kichik bo'lishi kerak");
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("Fayl hajmi 10MB dan kichik bo'lishi kerak");
         return;
       }
-      if (!file.type.startsWith("image/")) {
-        toast.error("Faqat rasm fayllari qabul qilinadi");
+      const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"];
+      if (!allowed.includes(file.type)) {
+        toast.error("Rasm (JPG, PNG, WEBP) yoki PDF fayl yuklang");
         return;
       }
       setReceiptFile(file);
@@ -394,7 +395,7 @@ const Payment = () => {
                   <div className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/50 transition-colors">
                     <Input
                       type="file"
-                      accept="image/*"
+                      accept="image/*,application/pdf"
                       onChange={handleFileChange}
                       className="hidden"
                       id="receipt-upload"
@@ -417,7 +418,7 @@ const Payment = () => {
                         <div>
                           <p className="font-medium text-foreground">Chekni yuklang</p>
                           <p className="text-sm text-muted-foreground">
-                            PNG, JPG - 5MB gacha
+                            PNG, JPG, PDF — 10MB gacha
                           </p>
                         </div>
                       )}

@@ -85,7 +85,7 @@ const Courses = () => {
   }, [user]);
 
   useEffect(() => {
-    if (categories.length >= 0) fetchCourses();
+    if (categories.length > 0 || selectedCategory === "") fetchCourses();
   }, [selectedCategory, categories]);
 
   const fetchCategories = async () => {
@@ -223,7 +223,7 @@ const Courses = () => {
               {/* Col 1: Categories */}
               <div className="hidden lg:flex w-56 border-r border-border/50 bg-card/50 flex-col flex-shrink-0">
                 <div className="px-4 py-3 border-b border-border/50 flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500" /><div className="w-3 h-3 rounded-full bg-yellow-500" /><div className="w-3 h-3 rounded-full bg-green-500" />
+                  <div className="w-3 h-3 rounded-full bg-destructive/80" /><div className="w-3 h-3 rounded-full bg-primary/50" /><div className="w-3 h-3 rounded-full bg-primary" />
                 </div>
                 <div className="px-4 py-2"><span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Kategoriyalar</span></div>
                 <ScrollArea className="flex-1"><CategoriesList /></ScrollArea>
@@ -247,8 +247,8 @@ const Courses = () => {
                           className={`w-full text-left p-3 rounded-lg transition-all ${selectedCourse?.id === course.id ? "bg-primary/20 border border-primary/30" : "hover:bg-muted/50"}`}>
                           <div className="flex items-start gap-3">
                             <div className="relative w-16 h-10 rounded overflow-hidden bg-muted flex-shrink-0">
-                              {course.cover_image_url ? <img src={course.cover_image_url} alt={course.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-purple-500/20"><GraduationCap className="w-4 h-4 text-primary/50" /></div>}
-                              {hasPurchased(course.id) && <div className="absolute top-0 right-0 bg-green-500 rounded-bl p-0.5"><Check className="w-2.5 h-2.5 text-white" /></div>}
+                              {course.cover_image_url ? <img src={course.cover_image_url} alt={course.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20"><GraduationCap className="w-4 h-4 text-primary/50" /></div>}
+                              {hasPurchased(course.id) && <div className="absolute top-0 right-0 bg-primary rounded-bl p-0.5"><Check className="w-2.5 h-2.5 text-primary-foreground" /></div>}
                             </div>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-medium text-sm text-foreground line-clamp-1">{course.title}</h3>
@@ -281,7 +281,7 @@ const Courses = () => {
                       <div>
                         <div className="flex items-center gap-2 mb-2">
                           {selectedCourse.categories && <Badge variant="outline" className="text-xs">{selectedCourse.categories.name}</Badge>}
-                          {hasPurchased(selectedCourse.id) && <Badge className="bg-green-500/10 text-green-600 border-0 text-xs"><Check className="w-3 h-3 mr-1" />Sotib olingan</Badge>}
+                          {hasPurchased(selectedCourse.id) && <Badge className="bg-primary/10 text-primary border-0 text-xs"><Check className="w-3 h-3 mr-1" />Sotib olingan</Badge>}
                         </div>
                         <h1 className="text-2xl font-bold text-foreground">{selectedCourse.title}</h1>
                         {selectedCourse.description && <p className="text-muted-foreground mt-2">{selectedCourse.description}</p>}
@@ -385,7 +385,7 @@ const Courses = () => {
                       <ShoppingCart className="w-4 h-4" /> Sotib olish
                     </Button>
                   )}
-                  {hasPurchased(selectedCourse.id) && <Badge className="bg-green-500/10 text-green-600 border-0 mt-3"><Check className="w-3 h-3 mr-1" />Sotib olingan</Badge>}
+                  {hasPurchased(selectedCourse.id) && <Badge className="bg-primary/10 text-primary border-0 mt-3"><Check className="w-3 h-3 mr-1" />Sotib olingan</Badge>}
                 </div>
                 {courseLessons.length > 0 && (
                   <div>
