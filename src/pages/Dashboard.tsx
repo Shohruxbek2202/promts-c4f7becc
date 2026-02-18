@@ -1,16 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Navigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   User, 
   CreditCard, 
   Gift, 
   FileText, 
   Copy, 
-  Calendar, 
+  Calendar,
   ArrowRight,
   Crown,
   Sparkles,
@@ -19,6 +21,11 @@ import {
   BarChart3,
   GraduationCap,
   Settings,
+  Banknote,
+  RefreshCw,
+  Clock,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -68,8 +75,18 @@ const Dashboard = () => {
   const [purchasedPrompts, setPurchasedPrompts] = useState<PurchasedPrompt[]>([]);
   const [purchasedCourses, setPurchasedCourses] = useState<{ id: string; purchased_at: string; course: { id: string; title: string; slug: string; lessons_count: number; cover_image_url: string | null } }[]>([]);
   const [referralTransactions, setReferralTransactions] = useState<ReferralTransaction[]>([]);
+  const [withdrawals, setWithdrawals] = useState<{ id: string; amount: number; type: string; status: string; created_at: string; card_number: string | null; admin_notes: string | null; plan_id: string | null }[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "stats" | "courses" | "prompts" | "referrals">("overview");
+
+  // Withdrawal modal state
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false);
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardHolder, setCardHolder] = useState("");
+  const [pricingPlans, setPricingPlans] = useState<{ id: string; name: string; price: number; subscription_type: string }[]>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [isSubmittingWithdrawal, setIsSubmittingWithdrawal] = useState(false);
 
   // Subscription expiry warning (7 days)
   const subscriptionExpiryWarning = (() => {
@@ -144,11 +161,92 @@ const Dashboard = () => {
           .order("created_at", { ascending: false });
         
         setReferralTransactions(referralsData || []);
+
+        // Fetch withdrawals
+        const { data: withdrawalsData } = await supabase
+          .from("referral_withdrawals")
+          .select("id, amount, type, status, created_at, card_number, admin_notes, plan_id")
+          .eq("profile_id", profileData.id)
+          .order("created_at", { ascending: false });
+        setWithdrawals(withdrawalsData || []);
       }
+
+      // Fetch pricing plans for subscription conversion
+      const { data: plansData } = await supabase
+        .from("pricing_plans")
+        .select("id, name, price, subscription_type")
+        .eq("is_active", true)
+        .order("sort_order");
+      setPricingPlans(plansData || []);
+
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
       setLoadingData(false);
+    }
+  };
+
+  const handleCashWithdrawal = async () => {
+    if (!profile) return;
+    const earnings = profile.referral_earnings || 0;
+    if (earnings <= 0) {
+      toast.error("Yechib olish uchun daromad yo'q");
+      return;
+    }
+    if (!cardNumber.trim() || !cardHolder.trim()) {
+      toast.error("Karta raqami va egasini kiriting");
+      return;
+    }
+    setIsSubmittingWithdrawal(true);
+    try {
+      const { error } = await supabase.from("referral_withdrawals").insert({
+        profile_id: profile.id,
+        amount: earnings,
+        type: "cash",
+        card_number: cardNumber.trim(),
+        card_holder: cardHolder.trim(),
+      });
+      if (error) throw error;
+      toast.success("Yechib olish so'rovi yuborildi! Admin tez orada ko'rib chiqadi.");
+      setShowWithdrawModal(false);
+      setCardNumber("");
+      setCardHolder("");
+      fetchDashboardData();
+    } catch (e) {
+      console.error(e);
+      toast.error("Xatolik yuz berdi");
+    } finally {
+      setIsSubmittingWithdrawal(false);
+    }
+  };
+
+  const handleSubscriptionConversion = async () => {
+    if (!profile || !selectedPlanId) return;
+    const earnings = profile.referral_earnings || 0;
+    const plan = pricingPlans.find(p => p.id === selectedPlanId);
+    if (!plan) return;
+    if (earnings < plan.price) {
+      toast.error(`Daromad yetarli emas. Kerak: ${plan.price.toLocaleString()} so'm, mavjud: ${earnings.toLocaleString()} so'm`);
+      return;
+    }
+    setIsSubmittingWithdrawal(true);
+    try {
+      const { error } = await supabase.from("referral_withdrawals").insert({
+        profile_id: profile.id,
+        amount: plan.price,
+        type: "subscription",
+        plan_id: selectedPlanId,
+      });
+      if (error) throw error;
+      toast.success("Obunaga almashtirish so'rovi yuborildi! Admin tez orada ko'rib chiqadi.");
+      setShowSubscribeModal(false);
+      setSelectedPlanId("");
+      fetchDashboardData();
+    } catch (e) {
+      console.error(e);
+      toast.error("Xatolik yuz berdi");
+    } finally {
+      setIsSubmittingWithdrawal(false);
     }
   };
 
@@ -563,53 +661,72 @@ const Dashboard = () => {
         )}
 
         {activeTab === "referrals" && (
-          <div className="grid lg:grid-cols-2 gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden"
-            >
-              <div className="p-6 border-b border-border/50">
-                <h2 className="text-lg font-semibold text-foreground">Referral dasturi</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Do'stlaringizni taklif qilib pul ishlang
+          <div className="space-y-6">
+            {/* Earnings Summary + Actions */}
+            <div className="grid sm:grid-cols-3 gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="sm:col-span-1 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 flex flex-col items-center justify-center text-center"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+                  <Gift className="w-7 h-7 text-primary" />
+                </div>
+                <p className="text-3xl font-bold text-foreground">
+                  {(profile?.referral_earnings || 0).toLocaleString()}
                 </p>
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="flex items-center gap-4">
-                  <code className="flex-1 bg-muted/50 px-4 py-3 rounded-xl text-lg font-mono">
-                    {profile?.referral_code || "N/A"}
-                  </code>
-                  <Button variant="outline" size="icon" onClick={copyReferralCode}>
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="bg-muted/30 p-4 rounded-xl space-y-2">
-                  <h4 className="font-medium text-foreground">Qanday ishlaydi:</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center">1</span>
-                      Referral kodingizni do'stlaringizga ulashing
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center">2</span>
-                      Ular sizning kodingiz orqali ro'yxatdan o'tishadi
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center">3</span>
-                      Ularning xaridlaridan 10% komissiya olasiz
-                    </li>
-                  </ul>
-                </div>
-                <div className="text-center p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl">
-                  <p className="text-sm text-muted-foreground">Jami daromad</p>
-                  <p className="text-4xl font-bold text-primary mt-1">
-                    {((profile?.referral_earnings || 0)).toLocaleString()} so'm
-                  </p>
-                </div>
-              </div>
-            </motion.div>
+                <p className="text-sm text-muted-foreground mt-1">so'm daromad</p>
+              </motion.div>
 
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center mb-3">
+                    <Banknote className="w-5 h-5 text-foreground" />
+                  </div>
+                  <h3 className="font-semibold text-foreground">Naqd yechib olish</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Karta orqali daromadni yechib oling</p>
+                </div>
+                <Button
+                  className="mt-4 w-full"
+                  onClick={() => setShowWithdrawModal(true)}
+                  disabled={(profile?.referral_earnings || 0) <= 0}
+                >
+                  <Banknote className="w-4 h-4 mr-2" />
+                  Yechib olish
+                </Button>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+                    <RefreshCw className="w-5 h-5 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-foreground">Obunaga almashtirish</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Daromadni obuna tarifi bilan almashtiring</p>
+                </div>
+                <Button
+                  variant="outline"
+                  className="mt-4 w-full"
+                  onClick={() => setShowSubscribeModal(true)}
+                  disabled={(profile?.referral_earnings || 0) <= 0}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Almashtirish
+                </Button>
+              </motion.div>
+            </div>
+
+            {/* Referral Code Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -617,42 +734,204 @@ const Dashboard = () => {
               className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden"
             >
               <div className="p-6 border-b border-border/50">
-                <h2 className="text-lg font-semibold text-foreground">Daromad tarixi</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Sizning komissiya to'lovlaringiz
-                </p>
+                <h2 className="text-lg font-semibold text-foreground">Sizning referral kodingiz</h2>
+                <p className="text-sm text-muted-foreground mt-1">Do'stlaringizni taklif qiling va ularning xaridlaridan 10% komissiya oling</p>
+              </div>
+              <div className="p-6">
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <code className="flex-1 w-full bg-muted/50 px-6 py-3 rounded-xl text-xl font-mono font-bold text-primary text-center">
+                    {profile?.referral_code || "N/A"}
+                  </code>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={copyReferralCode}>
+                      <Copy className="h-4 w-4 mr-2" />
+                      Kod
+                    </Button>
+                    <Button size="sm" onClick={copyReferralLink}>
+                      <Copy className="h-4 w-4 mr-2" />
+                      Havola
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Withdrawal History */}
+            {withdrawals.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden"
+              >
+                <div className="p-6 border-b border-border/50">
+                  <h2 className="text-lg font-semibold text-foreground">So'rovlar tarixi</h2>
+                </div>
+                <div className="divide-y divide-border/50">
+                  {withdrawals.map((w) => {
+                    const statusIcon = w.status === "approved" ? <CheckCircle className="w-4 h-4 text-primary" /> : w.status === "rejected" ? <XCircle className="w-4 h-4 text-destructive" /> : <Clock className="w-4 h-4 text-muted-foreground" />;
+                    const statusLabel = w.status === "approved" ? "Tasdiqlangan" : w.status === "rejected" ? "Rad etilgan" : "Kutilmoqda";
+                    return (
+                      <div key={w.id} className="p-4 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          {statusIcon}
+                          <div>
+                            <p className="font-medium text-foreground text-sm">
+                              {w.type === "cash" ? "Naqd yechib olish" : "Obunaga almashtirish"} — {w.amount.toLocaleString()} so'm
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(w.created_at).toLocaleDateString("uz-UZ")}
+                              {w.card_number && ` • ${w.card_number}`}
+                            </p>
+                            {w.admin_notes && (
+                              <p className="text-xs text-muted-foreground mt-1">Admin: {w.admin_notes}</p>
+                            )}
+                          </div>
+                        </div>
+                        <Badge variant={w.status === "approved" ? "default" : w.status === "rejected" ? "destructive" : "secondary"}>
+                          {statusLabel}
+                        </Badge>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Transaction History */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden"
+            >
+              <div className="p-6 border-b border-border/50">
+                <h2 className="text-lg font-semibold text-foreground">Komissiya tarixi</h2>
               </div>
               <div className="p-6">
                 {referralTransactions.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                      <Gift className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                    <p className="text-muted-foreground">
-                      Hali referral daromadingiz yo'q. Kodingizni ulashishni boshlang!
-                    </p>
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Gift className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p>Hali referral daromadingiz yo'q. Kodingizni ulashishni boshlang!</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {referralTransactions.map((transaction) => (
-                      <div
-                        key={transaction.id}
-                        className="flex items-center justify-between p-4 rounded-xl bg-muted/30"
-                      >
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(transaction.created_at).toLocaleDateString("uz-UZ")}
-                          </p>
+                      <div key={transaction.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Gift className="w-4 h-4 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">Referral komissiya</p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(transaction.created_at).toLocaleDateString("uz-UZ")}
+                            </p>
+                          </div>
                         </div>
-                        <span className="font-medium text-green-500">
-                          +{transaction.amount.toLocaleString()} so'm
-                        </span>
+                        <span className="font-bold text-primary">+{transaction.amount.toLocaleString()} so'm</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
             </motion.div>
+
+            {/* Cash Withdrawal Modal */}
+            {showWithdrawModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl"
+                >
+                  <h3 className="text-xl font-bold text-foreground mb-2">Naqd yechib olish</h3>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Mavjud daromad: <strong>{(profile?.referral_earnings || 0).toLocaleString()} so'm</strong>
+                  </p>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Karta raqami</Label>
+                      <Input
+                        placeholder="8600 0000 0000 0000"
+                        value={cardNumber}
+                        onChange={(e) => setCardNumber(e.target.value)}
+                        maxLength={19}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Karta egasining ismi</Label>
+                      <Input
+                        placeholder="JOHN DOE"
+                        value={cardHolder}
+                        onChange={(e) => setCardHolder(e.target.value.toUpperCase())}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      * So'rov admin tomonidan ko'rib chiqiladi va 1-3 ish kuni ichida pul o'tkaziladi
+                    </p>
+                  </div>
+                  <div className="flex gap-3 mt-6">
+                    <Button variant="outline" className="flex-1" onClick={() => setShowWithdrawModal(false)}>
+                      Bekor qilish
+                    </Button>
+                    <Button className="flex-1" onClick={handleCashWithdrawal} disabled={isSubmittingWithdrawal}>
+                      {isSubmittingWithdrawal ? "Yuborilmoqda..." : "So'rov yuborish"}
+                    </Button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+
+            {/* Subscription Conversion Modal */}
+            {showSubscribeModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl"
+                >
+                  <h3 className="text-xl font-bold text-foreground mb-2">Obunaga almashtirish</h3>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Mavjud daromad: <strong>{(profile?.referral_earnings || 0).toLocaleString()} so'm</strong>
+                  </p>
+                  <div className="space-y-3">
+                    {pricingPlans.map((plan) => {
+                      const canAfford = (profile?.referral_earnings || 0) >= plan.price;
+                      return (
+                        <button
+                          key={plan.id}
+                          onClick={() => canAfford && setSelectedPlanId(plan.id)}
+                          className={`w-full p-4 rounded-xl border text-left transition-all ${
+                            selectedPlanId === plan.id
+                              ? "border-primary bg-primary/10"
+                              : canAfford
+                              ? "border-border hover:border-primary/50 bg-card"
+                              : "border-border bg-muted/30 opacity-50 cursor-not-allowed"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-foreground">{plan.name}</span>
+                            <span className={`font-bold ${canAfford ? "text-primary" : "text-muted-foreground"}`}>
+                              {plan.price.toLocaleString()} so'm
+                            </span>
+                          </div>
+                          {!canAfford && (
+                            <p className="text-xs text-muted-foreground mt-1">Daromad yetarli emas</p>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex gap-3 mt-6">
+                    <Button variant="outline" className="flex-1" onClick={() => { setShowSubscribeModal(false); setSelectedPlanId(""); }}>
+                      Bekor qilish
+                    </Button>
+                    <Button className="flex-1" onClick={handleSubscriptionConversion} disabled={!selectedPlanId || isSubmittingWithdrawal}>
+                      {isSubmittingWithdrawal ? "Yuborilmoqda..." : "Almashtirish"}
+                    </Button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
           </div>
         )}
       </main>
