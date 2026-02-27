@@ -1080,6 +1080,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      enroll_after_payment: { Args: { p_course_id: string }; Returns: Json }
       generate_referral_code: { Args: never; Returns: string }
       get_course_enrolled_counts: {
         Args: { course_ids: string[] }
@@ -1093,6 +1094,12 @@ export type Database = {
         Returns: Json
       }
       get_public_stats: { Args: never; Returns: Json }
+      has_active_subscription: { Args: { p_user_id: string }; Returns: boolean }
+      has_agency_access: { Args: { p_user_id: string }; Returns: boolean }
+      has_purchased_prompt: {
+        Args: { p_prompt_id: string; p_user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
