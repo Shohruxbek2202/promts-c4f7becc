@@ -941,6 +941,41 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_reminders: {
+        Row: {
+          expires_at: string | null
+          id: string
+          profile_id: string
+          reminder_type: string
+          sent_at: string
+          subscription_type: string
+        }
+        Insert: {
+          expires_at?: string | null
+          id?: string
+          profile_id: string
+          reminder_type: string
+          sent_at?: string
+          subscription_type: string
+        }
+        Update: {
+          expires_at?: string | null
+          id?: string
+          profile_id?: string
+          reminder_type?: string
+          sent_at?: string
+          subscription_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_reminders_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_courses: {
         Row: {
           access_expires_at: string | null
@@ -1095,6 +1130,18 @@ export type Database = {
         Returns: Json
       }
       get_public_stats: { Args: never; Returns: Json }
+      get_subscription_reminders: {
+        Args: never
+        Returns: {
+          email: string
+          expires_at: string
+          full_name: string
+          profile_id: string
+          reminder_type: string
+          subscription_type: string
+          user_id: string
+        }[]
+      }
       has_active_subscription: { Args: { p_user_id: string }; Returns: boolean }
       has_agency_access: { Args: { p_user_id: string }; Returns: boolean }
       has_purchased_prompt: {
