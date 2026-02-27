@@ -1081,6 +1081,7 @@ export type Database = {
     }
     Functions: {
       enroll_after_payment: { Args: { p_course_id: string }; Returns: Json }
+      expire_subscriptions: { Args: never; Returns: Json }
       generate_referral_code: { Args: never; Returns: string }
       get_course_enrolled_counts: {
         Args: { course_ids: string[] }
