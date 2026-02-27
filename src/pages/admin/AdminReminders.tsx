@@ -95,28 +95,23 @@ const AdminReminders = () => {
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const handleExportCSV = async () => {
-    let query = supabase
-      .from("subscription_reminders")
-      .select(
-        `reminder_type, subscription_type, expires_at, sent_at, profiles!subscription_reminders_profile_id_fkey(email, full_name)`
-      )
-      .order("sent_at", { ascending: false })
-      .range(0, 9999);
+    const { data, error } = await supabase.rpc("export_reminders_csv", {
+      p_reminder_type: filterType !== "all" ? filterType : null,
+      p_subscription_type: filterSubType !== "all" ? filterSubType : null,
+      p_date_from: dateFrom || null,
+      p_date_to: dateTo ? dateTo + "T23:59:59" : null,
+      p_limit: 10000,
+    });
 
-    if (filterType !== "all") query = query.eq("reminder_type", filterType);
-    if (filterSubType !== "all") query = query.eq("subscription_type", filterSubType);
-    if (dateFrom) query = query.gte("sent_at", dateFrom);
-    if (dateTo) query = query.lte("sent_at", dateTo + "T23:59:59");
+    if (error || !data || (data as any[]).length === 0) return;
 
-    const { data } = await query;
-    if (!data || data.length === 0) return;
-
+    const rows = data as any[];
     const csvRows = [
       "Email,Ism,Obuna turi,Eslatma turi,Tugash sanasi,Yuborilgan sana",
-      ...data.map((r: any) =>
+      ...rows.map((r: any) =>
         [
-          r.profiles?.email || "",
-          r.profiles?.full_name || "",
+          r.email || "",
+          r.full_name || "",
           r.subscription_type,
           r.reminder_type,
           r.expires_at ? new Date(r.expires_at).toLocaleDateString("uz-UZ") : "",
