@@ -143,6 +143,15 @@ function getEmailContent(
   const planLabel = subscriptionType === "vip" ? "VIP" : subscriptionType === "yearly" ? "Yillik" : "Oylik";
 
   switch (reminderType) {
+    case "7_days":
+      return {
+        subject: `📅 Obunangiz 7 kundan so'ng tugaydi — MPBS.uz`,
+        heading: "📅 Obunangiz tugayapti!",
+        message: `Hurmatli <strong>${userName}</strong>, sizning <strong>${planLabel}</strong> obunangiz <strong>${expiresDate}</strong> kuni tugaydi. Erta yangilang va uzluksiz foydalaning.`,
+        ctaText: "Obunani yangilash →",
+        ctaUrl: "https://promts.lovable.app/payment",
+        color: "#3b82f6",
+      };
     case "3_days":
       return {
         subject: `⏰ Obunangiz 3 kundan so'ng tugaydi — MPBS.uz`,
