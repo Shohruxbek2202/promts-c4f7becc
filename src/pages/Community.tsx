@@ -17,6 +17,7 @@ interface ChatRoom {
   name: string;
   description: string | null;
   icon: string;
+  course_id: string | null;
 }
 
 interface ChatMessage {
@@ -46,7 +47,7 @@ const Community = () => {
     const fetchRooms = async () => {
       const { data } = await supabase
         .from("chat_rooms")
-        .select("id, name, description, icon")
+        .select("id, name, description, icon, course_id")
         .eq("is_active", true)
         .order("sort_order");
       if (data) setRooms(data);
@@ -215,24 +216,55 @@ const Community = () => {
             {isLoading ? (
               <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
             ) : (
-              <div className="space-y-1">
-                {rooms.map(room => (
-                  <button
-                    key={room.id}
-                    onClick={() => setSelectedRoom(room)}
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors ${
-                      selectedRoom?.id === room.id
-                        ? "bg-primary/10 text-primary"
-                        : "hover:bg-muted text-foreground"
-                    }`}
-                  >
-                    <span className="text-xl">{room.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{room.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{room.description}</p>
+              <div className="space-y-4">
+                {/* General rooms */}
+                <div className="space-y-1">
+                  {rooms.filter(r => !r.course_id).map(room => (
+                    <button
+                      key={room.id}
+                      onClick={() => setSelectedRoom(room)}
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors ${
+                        selectedRoom?.id === room.id
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-muted text-foreground"
+                      }`}
+                    >
+                      <span className="text-xl">{room.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{room.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{room.description}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Course rooms */}
+                {rooms.filter(r => r.course_id).length > 0 && (
+                  <>
+                    <div className="border-t border-border pt-3">
+                      <h3 className="text-xs font-medium text-muted-foreground mb-2 px-1">📚 Kurs xonalari</h3>
                     </div>
-                  </button>
-                ))}
+                    <div className="space-y-1">
+                      {rooms.filter(r => r.course_id).map(room => (
+                        <button
+                          key={room.id}
+                          onClick={() => setSelectedRoom(room)}
+                          className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors ${
+                            selectedRoom?.id === room.id
+                              ? "bg-primary/10 text-primary"
+                              : "hover:bg-muted text-foreground"
+                          }`}
+                        >
+                          <span className="text-xl">{room.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{room.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{room.description}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
