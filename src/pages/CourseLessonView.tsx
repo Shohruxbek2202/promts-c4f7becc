@@ -6,14 +6,16 @@ import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion } from "framer-motion";
 import DOMPurify from "dompurify";
 import {
   ArrowLeft, Play, Check, Lock, ChevronLeft, ChevronRight,
-  Clock, FileText, Download, GraduationCap
+  Clock, FileText, Download, GraduationCap, CheckCircle
 } from "lucide-react";
 import { SEOHead } from "@/components/seo";
+import { toast } from "sonner";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -98,14 +100,24 @@ const LockedPage = ({ courseSlug }: { courseSlug: string }) => (
 const VideoPlayer = ({
   lesson,
   signedUrl,
+  userEmail,
 }: {
   lesson: CourseLesson;
   signedUrl: string | null;
+  userEmail?: string;
 }) => {
   if (!lesson.video_url && !lesson.video_file_url) return null;
 
+  const watermark = userEmail ? (
+    <div className="absolute inset-0 pointer-events-none z-10 flex items-end justify-end p-4 opacity-30">
+      <span className="text-xs text-white font-mono select-none" style={{ textShadow: "0 0 4px rgba(0,0,0,0.8)" }}>
+        {userEmail}
+      </span>
+    </div>
+  ) : null;
+
   return (
-    <div className="aspect-video rounded-xl overflow-hidden bg-black mb-6">
+    <div className="aspect-video rounded-xl overflow-hidden bg-black mb-6 relative select-none" onContextMenu={e => e.preventDefault()}>
       {lesson.video_file_url ? (
         signedUrl ? (
           <video
@@ -113,6 +125,8 @@ const VideoPlayer = ({
             controls
             className="w-full h-full"
             controlsList="nodownload noremoteplayback"
+            disablePictureInPicture
+            playsInline
             onContextMenu={(e) => e.preventDefault()}
           />
         ) : (
@@ -128,8 +142,9 @@ const VideoPlayer = ({
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         />
       ) : lesson.video_url ? (
-        <video src={lesson.video_url} controls className="w-full h-full" controlsList="nodownload" />
+        <video src={lesson.video_url} controls className="w-full h-full" controlsList="nodownload noremoteplayback" disablePictureInPicture onContextMenu={e => e.preventDefault()} />
       ) : null}
+      {watermark}
     </div>
   );
 };
@@ -176,9 +191,10 @@ const CourseLessonView = () => {
   const [materials, setMaterials] = useState<CourseMaterial[]>([]);
   const [courseTitle, setCourseTitle] = useState("");
   const [courseId, setCourseId] = useState("");
-  // null = still checking, true = has full access, false = no access
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
+  const [progressPercent, setProgressPercent] = useState(0);
 
   const signedVideoUrl = useSignedVideoUrl(currentLesson?.video_file_url, user?.id);
 
@@ -236,10 +252,39 @@ const CourseLessonView = () => {
       }
     }
 
+    // Fetch progress
+    const { data: progressData } = await supabase
+      .from("user_lesson_progress")
+      .select("lesson_id")
+      .eq("user_id", user.id)
+      .eq("course_id", course.id);
+    if (progressData) {
+      setCompletedLessons(new Set(progressData.map(p => p.lesson_id)));
+      const total = lessonsData?.length || 0;
+      setProgressPercent(total > 0 ? Math.round((progressData.length / total) * 100) : 0);
+    }
+
     setIsLoading(false);
   }, [courseSlug, user, lessonSlug, fetchMaterials]);
 
   useEffect(() => { fetchCourseData(); }, [fetchCourseData]);
+
+  const toggleLessonComplete = async (lessonId: string) => {
+    if (!user || !courseId) return;
+    const isCompleted = completedLessons.has(lessonId);
+    if (isCompleted) {
+      await supabase.from("user_lesson_progress").delete().eq("user_id", user.id).eq("lesson_id", lessonId);
+      setCompletedLessons(prev => { const n = new Set(prev); n.delete(lessonId); return n; });
+    } else {
+      await supabase.from("user_lesson_progress").insert({ user_id: user.id, lesson_id: lessonId, course_id: courseId });
+      setCompletedLessons(prev => new Set(prev).add(lessonId));
+      toast.success("Dars tugallandi! ✅");
+    }
+    // Recalculate
+    const totalLessons = lessons.filter(l => canViewLesson(l)).length || lessons.length;
+    const newCompleted = isCompleted ? completedLessons.size - 1 : completedLessons.size + 1;
+    setProgressPercent(totalLessons > 0 ? Math.round((newCompleted / totalLessons) * 100) : 0);
+  };
 
   // Sync currentLesson from URL slug
   useEffect(() => {
@@ -308,7 +353,7 @@ const CourseLessonView = () => {
                   animate={{ opacity: 1, y: 0 }}
                   key={currentLesson.id}
                 >
-                  <VideoPlayer lesson={currentLesson} signedUrl={signedVideoUrl} />
+                  <VideoPlayer lesson={currentLesson} signedUrl={signedVideoUrl} userEmail={user?.email || undefined} />
 
                   <h1 className="text-2xl font-bold text-foreground mb-2">{currentLesson.title}</h1>
 
@@ -333,36 +378,50 @@ const CourseLessonView = () => {
 
                   <MaterialsList materials={materials} />
 
-                  {/* Prev / Next navigation */}
-                  <div className="flex items-center justify-between pt-4 border-t border-border">
-                    {prevLesson && canViewLesson(prevLesson) ? (
-                      <Link to={`/course/${courseSlug}/lesson/${prevLesson.slug}`}>
-                        <Button variant="outline" size="sm" className="gap-1">
-                          <ChevronLeft className="w-4 h-4" /> Oldingi
-                        </Button>
-                      </Link>
-                    ) : <div />}
+                   {/* Mark complete button */}
+                   {hasAccess && (
+                     <div className="mt-4">
+                       <Button
+                         variant={completedLessons.has(currentLesson.id) ? "outline" : "default"}
+                         className="w-full gap-2"
+                         onClick={() => toggleLessonComplete(currentLesson.id)}
+                       >
+                         <CheckCircle className="w-4 h-4" />
+                         {completedLessons.has(currentLesson.id) ? "Tugallangan ✓" : "Darsni tugallash"}
+                       </Button>
+                     </div>
+                   )}
 
-                    {nextLesson ? (
-                      canViewLesson(nextLesson) ? (
-                        <Link to={`/course/${courseSlug}/lesson/${nextLesson.slug}`}>
-                          <Button size="sm" className="gap-1">
-                            Keyingi <ChevronRight className="w-4 h-4" />
-                          </Button>
-                        </Link>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="gap-1"
-                          onClick={() => navigate(`/course-payment/${courseSlug}`)}
-                        >
-                          <Lock className="w-3.5 h-3.5" /> Sotib olish
-                        </Button>
-                      )
-                    ) : <div />}
-                  </div>
-                </motion.div>
+                   {/* Prev / Next navigation */}
+                   <div className="flex items-center justify-between pt-4 border-t border-border mt-4">
+                     {prevLesson && canViewLesson(prevLesson) ? (
+                       <Link to={`/course/${courseSlug}/lesson/${prevLesson.slug}`}>
+                         <Button variant="outline" size="sm" className="gap-1">
+                           <ChevronLeft className="w-4 h-4" /> Oldingi
+                         </Button>
+                       </Link>
+                     ) : <div />}
+
+                     {nextLesson ? (
+                       canViewLesson(nextLesson) ? (
+                         <Link to={`/course/${courseSlug}/lesson/${nextLesson.slug}`}>
+                           <Button size="sm" className="gap-1">
+                             Keyingi <ChevronRight className="w-4 h-4" />
+                           </Button>
+                         </Link>
+                       ) : (
+                         <Button
+                           size="sm"
+                           variant="outline"
+                           className="gap-1"
+                           onClick={() => navigate(`/course-payment/${courseSlug}`)}
+                         >
+                           <Lock className="w-3.5 h-3.5" /> Sotib olish
+                         </Button>
+                       )
+                     ) : <div />}
+                   </div>
+                 </motion.div>
               ) : (
                 <div className="text-center py-20">
                   <GraduationCap className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
@@ -376,6 +435,15 @@ const CourseLessonView = () => {
               <div className="rounded-xl border border-border bg-card/50 overflow-hidden sticky top-24">
                 <div className="p-4 border-b border-border">
                   <h3 className="font-semibold text-foreground">Darslar ({lessons.length})</h3>
+                  {hasAccess && (
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                        <span>{completedLessons.size}/{lessons.length} tugallangan</span>
+                        <span>{progressPercent}%</span>
+                      </div>
+                      <Progress value={progressPercent} className="h-2" />
+                    </div>
+                  )}
                   {!hasAccess && (
                     <p className="text-xs text-muted-foreground mt-1">
                       Qulflangan darslarni ko'rish uchun kursni sotib oling
@@ -429,16 +497,18 @@ const CourseLessonView = () => {
                           </div>
 
                           {/* Status icon */}
-                          {lesson.is_preview ? (
+                          {lesson.is_preview && !hasAccess ? (
                             <Badge variant="outline" className="text-xs flex-shrink-0">
                               Bepul
                             </Badge>
                           ) : !hasAccess ? (
                             <Lock className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                          ) : completedLessons.has(lesson.id) ? (
+                            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                           ) : isActive ? (
                             <Play className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                           ) : (
-                            <Check className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                            <div className="w-3.5 h-3.5 rounded-full border-2 border-muted-foreground/30 flex-shrink-0" />
                           )}
                         </Link>
                       );
