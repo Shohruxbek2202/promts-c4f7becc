@@ -9,10 +9,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Mail, Lock, ArrowRight, Gift, ArrowLeft, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import PasswordStrengthMeter, { passwordSchema } from "@/components/auth/PasswordStrengthMeter";
 
-const authSchema = z.object({
+const loginSchema = z.object({
   email: z.string().trim().email({ message: "Email noto'g'ri formatda" }).max(255),
   password: z.string().min(6, { message: "Parol kamida 6 ta belgidan iborat bo'lishi kerak" }).max(100),
+});
+
+const signupSchema = z.object({
+  email: z.string().trim().email({ message: "Email noto'g'ri formatda" }).max(255),
+  password: z.string().min(8, { message: "Parol kamida 8 ta belgidan iborat bo'lishi kerak" }).max(100)
+    .refine((p) => /[A-Z]/.test(p), { message: "Katta harf kerak" })
+    .refine((p) => /[0-9]/.test(p), { message: "Raqam kerak" })
+    .refine((p) => /[^A-Za-z0-9]/.test(p), { message: "Maxsus belgi kerak" }),
 });
 
 const Auth = () => {
@@ -77,7 +86,8 @@ const Auth = () => {
       return;
     }
 
-    const result = authSchema.safeParse({ email, password });
+    const schema = isLogin ? loginSchema : signupSchema;
+    const result = schema.safeParse({ email, password });
     if (!result.success) {
       toast.error(result.error.errors[0].message);
       return;
@@ -341,7 +351,8 @@ const Auth = () => {
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
-                  </div>
+                   </div>
+                   {!isLogin && <PasswordStrengthMeter password={password} />}
                   {isLogin && (
                     <div className="text-right">
                       <button type="button" onClick={() => setIsForgotPassword(true)} className="text-xs text-primary hover:underline">
