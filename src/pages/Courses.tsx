@@ -132,17 +132,14 @@ const Courses = () => {
     if (data) {
       setCourses(data as unknown as Course[]);
 
-      // Fetch enrolled student counts for all courses
+      // Fetch enrolled student counts via RPC
       const courseIds = (data as unknown as Course[]).map(c => c.id);
       if (courseIds.length > 0) {
-        const { data: enrollments } = await supabase
-          .from("user_courses")
-          .select("course_id")
-          .in("course_id", courseIds);
-        if (enrollments) {
+        const { data: countData } = await supabase.rpc("get_course_enrolled_counts", { course_ids: courseIds });
+        if (countData) {
           const counts: Record<string, number> = {};
-          for (const e of enrollments) {
-            counts[e.course_id] = (counts[e.course_id] || 0) + 1;
+          for (const row of countData as { course_id: string; enrolled_count: number }[]) {
+            counts[row.course_id] = row.enrolled_count;
           }
           setEnrolledCounts(counts);
         }
