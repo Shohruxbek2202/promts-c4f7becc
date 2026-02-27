@@ -30,6 +30,7 @@ import {
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { UserStatsChart } from "@/components/dashboard/UserStatsChart";
+import OnboardingModal from "@/components/onboarding/OnboardingModal";
 
 interface Profile {
   id: string;
@@ -41,6 +42,7 @@ interface Profile {
   agency_access_expires_at: string | null;
   referral_code: string | null;
   referral_earnings: number | null;
+  onboarding_completed: boolean | null;
 }
 
 interface PurchasedPrompt {
@@ -87,6 +89,8 @@ const Dashboard = () => {
   const [pricingPlans, setPricingPlans] = useState<{ id: string; name: string; price: number; subscription_type: string }[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState("");
   const [isSubmittingWithdrawal, setIsSubmittingWithdrawal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [pendingPayments, setPendingPayments] = useState<{ id: string; amount: number; created_at: string; course_id: string | null; plan_id: string | null; courses?: { title: string } | null; pricing_plans?: { name: string } | null }[]>([]);
 
   // Subscription expiry warning (7 days)
   const subscriptionExpiryWarning = (() => {
@@ -113,6 +117,35 @@ const Dashboard = () => {
         .maybeSingle();
       
       setProfile(profileData);
+
+      // Check if onboarding needed
+      if (profileData && !profileData.onboarding_completed) {
+        setShowOnboarding(true);
+      }
+
+      // Fetch pending payments for status UI
+      const { data: pendingData } = await supabase
+        .from("payments")
+        .select("id, amount, created_at, course_id, plan_id")
+        .eq("user_id", user!.id)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
+      if (pendingData && pendingData.length > 0) {
+        // Enrich with names
+        const courseIds = pendingData.filter(p => p.course_id).map(p => p.course_id!);
+        const planIds = pendingData.filter(p => p.plan_id).map(p => p.plan_id!);
+        const [{ data: courses }, { data: plans }] = await Promise.all([
+          courseIds.length > 0 ? supabase.from("courses").select("id, title").in("id", courseIds) : { data: [] },
+          planIds.length > 0 ? supabase.from("pricing_plans").select("id, name").in("id", planIds) : { data: [] },
+        ]);
+        const coursesMap = new Map((courses || []).map(c => [c.id, c]));
+        const plansMap = new Map((plans || []).map(p => [p.id, p]));
+        setPendingPayments(pendingData.map(p => ({
+          ...p,
+          courses: p.course_id ? coursesMap.get(p.course_id) || null : null,
+          pricing_plans: p.plan_id ? plansMap.get(p.plan_id) || null : null,
+        })));
+      }
 
       const { data: promptsData } = await supabase
         .from("user_prompts")
@@ -348,6 +381,15 @@ const Dashboard = () => {
           </motion.div>
         )}
 
+        {/* Onboarding Modal */}
+        {showOnboarding && profile && (
+          <OnboardingModal
+            userId={user.id}
+            profileId={profile.id}
+            onComplete={() => setShowOnboarding(false)}
+          />
+        )}
+
         {/* Welcome Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -361,6 +403,35 @@ const Dashboard = () => {
             Shaxsiy kabinetingizga xush kelibsiz
           </p>
         </motion.div>
+
+        {/* Pending Payments Banner */}
+        {pendingPayments.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 rounded-xl border border-blue-500/30 bg-blue-500/10 p-4"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="w-5 h-5 text-blue-500" />
+              <h3 className="font-semibold text-blue-600 dark:text-blue-400">
+                {pendingPayments.length} ta to'lov tekshirilmoqda
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {pendingPayments.map(p => (
+                <div key={p.id} className="flex items-center justify-between text-sm">
+                  <span className="text-foreground">
+                    {p.courses?.title || p.pricing_plans?.name || "To'lov"} — {Number(p.amount).toLocaleString()} so'm
+                  </span>
+                  <Badge variant="secondary" className="text-xs gap-1">
+                    <Clock className="w-3 h-3" /> Kutilmoqda
+                  </Badge>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-blue-500/80 mt-2">To'lovingiz 24 soat ichida tekshiriladi</p>
+          </motion.div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
