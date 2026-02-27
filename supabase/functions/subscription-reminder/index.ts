@@ -15,6 +15,27 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+    // Rate limit: max 5 calls per 300s window
+    const { data: allowed } = await supabase.rpc("check_rate_limit", {
+      p_key: "subscription_reminder_cron",
+      p_max_requests: 5,
+      p_window_seconds: 300,
+    });
+
+    if (!allowed) {
+      console.warn("Rate limit exceeded for subscription-reminder");
+      await supabase.from("system_events").insert({
+        event_type: "rate_limit_exceeded",
+        source: "subscription-reminder",
+        severity: "warn",
+        message: "Cron rate limit exceeded",
+      });
+      return new Response(JSON.stringify({ error: "Rate limited" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     if (!RESEND_API_KEY) {
       console.error("RESEND_API_KEY not configured");
@@ -127,6 +148,18 @@ Deno.serve(async (req) => {
     );
   } catch (err) {
     console.error("Unexpected error:", err);
+    // Log to system_events
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const sb = createClient(supabaseUrl, serviceRoleKey);
+      await sb.from("system_events").insert({
+        event_type: "edge_function_error",
+        source: "subscription-reminder",
+        severity: "error",
+        message: String(err),
+      });
+    } catch (_) { /* best effort */ }
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

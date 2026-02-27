@@ -781,6 +781,30 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          request_count?: number
+          window_start?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       referral_transactions: {
         Row: {
           amount: number
@@ -976,6 +1000,36 @@ export type Database = {
           },
         ]
       }
+      system_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          message: string | null
+          metadata: Json | null
+          severity: string
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          message?: string | null
+          metadata?: Json | null
+          severity?: string
+          source: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          message?: string | null
+          metadata?: Json | null
+          severity?: string
+          source?: string
+        }
+        Relationships: []
+      }
       user_courses: {
         Row: {
           access_expires_at: string | null
@@ -1128,8 +1182,34 @@ export type Database = {
       }
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          p_key: string
+          p_max_requests?: number
+          p_window_seconds?: number
+        }
+        Returns: boolean
+      }
+      cleanup_rate_limits: { Args: never; Returns: undefined }
       enroll_after_payment: { Args: { p_course_id: string }; Returns: Json }
       expire_subscriptions: { Args: never; Returns: Json }
+      export_reminders_csv: {
+        Args: {
+          p_date_from?: string
+          p_date_to?: string
+          p_limit?: number
+          p_reminder_type?: string
+          p_subscription_type?: string
+        }
+        Returns: {
+          email: string
+          expires_at: string
+          full_name: string
+          reminder_type: string
+          sent_at: string
+          subscription_type: string
+        }[]
+      }
       generate_referral_code: { Args: never; Returns: string }
       get_course_enrolled_counts: {
         Args: { course_ids: string[] }
