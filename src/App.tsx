@@ -22,6 +22,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import PaymentTerms from "./pages/PaymentTerms";
 import Contact from "./pages/Contact";
+import Community from "./pages/Community";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPrompts from "./pages/admin/AdminPrompts";
@@ -73,6 +74,7 @@ const App = () => (
             <Route path="/payment-terms" element={<PaymentTerms />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/community" element={<Community />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>

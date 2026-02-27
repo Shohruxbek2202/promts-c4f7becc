@@ -65,6 +65,7 @@ export const Header = () => {
     ...(showPricing ? [{ href: "/#pricing", label: "Narxlar", hashOnly: true }] : []),
     { href: "/courses", label: "Kurslar", hashOnly: false },
     { href: "/lessons", label: "Darslar", hashOnly: false },
+    { href: "/community", label: "Hamjamiyat", hashOnly: false },
   ];
 
   useEffect(() => {
