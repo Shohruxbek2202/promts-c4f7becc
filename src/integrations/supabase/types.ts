@@ -1112,7 +1112,20 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      subscription_reminder_report: {
+        Row: {
+          days_until_expiry: number | null
+          email: string | null
+          expires_at: string | null
+          full_name: string | null
+          reminder_type: string | null
+          sent_at: string | null
+          subscription_type:
+            | Database["public"]["Enums"]["subscription_type"]
+            | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       enroll_after_payment: { Args: { p_course_id: string }; Returns: Json }
@@ -1130,6 +1143,7 @@ export type Database = {
         Returns: Json
       }
       get_public_stats: { Args: never; Returns: Json }
+      get_reminder_summary: { Args: never; Returns: Json }
       get_subscription_reminders: {
         Args: never
         Returns: {
