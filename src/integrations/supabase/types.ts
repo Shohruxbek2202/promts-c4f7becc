@@ -131,6 +131,7 @@ export type Database = {
       }
       chat_rooms: {
         Row: {
+          course_id: string | null
           created_at: string
           description: string | null
           icon: string | null
@@ -140,6 +141,7 @@ export type Database = {
           sort_order: number | null
         }
         Insert: {
+          course_id?: string | null
           created_at?: string
           description?: string | null
           icon?: string | null
@@ -149,6 +151,7 @@ export type Database = {
           sort_order?: number | null
         }
         Update: {
+          course_id?: string | null
           created_at?: string
           description?: string | null
           icon?: string | null
@@ -157,7 +160,15 @@ export type Database = {
           name?: string
           sort_order?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "chat_rooms_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       course_lesson_materials: {
         Row: {
