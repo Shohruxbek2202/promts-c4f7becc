@@ -70,6 +70,7 @@ const Courses = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [courseCounts, setCourseCounts] = useState<Record<string, number>>({});
+  const [enrolledCounts, setEnrolledCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -130,6 +131,23 @@ const Courses = () => {
     const { data } = await query;
     if (data) {
       setCourses(data as unknown as Course[]);
+
+      // Fetch enrolled student counts for all courses
+      const courseIds = (data as unknown as Course[]).map(c => c.id);
+      if (courseIds.length > 0) {
+        const { data: enrollments } = await supabase
+          .from("user_courses")
+          .select("course_id")
+          .in("course_id", courseIds);
+        if (enrollments) {
+          const counts: Record<string, number> = {};
+          for (const e of enrollments) {
+            counts[e.course_id] = (counts[e.course_id] || 0) + 1;
+          }
+          setEnrolledCounts(counts);
+        }
+      }
+
       const courseSlug = searchParams.get("course");
       if (courseSlug) {
         const urlCourse = (data as unknown as Course[]).find(c => c.slug === courseSlug);
@@ -266,6 +284,11 @@ const Courses = () => {
                               <div className="flex items-center gap-2 mt-1">
                                 <span className="text-xs font-semibold text-primary">{course.discount_price ? formatPrice(course.discount_price) : formatPrice(course.price)}</span>
                                 <span className="text-xs text-muted-foreground">{course.lessons_count} dars</span>
+                                {(enrolledCounts[course.id] || 0) > 0 && (
+                                  <span className="text-xs text-muted-foreground flex items-center gap-0.5">
+                                    <User className="w-3 h-3" />{enrolledCounts[course.id]}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -308,6 +331,9 @@ const Courses = () => {
                           <div className="flex items-center gap-3 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1"><BookOpen className="w-4 h-4" />{selectedCourse.lessons_count} dars</span>
                             {selectedCourse.duration_minutes > 0 && <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{selectedCourse.duration_minutes} daqiqa</span>}
+                            {(enrolledCounts[selectedCourse.id] || 0) > 0 && (
+                              <span className="flex items-center gap-1"><User className="w-4 h-4" />{enrolledCounts[selectedCourse.id]} talaba</span>
+                            )}
                           </div>
                         </div>
 

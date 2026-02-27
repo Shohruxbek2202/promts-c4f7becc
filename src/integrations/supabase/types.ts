@@ -454,6 +454,7 @@ export type Database = {
           full_name: string | null
           has_agency_access: boolean | null
           id: string
+          onboarding_completed: boolean | null
           phone: string | null
           referral_code: string | null
           referral_earnings: number | null
@@ -473,6 +474,7 @@ export type Database = {
           full_name?: string | null
           has_agency_access?: boolean | null
           id?: string
+          onboarding_completed?: boolean | null
           phone?: string | null
           referral_code?: string | null
           referral_earnings?: number | null
@@ -492,6 +494,7 @@ export type Database = {
           full_name?: string | null
           has_agency_access?: boolean | null
           id?: string
+          onboarding_completed?: boolean | null
           phone?: string | null
           referral_code?: string | null
           referral_earnings?: number | null
