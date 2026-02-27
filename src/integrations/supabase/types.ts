@@ -1006,6 +1006,13 @@ export type Database = {
     }
     Functions: {
       generate_referral_code: { Args: never; Returns: string }
+      get_course_enrolled_counts: {
+        Args: { course_ids: string[] }
+        Returns: {
+          course_id: string
+          enrolled_count: number
+        }[]
+      }
       get_public_stats: { Args: never; Returns: Json }
       has_role: {
         Args: {
