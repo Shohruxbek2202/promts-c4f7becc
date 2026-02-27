@@ -39,6 +39,7 @@ import AdminCourseLessons from "./pages/admin/AdminCourseLessons";
 import AdminCourseLessonForm from "./pages/admin/AdminCourseLessonForm";
 import AdminPaymentMethods from "./pages/admin/AdminPaymentMethods";
 import AdminReferralWithdrawals from "./pages/admin/AdminReferralWithdrawals";
+import AdminReminders from "./pages/admin/AdminReminders";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 
@@ -95,6 +96,7 @@ const App = () => (
               <Route path="pricing" element={<AdminPricingPlans />} />
               <Route path="payment-methods" element={<AdminPaymentMethods />} />
               <Route path="referral-withdrawals" element={<AdminReferralWithdrawals />} />
+              <Route path="reminders" element={<AdminReminders />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />

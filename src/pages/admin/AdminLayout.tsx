@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { 
   LayoutDashboard, FileText, Users, CreditCard, Settings,
   LogOut, Sparkles, ChevronRight, FolderOpen, GraduationCap,
-  PlayCircle, Menu, Gift,
+  PlayCircle, Menu, Gift, Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -21,6 +21,7 @@ const navItems = [
   { href: "/admin/users", icon: Users, label: "Foydalanuvchilar" },
   { href: "/admin/payments", icon: CreditCard, label: "To'lovlar" },
   { href: "/admin/referral-withdrawals", icon: Gift, label: "Referral so'rovlar" },
+  { href: "/admin/reminders", icon: Bell, label: "Eslatmalar" },
   { href: "/admin/settings", icon: Settings, label: "Sozlamalar" },
 ];
 

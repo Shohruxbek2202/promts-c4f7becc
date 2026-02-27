@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StatsCharts } from "@/components/admin/StatsCharts";
+import ReminderStatsWidget from "@/components/admin/ReminderStatsWidget";
 interface Stats {
   totalUsers: number;
   totalPrompts: number;
@@ -323,6 +324,16 @@ const AdminDashboard = () => {
             Kutilayotgan to'lovlar yo'q
           </div>
         )}
+      </motion.div>
+
+      {/* Reminder Stats */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.45 }}
+        className="bg-card rounded-xl border border-border p-6"
+      >
+        <ReminderStatsWidget />
       </motion.div>
 
       {/* Stats Charts */}
