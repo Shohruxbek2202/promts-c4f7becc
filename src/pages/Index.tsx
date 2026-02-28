@@ -193,7 +193,7 @@ const Index = () => {
   const comparisonFeatures: ComparisonFeature[] = [
     { name: "O'zbek tilida", description: "Mahalliy bozor uchun optimallashtirilgan", values: { "MPBS.uz": true, "PromptBase": false, "Udemy": false, "O'zingiz yozish": true } },
     { name: "Marketing promtlar", description: "Tayyor AI marketing promtlari", values: { "MPBS.uz": true, "PromptBase": "partial", "Udemy": false, "O'zingiz yozish": false } },
-    { name: "Onlayn kurslar", description: "Professional video kurslar", values: { "MPBS.uz": true, "PromptBase": false, "Udemy": true, "O'zingiz yozish": false } },
+    { name: "Onlayn kurslar", description: "Video kurslar", values: { "MPBS.uz": true, "PromptBase": false, "Udemy": true, "O'zingiz yozish": false } },
     { name: "Bepul darslar", description: "Bepul video darsliklar", values: { "MPBS.uz": true, "PromptBase": false, "Udemy": "partial", "O'zingiz yozish": false } },
     { name: "Hamjamiyat chati", description: "Real-time muhokama xonalari", values: { "MPBS.uz": true, "PromptBase": false, "Udemy": false, "O'zingiz yozish": false } },
     { name: "Mahalliy to'lov", description: "O'zbekiston kartalaridan to'lash", values: { "MPBS.uz": true, "PromptBase": false, "Udemy": false, "O'zingiz yozish": true } },
