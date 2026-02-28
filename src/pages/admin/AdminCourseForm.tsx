@@ -30,6 +30,7 @@ const AdminCourseForm = () => {
     cover_image_url: "", instructor_name: "", instructor_bio: "",
     instructor_avatar_url: "", price: 0, discount_price: null as number | null,
     category_id: "", duration_minutes: 0, sort_order: 0, is_published: false,
+    chat_room_icon: "📚",
   });
 
   useEffect(() => {
@@ -55,6 +56,7 @@ const AdminCourseForm = () => {
         price: data.price || 0, discount_price: data.discount_price || null,
         category_id: data.category_id || "", duration_minutes: data.duration_minutes || 0,
         sort_order: data.sort_order || 0, is_published: data.is_published || false,
+        chat_room_icon: (data as any).chat_room_icon || "📚",
       });
     }
     setIsLoading(false);
@@ -101,7 +103,8 @@ const AdminCourseForm = () => {
       category_id: formData.category_id || null,
       duration_minutes: formData.duration_minutes || null,
       sort_order: formData.sort_order, is_published: formData.is_published,
-    };
+      chat_room_icon: formData.chat_room_icon || "📚",
+    } as any;
 
     const { error } = isEditing
       ? await supabase.from("courses").update(courseData).eq("id", id)
@@ -229,6 +232,21 @@ const AdminCourseForm = () => {
           <div className="space-y-2">
             <Label>Haqida</Label>
             <Textarea value={formData.instructor_bio} onChange={(e) => setFormData((p) => ({ ...p, instructor_bio: e.target.value }))} placeholder="O'qituvchi haqida" rows={3} />
+          </div>
+        </div>
+
+        {/* Chat xonasi */}
+        <div className="bg-card rounded-xl p-6 border border-border space-y-4">
+          <h2 className="font-display text-lg font-semibold text-foreground">Chat xonasi</h2>
+          <p className="text-sm text-muted-foreground">Kurs yaratilganda avtomatik chat xonasi ochiladi. Ikonka kurs chatida ko'rinadi.</p>
+          <div className="space-y-2">
+            <Label>Chat ikonkasi (emoji)</Label>
+            <Input 
+              value={formData.chat_room_icon} 
+              onChange={(e) => setFormData((p) => ({ ...p, chat_room_icon: e.target.value }))} 
+              placeholder="📚" 
+              className="w-24 text-center text-xl"
+            />
           </div>
         </div>
 
