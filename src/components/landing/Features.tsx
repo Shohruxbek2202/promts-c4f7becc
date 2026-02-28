@@ -18,7 +18,7 @@ const features = [
   },
   {
     icon: GraduationCap,
-    title: "Professional kurslar",
+    title: "Onlayn kurslar",
     description: "AI va digital marketing bo'yicha bosqichma-bosqich o'rgatuvchi onlayn video kurslar.",
   },
   {
