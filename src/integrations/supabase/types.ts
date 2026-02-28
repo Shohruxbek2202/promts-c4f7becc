@@ -276,6 +276,7 @@ export type Database = {
       courses: {
         Row: {
           category_id: string | null
+          chat_room_icon: string | null
           content_html: string | null
           cover_image_url: string | null
           created_at: string
@@ -296,6 +297,7 @@ export type Database = {
         }
         Insert: {
           category_id?: string | null
+          chat_room_icon?: string | null
           content_html?: string | null
           cover_image_url?: string | null
           created_at?: string
@@ -316,6 +318,7 @@ export type Database = {
         }
         Update: {
           category_id?: string | null
+          chat_room_icon?: string | null
           content_html?: string | null
           cover_image_url?: string | null
           created_at?: string
