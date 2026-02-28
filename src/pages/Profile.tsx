@@ -81,17 +81,16 @@ const Profile = () => {
     setUploading(true);
     try {
       const ext = file.name.split(".").pop();
-      // Use prompt-media public bucket for avatars (subfolder: avatars/)
-      const filePath = `avatars/${user.id}-${Date.now()}.${ext}`;
+      const filePath = `${user.id}/${Date.now()}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("prompt-media")
-        .upload(filePath, file, { upsert: false });
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
       const { data: urlData } = supabase.storage
-        .from("prompt-media")
+        .from("avatars")
         .getPublicUrl(filePath);
 
       const newUrl = urlData.publicUrl;
