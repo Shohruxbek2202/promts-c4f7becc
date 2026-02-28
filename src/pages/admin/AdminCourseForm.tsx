@@ -30,7 +30,7 @@ const AdminCourseForm = () => {
     cover_image_url: "", instructor_name: "", instructor_bio: "",
     instructor_avatar_url: "", price: 0, discount_price: null as number | null,
     category_id: "", duration_minutes: 0, sort_order: 0, is_published: false,
-    chat_room_icon: "📚",
+    chat_room_icon: "📚", show_on_landing: false,
   });
 
   useEffect(() => {
@@ -57,6 +57,7 @@ const AdminCourseForm = () => {
         category_id: data.category_id || "", duration_minutes: data.duration_minutes || 0,
         sort_order: data.sort_order || 0, is_published: data.is_published || false,
         chat_room_icon: (data as any).chat_room_icon || "📚",
+        show_on_landing: (data as any).show_on_landing || false,
       });
     }
     setIsLoading(false);
@@ -104,6 +105,7 @@ const AdminCourseForm = () => {
       duration_minutes: formData.duration_minutes || null,
       sort_order: formData.sort_order, is_published: formData.is_published,
       chat_room_icon: formData.chat_room_icon || "📚",
+      show_on_landing: formData.show_on_landing,
     } as any;
 
     const { error } = isEditing
@@ -251,13 +253,20 @@ const AdminCourseForm = () => {
         </div>
 
         {/* Nashr */}
-        <div className="bg-card rounded-xl p-6 border border-border">
+        <div className="bg-card rounded-xl p-6 border border-border space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <Label>Nashr holati</Label>
               <p className="text-sm text-muted-foreground">Kursni omma uchun ko'rinadigan qilish</p>
             </div>
             <Switch checked={formData.is_published} onCheckedChange={(c) => setFormData((p) => ({ ...p, is_published: c }))} />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>Bosh sahifada ko'rsatish</Label>
+              <p className="text-sm text-muted-foreground">Kursni bosh sahifadagi vitrinada chiqarish</p>
+            </div>
+            <Switch checked={formData.show_on_landing} onCheckedChange={(c) => setFormData((p) => ({ ...p, show_on_landing: c }))} />
           </div>
         </div>
 

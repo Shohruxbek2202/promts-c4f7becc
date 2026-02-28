@@ -25,10 +25,11 @@ export const CoursesShowcase = () => {
 
   useEffect(() => {
     const fetchCourses = async () => {
-      const { data } = await supabase
+      const { data } = await (supabase
         .from("courses")
-        .select("id, title, slug, description, cover_image_url, price, discount_price, duration_minutes, lessons_count, instructor_name")
+        .select("id, title, slug, description, cover_image_url, price, discount_price, duration_minutes, lessons_count, instructor_name") as any)
         .eq("is_published", true)
+        .eq("show_on_landing", true)
         .order("sort_order")
         .limit(6);
       

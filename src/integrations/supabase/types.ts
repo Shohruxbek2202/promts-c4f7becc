@@ -290,6 +290,7 @@ export type Database = {
           is_published: boolean | null
           lessons_count: number | null
           price: number
+          show_on_landing: boolean
           slug: string
           sort_order: number | null
           title: string
@@ -311,6 +312,7 @@ export type Database = {
           is_published?: boolean | null
           lessons_count?: number | null
           price?: number
+          show_on_landing?: boolean
           slug: string
           sort_order?: number | null
           title: string
@@ -332,6 +334,7 @@ export type Database = {
           is_published?: boolean | null
           lessons_count?: number | null
           price?: number
+          show_on_landing?: boolean
           slug?: string
           sort_order?: number | null
           title?: string
