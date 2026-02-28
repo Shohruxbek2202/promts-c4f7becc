@@ -1,45 +1,45 @@
 import { motion } from "framer-motion";
 import { 
-  Search, 
   FolderTree, 
   FileText, 
+  Layers,
   Shield, 
   Clock, 
   TrendingUp,
-  Layers,
-  Zap
+  GraduationCap,
+  Users,
 } from "lucide-react";
 
 const features = [
   {
     icon: FolderTree,
-    title: "Kategoriyalangan baza",
-    description: "Tartibli kategoriya tizimi orqali kerakli promtni osonlik bilan toping.",
+    title: "Kategoriyalangan promt baza",
+    description: "Google Ads, Meta Ads, Yandex Direct va boshqa platformalar uchun tartibli kategoriyalarda tayyor AI promtlar.",
   },
   {
-    icon: FileText,
-    title: "To'liq qo'llanma",
-    description: "Har bir promt bilan qadam-baqadam instruksiya va video qo'llanmalar.",
+    icon: GraduationCap,
+    title: "Professional kurslar",
+    description: "AI va digital marketing bo'yicha bosqichma-bosqich o'rgatuvchi onlayn video kurslar.",
   },
   {
     icon: Layers,
     title: "Video darsliklar",
-    description: "AI dan samarali foydalanishni o'rgatuvchi professional video kurslar.",
+    description: "Har bir mavzu bo'yicha alohida bepul video darslar — AI dan samarali foydalanishni o'rganing.",
   },
   {
-    icon: Shield,
-    title: "Yuqori sifat",
-    description: "Barcha promtlar ekspertlar tomonidan tekshirilgan va tasdiqlangan.",
+    icon: Users,
+    title: "Hamjamiyat chatlari",
+    description: "Kurs a'zolari bilan real-time muhokama, tajriba almashish va savollarga javob olish.",
   },
   {
     icon: Clock,
     title: "Vaqtni tejash",
-    description: "O'nlab soatlik ishni bir necha daqiqada bajarib qo'ying.",
+    description: "Tayyor promtlar va kurslar bilan o'nlab soatlik ishni bir necha daqiqada bajaring.",
   },
   {
     icon: TrendingUp,
-    title: "Natijani oshirish",
-    description: "Samarali promtlar orqali marketing natijalaringizni 2-3x oshiring.",
+    title: "Natijani 2-3x oshirish",
+    description: "Sinovdan o'tgan promtlar va strategiyalar orqali marketing samaradorligini oshiring.",
   },
 ];
 
@@ -47,28 +47,19 @@ const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
+    transition: { staggerChildren: 0.1 },
   },
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-    },
-  },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
 export const Features = () => {
   return (
     <section id="features" className="py-12 md:py-16 bg-background">
       <div className="container mx-auto px-4">
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -77,14 +68,13 @@ export const Features = () => {
           className="text-center mb-10"
         >
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Nima uchun bizni <span className="text-primary">tanlash</span> kerak?
+            Platformaning <span className="text-primary">asosiy afzalliklari</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Marketing promtlari bilan vaqtingizni tejang va natijalaringizni maksimal darajada oshiring.
+            Promtlar, kurslar, darslar va hamjamiyat — barchasi bir joyda.
           </p>
         </motion.div>
 
-        {/* Features Grid */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -92,7 +82,7 @@ export const Features = () => {
           viewport={{ once: true }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {features.map((feature, index) => (
+          {features.map((feature) => (
             <motion.div
               key={feature.title}
               variants={itemVariants}
