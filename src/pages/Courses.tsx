@@ -189,6 +189,61 @@ const Courses = () => {
   };
 
   const hasPurchased = (courseId: string) => purchasedCourseIds.includes(courseId);
+  const [enrollingFree, setEnrollingFree] = useState<string | null>(null);
+
+  const handleFreeCourseEnroll = async (course: Course) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    setEnrollingFree(course.id);
+    try {
+      // Check if already enrolled
+      const { data: existing } = await supabase
+        .from("user_courses")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("course_id", course.id)
+        .maybeSingle();
+
+      if (existing) {
+        toast.info("Siz allaqachon bu kursga yozilgansiz");
+        navigate(`/course/${course.slug}`);
+        return;
+      }
+
+      // Create auto-approved payment for free course
+      const { error: paymentError } = await supabase.from("payments").insert({
+        user_id: user.id,
+        course_id: course.id,
+        amount: 0,
+        status: "approved" as any,
+        payment_method: "free",
+        approved_at: new Date().toISOString(),
+      });
+
+      if (paymentError) throw paymentError;
+
+      // Enroll via RPC
+      const { data: result, error: enrollError } = await supabase.rpc("enroll_after_payment", { p_course_id: course.id });
+      if (enrollError) throw enrollError;
+
+      const res = result as { success: boolean; error?: string };
+      if (!res.success) throw new Error(res.error || "Ro'yxatdan o'tishda xatolik");
+
+      setPurchasedCourseIds(prev => [...prev, course.id]);
+      toast.success("Kursga muvaffaqiyatli yozildingiz!");
+      navigate(`/course/${course.slug}`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Xatolik yuz berdi");
+    } finally {
+      setEnrollingFree(null);
+    }
+  };
+
+  const getEffectivePrice = (course: Course) => course.discount_price ?? course.price;
+  const isFree = (course: Course) => getEffectivePrice(course) === 0;
 
   const formatPrice = (price: number) => new Intl.NumberFormat("uz-UZ").format(price) + " so'm";
 
@@ -335,9 +390,15 @@ const Courses = () => {
                         </div>
 
                         {!hasPurchased(selectedCourse.id) && (
-                          <Button className="mt-4 gap-2" onClick={() => navigate(`/course-payment/${selectedCourse.slug}`)}>
-                            <ShoppingCart className="w-4 h-4" /> Sotib olish
-                          </Button>
+                          isFree(selectedCourse) ? (
+                            <Button className="mt-4 gap-2" disabled={enrollingFree === selectedCourse.id} onClick={() => handleFreeCourseEnroll(selectedCourse)}>
+                              {enrollingFree === selectedCourse.id ? <><Clock className="w-4 h-4 animate-spin" /> Yuklanmoqda...</> : <><Play className="w-4 h-4" /> Bepul boshlash</>}
+                            </Button>
+                          ) : (
+                            <Button className="mt-4 gap-2" onClick={() => navigate(`/course-payment/${selectedCourse.slug}`)}>
+                              <ShoppingCart className="w-4 h-4" /> Sotib olish
+                            </Button>
+                          )
                         )}
                       </div>
 
@@ -415,9 +476,15 @@ const Courses = () => {
                     <span className="text-sm text-muted-foreground">{selectedCourse.lessons_count} dars</span>
                   </div>
                   {!hasPurchased(selectedCourse.id) && (
-                    <Button className="w-full mt-3 gap-2" onClick={() => navigate(`/course-payment/${selectedCourse.slug}`)}>
-                      <ShoppingCart className="w-4 h-4" /> Sotib olish
-                    </Button>
+                    isFree(selectedCourse) ? (
+                      <Button className="w-full mt-3 gap-2" disabled={enrollingFree === selectedCourse.id} onClick={() => handleFreeCourseEnroll(selectedCourse)}>
+                        {enrollingFree === selectedCourse.id ? <><Clock className="w-4 h-4 animate-spin" /> Yuklanmoqda...</> : <><Play className="w-4 h-4" /> Bepul boshlash</>}
+                      </Button>
+                    ) : (
+                      <Button className="w-full mt-3 gap-2" onClick={() => navigate(`/course-payment/${selectedCourse.slug}`)}>
+                        <ShoppingCart className="w-4 h-4" /> Sotib olish
+                      </Button>
+                    )
                   )}
                   {hasPurchased(selectedCourse.id) && <Badge className="bg-primary/10 text-primary border-0 mt-3"><Check className="w-3 h-3 mr-1" />Sotib olingan</Badge>}
                 </div>
