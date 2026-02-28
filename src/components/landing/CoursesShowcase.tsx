@@ -68,7 +68,7 @@ export const CoursesShowcase = () => {
             <span className="text-primary">Kurslar</span> va ta'lim
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            AI va digital marketing bo'yicha professional onlayn kurslar bilan bilimingizni oshiring.
+            AI va digital marketing bo'yicha onlayn kurslar bilan bilimingizni oshiring.
           </p>
         </motion.div>
 
