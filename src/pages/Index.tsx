@@ -3,6 +3,8 @@ import { Header } from "@/components/landing/Header";
 import { Hero } from "@/components/landing/Hero";
 import { Features } from "@/components/landing/Features";
 import { Categories } from "@/components/landing/Categories";
+import { CoursesShowcase } from "@/components/landing/CoursesShowcase";
+import { LessonsShowcase } from "@/components/landing/LessonsShowcase";
 import { Pricing } from "@/components/landing/Pricing";
 import { Referral } from "@/components/landing/Referral";
 import { Footer } from "@/components/landing/Footer";
@@ -33,6 +35,7 @@ interface PublicStats {
   prompts_count: number;
   categories_count: number;
   lessons_count: number;
+  courses_count: number;
   average_rating: number;
 }
 
@@ -47,6 +50,7 @@ const Index = () => {
     prompts_count: 0,
     categories_count: 0,
     lessons_count: 0,
+    courses_count: 0,
     average_rating: 0,
   });
 
@@ -88,208 +92,119 @@ const Index = () => {
     }
   };
 
-  // Pricing only shows if setting is enabled AND there are active plans
   const showPricing = sectionSettings.show_pricing && hasActivePlans;
   const showReferral = sectionSettings.show_referral;
 
-  // Schema.org - Organization
   const organizationSchema: OrganizationSchema = {
     type: "Organization",
     name: "MPBS.uz",
     url: "https://mpbs.uz",
     logo: "https://mpbs.uz/favicon.ico",
-    description: "Marketing promtlari bazasi. Google Ads, Meta Ads, Yandex Direct va boshqa platformalar uchun tayyor promtlar.",
-    sameAs: [
-      "https://t.me/promptshub",
-      "https://instagram.com/shohruxdigital"
-    ],
-    contactPoint: {
-      telephone: "+998901234567",
-      contactType: "customer service",
-      email: "info@shohruxdigital.uz"
-    }
+    description: "Marketing promtlari, onlayn kurslar va video darslar platformasi. Google Ads, Meta Ads, Yandex Direct va boshqa platformalar uchun tayyor promtlar.",
+    sameAs: ["https://t.me/promptshub", "https://instagram.com/shohruxdigital"],
+    contactPoint: { telephone: "+998901234567", contactType: "customer service", email: "info@shohruxdigital.uz" }
   };
 
-  // Schema.org - WebSite with SearchAction
   const websiteSchema: WebSiteSchema = {
     type: "WebSite",
     name: "MPBS.uz",
     url: "https://mpbs.uz",
-    potentialAction: {
-      target: "https://mpbs.uz/prompts?search={search_term_string}",
-      queryInput: "required name=search_term_string"
-    }
+    potentialAction: { target: "https://mpbs.uz/prompts?search={search_term_string}", queryInput: "required name=search_term_string" }
   };
 
-  // Schema.org - SoftwareApplication (SaaS SEO 2026)
   const softwareSchema: SoftwareApplicationSchema = {
     type: "SoftwareApplication",
-    name: "MPBS.uz - Marketing AI Promtlari",
-    description: "Digital marketing mutaxassislari uchun O'zbek tilida tayyor AI promtlar bazasi. AI, Google Ads, Meta Ads uchun optimallashtirilgan.",
+    name: "MPBS.uz - Marketing AI Promtlari va Kurslar",
+    description: "Digital marketing mutaxassislari uchun O'zbek tilida tayyor AI promtlar, professional onlayn kurslar va video darslar platformasi.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
-    offers: {
-      price: "0",
-      priceCurrency: "UZS",
-    },
-    author: {
-      name: "ShohruxDigital",
-      url: "https://shohruxdigital.uz",
-    },
+    offers: { price: "0", priceCurrency: "UZS" },
+    author: { name: "ShohruxDigital", url: "https://shohruxdigital.uz" },
     featureList: [
-      "O'zbek tilida tayyor marketing promtlari",
-      "Google Ads uchun promtlar",
-      "Meta Ads uchun promtlar", 
-      "Yandex Direct promtlari",
-      "Har hafta yangi promtlar",
-      "Video darsliklar",
+      "Marketing AI promtlari bazasi",
+      "Professional onlayn kurslar",
+      "Bepul video darsliklar",
+      "Hamjamiyat chat xonalari",
+      "Google Ads, Meta Ads promtlari",
+      "O'zbek tilida tushuntirishlar",
       "3.5+ yillik marketing tajribasi"
     ],
     softwareVersion: "2.0",
     dateModified: new Date().toISOString().split("T")[0],
   };
 
-  // Schema.org - FAQ (AI visibility uchun)
   const faqSchema: FAQSchema = {
     type: "FAQPage",
     questions: [
-      {
-        question: "MPBS.uz nima?",
-        answer: "MPBS.uz - bu digital marketing mutaxassislari uchun O'zbek tilida tayyor AI promtlar bazasi. Har bir promt AI tushunishi uchun maxsus optimallashtirilgan."
-      },
-      {
-        question: "Promtlar qaysi tilda yozilgan?",
-        answer: "Promtlar O'zbek tilida tushuntirilgan va AI (ChatGPT, Claude) bilan ishlash uchun maxsus formatda tayyorlangan. Promt matnining o'zi ingliz yoki rus tilida bo'lishi mumkin, chunki AI shu tillarda yaxshiroq ishlaydi."
-      },
-      {
-        question: "Promtlardan qanday foydalanaman?",
-        answer: "Promtni nusxalab, ChatGPT yoki boshqa AI vositasiga joylashtiring. O'zingizning mahsulot/xizmat ma'lumotlaringizni qo'shing va natija oling."
-      },
-      {
-        question: "MPBS.uz bepulmi?",
-        answer: "Ha, asosiy promtlar bepul. Premium promtlar va video darsliklar uchun obuna talab qilinadi."
-      },
-      {
-        question: "Loyiha ortida kim bor?",
-        answer: "MPBS.uz 3.5+ yillik digital marketing tajribasiga ega ShohruxDigital jamoasi tomonidan yaratilgan. Barcha promtlar real loyihalarda sinovdan o'tkazilgan."
-      }
+      { question: "MPBS.uz nima?", answer: "MPBS.uz - marketing promtlari, professional onlayn kurslar va bepul video darslar platformasi. AI yordamida marketing samaradorligini oshirishga mo'ljallangan." },
+      { question: "MPBS.uz da qanday kurslar bor?", answer: "AI va digital marketing bo'yicha professional onlayn kurslar mavjud. Har bir kursda video darslar, materiallar va hamjamiyat chati bor." },
+      { question: "Bepul darslar bormi?", answer: "Ha, platformada bepul video darsliklar mavjud. Bundan tashqari, ba'zi kurslar ham bepul taklif etiladi." },
+      { question: "Promtlardan qanday foydalanaman?", answer: "Promtni nusxalab, AI vositasiga (ChatGPT, Claude, Gemini) joylashtiring. O'zingizning ma'lumotlaringizni qo'shing va natija oling." },
+      { question: "MPBS.uz bepulmi?", answer: "Asosiy promtlar va ba'zi darslar bepul. Premium promtlar, to'liq kurslar va hamjamiyat chati uchun obuna talab qilinadi." }
     ]
   };
 
-  // E-E-A-T Trust Signals - haqiqiy ma'lumotlar bazadan
   const trustSignals: TrustSignal[] = [
-    { 
-      icon: "users", 
-      value: stats.users_count > 0 ? `${stats.users_count}+` : "—", 
-      label: "Foydalanuvchilar" 
-    },
-    { 
-      icon: "star", 
-      value: stats.average_rating > 0 ? stats.average_rating.toFixed(1) : "—", 
-      label: "O'rtacha baho" 
-    },
-    { 
-      icon: "check", 
-      value: `${stats.categories_count}`, 
-      label: "Kategoriyalar" 
-    },
-    { 
-      icon: "award", 
-      value: "3.5+", 
-      label: "Yillik tajriba" 
-    },
+    { icon: "users", value: stats.users_count > 0 ? `${stats.users_count}+` : "—", label: "Foydalanuvchilar" },
+    { icon: "star", value: stats.prompts_count > 0 ? `${stats.prompts_count}+` : "—", label: "Tayyor promtlar" },
+    { icon: "check", value: stats.courses_count > 0 ? `${stats.courses_count}+` : "—", label: "Onlayn kurslar" },
+    { icon: "award", value: stats.lessons_count > 0 ? `${stats.lessons_count}+` : "—", label: "Video darslar" },
   ];
 
-  // Best Fit Brief (AI/GEO optimization)
   const bestFitData: BestFitInfo = {
     title: "MPBS.uz kimlar uchun?",
-    subtitle: "O'zbek tilida tushuntirilgan AI promtlar bazasi",
+    subtitle: "Marketing promtlari, kurslar va darslar — bir platformada",
     tag: "3.5+ yillik tajriba",
     targetAudience: [
-      "Digital marketing agentliklari",
-      "Freelancer marketologlar",
-      "Startup asoschilari",
-      "SMM mutaxassislari",
-      "Content marketing bo'limlari",
+      "Digital marketing agentliklari va jamoalari",
+      "Freelancer marketologlar va SMM mutaxassislari",
+      "Startup asoschilari va biznes egalari",
+      "AI yordamida ish samaradorligini oshirmoqchi bo'lganlar",
+      "Marketing sohasini o'rganayotgan yangi boshlovchilar",
     ],
     idealFor: [
-      "Reklama kampaniyalarini tez ishga tushirish kerak bo'lganda",
-      "AI dan professional natija olishni xohlasangiz",
-      "Marketing kontent yaratishda vaqt tejashni istasangiz",
-      "O'zbek tilida tushuntirilgan promtlar kerak bo'lganda",
+      "AI dan professional marketing natijalari olishni xohlasangiz",
+      "Kurslar orqali digital marketingni chuqur o'rganmoqchi bo'lsangiz",
+      "Tayyor promtlar bilan vaqt tejashni istasangiz",
+      "Hamjamiyatda tajriba almashish va o'sishni xohlasangiz",
     ],
     notIdealFor: [
       "Kodlash/dasturlash promtlari izlovchilar",
-      "Ingliz tilini bilmaydigan foydalanuvchilar (promtlarning ba'zilari inglizcha)",
+      "Marketing bilan bog'liq bo'lmagan sohalar",
     ],
     keyBenefits: [
       "O'zbek tilida tushuntirilgan",
       "Real loyihalarda sinovdan o'tgan",
-      "3.5+ yillik tajriba asosida",
+      "Video kurslar va darslar",
+      "Hamjamiyat va chat xonalari",
       "Doimiy yangilanishlar",
     ],
-    ctaText: "Promtlarni ko'rish",
+    ctaText: "Platformani ko'rish",
     ctaLink: "/prompts",
   };
 
-  // Comparison Table (AI crawlers uchun strukturalangan)
   const comparisonProducts: ComparisonProduct[] = [
     { name: "MPBS.uz", isHighlighted: true, price: "Bepul / Premium" },
     { name: "PromptBase", price: "$4.99/promt" },
-    { name: "AIPRM", price: "$9/oy" },
+    { name: "Udemy", price: "$10-50/kurs" },
     { name: "O'zingiz yozish", price: "Bepul" },
   ];
 
   const comparisonFeatures: ComparisonFeature[] = [
-    {
-      name: "O'zbek tilida",
-      description: "Mahalliy bozor uchun optimallashtirilgan",
-      values: { "MPBS.uz": true, "PromptBase": false, "AIPRM": false, "O'zingiz yozish": true },
-    },
-    {
-      name: "Marketing ixtisoslashuvi",
-      description: "Digital marketing uchun maxsus",
-      values: { "MPBS.uz": true, "PromptBase": "partial", "AIPRM": "partial", "O'zingiz yozish": false },
-    },
-    {
-      name: "Video darsliklar",
-      description: "Qo'llanma va treninglar",
-      values: { "MPBS.uz": true, "PromptBase": false, "AIPRM": false, "O'zingiz yozish": false },
-    },
-    {
-      name: "Doimiy yangilanishlar",
-      description: "Haftalik yangi promtlar",
-      values: { "MPBS.uz": true, "PromptBase": "partial", "AIPRM": true, "O'zingiz yozish": false },
-    },
-    {
-      name: "Mahalliy to'lov",
-      description: "O'zbekiston kartalaridan to'lash",
-      values: { "MPBS.uz": true, "PromptBase": false, "AIPRM": false, "O'zingiz yozish": true },
-    },
-    {
-      name: "Qo'llab-quvvatlash",
-      description: "Telegram orqali yordam",
-      values: { "MPBS.uz": true, "PromptBase": false, "AIPRM": "partial", "O'zingiz yozish": false },
-    },
+    { name: "O'zbek tilida", description: "Mahalliy bozor uchun optimallashtirilgan", values: { "MPBS.uz": true, "PromptBase": false, "Udemy": false, "O'zingiz yozish": true } },
+    { name: "Marketing promtlar", description: "Tayyor AI marketing promtlari", values: { "MPBS.uz": true, "PromptBase": "partial", "Udemy": false, "O'zingiz yozish": false } },
+    { name: "Onlayn kurslar", description: "Professional video kurslar", values: { "MPBS.uz": true, "PromptBase": false, "Udemy": true, "O'zingiz yozish": false } },
+    { name: "Bepul darslar", description: "Bepul video darsliklar", values: { "MPBS.uz": true, "PromptBase": false, "Udemy": "partial", "O'zingiz yozish": false } },
+    { name: "Hamjamiyat chati", description: "Real-time muhokama xonalari", values: { "MPBS.uz": true, "PromptBase": false, "Udemy": false, "O'zingiz yozish": false } },
+    { name: "Mahalliy to'lov", description: "O'zbekiston kartalaridan to'lash", values: { "MPBS.uz": true, "PromptBase": false, "Udemy": false, "O'zingiz yozish": true } },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="MPBS.uz - Marketing Promts Bases | AI Promtlar O'zbekistonda"
-        description="Digital marketing uchun tayyor AI promtlar. Google Ads, Meta Ads, Yandex Direct promtlari. ChatGPT bilan professional natijalar. 500+ foydalanuvchi ishonchi."
-        keywords={[
-          "AI promtlar",
-          "marketing promtlari", 
-          "ChatGPT promtlar",
-          "Google Ads promtlar",
-          "Meta Ads promtlar",
-          "digital marketing O'zbekiston",
-          "SMM promtlar",
-          "content marketing",
-          "reklama promtlari",
-          "AI marketing vositalari"
-        ]}
+        title="MPBS.uz - Marketing Promtlar, Kurslar va Darslar | AI Platformasi"
+        description="Digital marketing uchun tayyor AI promtlar, professional onlayn kurslar va bepul video darslar. O'zbek tilida. 3.5+ yillik tajriba."
+        keywords={["AI promtlar", "marketing promtlari", "onlayn kurslar", "video darslar", "digital marketing", "ChatGPT promtlar", "Google Ads", "Meta Ads", "marketing kurslari", "MPBS.uz"]}
         canonicalUrl="https://mpbs.uz"
         ogType="website"
       />
@@ -300,19 +215,18 @@ const Index = () => {
       <main>
         <Hero />
         
-        {/* Trust Signals - E-E-A-T */}
-        <TrustSignals 
-          signals={trustSignals} 
-          title="Ishonch ko'rsatkichlari"
-        />
+        <TrustSignals signals={trustSignals} title="Ishonch ko'rsatkichlari" />
         
         <Features />
+        
+        <CoursesShowcase />
+        
         <Categories />
         
-        {/* Best Fit Brief - AI/GEO Optimization */}
+        <LessonsShowcase />
+        
         <BestFitBrief data={bestFitData} />
         
-        {/* Comparison Table - AI crawlers uchun */}
         <ComparisonTable
           title="Nima uchun MPBS.uz?"
           description="Boshqa platformalar bilan taqqoslash"
