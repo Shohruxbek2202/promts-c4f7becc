@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Hero = () => {
   const { user } = useAuth();
-  const [heroText, setHeroText] = useState({ title: "Marketing promtlari bazasi", subtitle: "Vaqtingizni tejang, natijalaringizni oshiring." });
+  const [heroText, setHeroText] = useState({ title: "AI promtlar, kurslar va darslar — bir platformada", subtitle: "Vaqtingizni tejang, natijalaringizni oshiring." });
 
   useEffect(() => {
     const fetchHeroText = async () => {
@@ -82,10 +82,10 @@ export const Hero = () => {
                 <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-primary rounded-full shadow-lg shadow-primary/40 -mt-1" />
               </span>
               
-              <span className="relative z-10 text-foreground">Marketing Promtlar</span>
+              <span className="relative z-10 text-foreground">AI Promtlar, Kurslar</span>
             </span>
             <br />
-            <span className="text-foreground mt-2 inline-block">va Biznes Strategiyalar</span>
+            <span className="text-foreground mt-2 inline-block">va Video Darslar</span>
           </motion.h1>
 
           {/* Subtitle */}
