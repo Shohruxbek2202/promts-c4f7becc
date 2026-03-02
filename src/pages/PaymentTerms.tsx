@@ -12,7 +12,7 @@ const PaymentTerms = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="To'lov shartlari"
-        description="PromptsHub to'lov shartlari. To'lov usullari, qaytarib olish siyosati va obuna boshqaruvi."
+        description="MPBS.uz to'lov shartlari. To'lov usullari, qaytarib olish siyosati va obuna boshqaruvi."
         keywords={["to'lov shartlari", "payment terms", "obuna", "qaytarib olish"]}
         canonicalUrl="https://mpbs.uz/payment-terms"
       />
@@ -33,7 +33,7 @@ const PaymentTerms = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-foreground">To'lov shartlari</h1>
-              <p className="text-muted-foreground">Oxirgi yangilash: 2024-yil, Yanvar</p>
+              <p className="text-muted-foreground">Oxirgi yangilash: 2026-yil, Mart</p>
             </div>
           </div>
 
@@ -54,7 +54,7 @@ const PaymentTerms = () => {
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                   <CheckCircle className="w-5 h-5 text-primary" />
-                  <span className="text-foreground">Bank kartasi (Visa/MasterCard)</span>
+                  <span className="text-foreground">Bank kartasi (UzCard/Humo)</span>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                   <CheckCircle className="w-5 h-5 text-primary" />
@@ -74,12 +74,13 @@ const PaymentTerms = () => {
             </div>
 
             <div className="bg-card border border-border rounded-xl p-6 mb-6">
-              <h2 className="text-xl font-semibold text-foreground mb-4">Obuna shartlari</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-4">Obuna va kurs to'lovlari</h2>
               <ul className="list-disc list-inside text-muted-foreground space-y-2">
                 <li>Oylik obuna har oyning boshida avtomatik yangilanadi</li>
                 <li>Yillik obuna yil oxirida avtomatik yangilanadi</li>
                 <li>Lifetime obuna bir martalik to'lov bilan cheksiz foydalanish imkonini beradi</li>
-                <li>Obunani istalgan vaqtda bekor qilish mumkin</li>
+                <li>Kurslar uchun bir martalik to'lov amalga oshiriladi</li>
+                <li>Obunalarni istalgan vaqtda bekor qilish mumkin</li>
               </ul>
             </div>
 

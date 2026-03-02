@@ -10,7 +10,7 @@ import {
   Phone, 
   BookOpen, 
   Video,
-  ArrowLeft,
+  GraduationCap,
   ExternalLink
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -18,14 +18,14 @@ import { SEOHead, Breadcrumb } from "@/components/seo";
 
 const helpCategories = [
   {
-    icon: BookOpen,
-    title: "Foydalanish bo'yicha qo'llanma",
-    description: "Platformadan qanday foydalanishni o'rganing",
-    link: "/lessons"
+    icon: GraduationCap,
+    title: "Onlayn kurslar",
+    description: "AI va marketing bo'yicha video kurslar",
+    link: "/courses"
   },
   {
     icon: Video,
-    title: "Video darsliklar",
+    title: "Bepul video darslar",
     description: "Bosqichma-bosqich video ko'rsatmalar",
     link: "/lessons"
   },
@@ -42,8 +42,8 @@ const contactMethods = [
     icon: MessageCircle,
     title: "Telegram",
     description: "Eng tez javob olish uchun",
-    action: "Telegram bot",
-    link: "#"
+    action: "@Shohruxbek_Foziljonov",
+    link: "https://t.me/Shohruxbek_Foziljonov"
   },
   {
     icon: Mail,
@@ -66,7 +66,7 @@ const HelpCenter = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Yordam markazi"
-        description="MPBS.uz yordam markazi. Qo'llanmalar, video darsliklar va tez-tez so'raladigan savollar."
+        description="MPBS.uz yordam markazi. Kurslar, video darsliklar va tez-tez so'raladigan savollar."
         keywords={["yordam", "help center", "qo'llanma", "support"]}
         canonicalUrl="https://mpbs.uz/help"
       />
@@ -138,7 +138,7 @@ const HelpCenter = () => {
                       <CardDescription>{method.description}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <a href={method.link} target={method.link.startsWith("http") ? "_blank" : undefined}>
+                      <a href={method.link} target="_blank" rel="noopener noreferrer">
                         <Button variant="outline" size="sm" className="w-full">
                           {method.action}
                           <ExternalLink className="w-3 h-3 ml-2" />
