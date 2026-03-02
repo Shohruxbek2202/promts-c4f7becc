@@ -1,0 +1,1 @@
+UPDATE site_settings SET value = '{"title": "AI promtlar, kurslar va darslar — bir platformada", "subtitle": "Vaqtingizni tejang, natijalaringizni oshiring."}'::jsonb, updated_at = now() WHERE key = 'hero_text';
