@@ -12,7 +12,7 @@ const Terms = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Foydalanish shartlari"
-        description="PromptsHub foydalanish shartlari. Platformadan foydalanish qoidalari, huquqlar va majburiyatlar."
+        description="MPBS.uz foydalanish shartlari. Platformadan foydalanish qoidalari, huquqlar va majburiyatlar."
         keywords={["foydalanish shartlari", "terms of service", "qoidalar"]}
         canonicalUrl="https://mpbs.uz/terms"
       />
@@ -33,7 +33,7 @@ const Terms = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-foreground">Foydalanish shartlari</h1>
-              <p className="text-muted-foreground">Oxirgi yangilash: 2024-yil, Yanvar</p>
+              <p className="text-muted-foreground">Oxirgi yangilash: 2026-yil, Mart</p>
             </div>
           </div>
 
@@ -41,7 +41,7 @@ const Terms = () => {
             <div className="bg-card border border-border rounded-xl p-6 mb-6">
               <h2 className="text-xl font-semibold text-foreground mb-4">1. Umumiy qoidalar</h2>
               <p className="text-muted-foreground mb-4">
-                Ushbu foydalanish shartlari PromptsHub platformasidan foydalanish qoidalarini belgilaydi. 
+                Ushbu foydalanish shartlari MPBS.uz platformasidan foydalanish qoidalarini belgilaydi. 
                 Platformadan foydalanish orqali siz ushbu shartlarga rozilik bildirasiz.
               </p>
               <p className="text-muted-foreground">
@@ -52,12 +52,13 @@ const Terms = () => {
             <div className="bg-card border border-border rounded-xl p-6 mb-6">
               <h2 className="text-xl font-semibold text-foreground mb-4">2. Xizmatlar</h2>
               <p className="text-muted-foreground mb-4">
-                PromptsHub quyidagi xizmatlarni taqdim etadi:
+                MPBS.uz quyidagi xizmatlarni taqdim etadi:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-2">
-                <li>AI promtlar bazasiga kirish</li>
-                <li>Marketing va biznes promtlari</li>
-                <li>Video darsliklar va qo'llanmalar</li>
+                <li>Marketing uchun tayyor AI promtlar bazasi</li>
+                <li>Onlayn video kurslar</li>
+                <li>Bepul video darsliklar</li>
+                <li>Hamjamiyat chat xonalari</li>
                 <li>Premium kontentga kirish (obuna bo'yicha)</li>
               </ul>
             </div>
@@ -71,6 +72,7 @@ const Terms = () => {
                 <li>To'g'ri va aniq ma'lumotlar bilan ro'yxatdan o'tish</li>
                 <li>Hisobingiz xavfsizligini ta'minlash</li>
                 <li>Promtlarni noqonuniy maqsadlarda ishlatmaslik</li>
+                <li>Kurs materiallarini ruxsatsiz tarqatmaslik</li>
                 <li>Boshqa foydalanuvchilar huquqlarini hurmat qilish</li>
               </ul>
             </div>
@@ -78,8 +80,8 @@ const Terms = () => {
             <div className="bg-card border border-border rounded-xl p-6 mb-6">
               <h2 className="text-xl font-semibold text-foreground mb-4">4. Intellektual mulk</h2>
               <p className="text-muted-foreground">
-                Platformadagi barcha kontentlar, shu jumladan promtlar, dizayn va logotiplar 
-                PromptsHub mulki hisoblanadi. Ularni ruxsatsiz nusxalash, tarqatish yoki 
+                Platformadagi barcha kontentlar, shu jumladan promtlar, kurs materiallari, video darslar, 
+                dizayn va logotiplar MPBS.uz mulki hisoblanadi. Ularni ruxsatsiz nusxalash, tarqatish yoki 
                 sotish taqiqlanadi.
               </p>
             </div>

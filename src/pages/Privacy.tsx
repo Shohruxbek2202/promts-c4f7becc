@@ -33,7 +33,7 @@ const Privacy = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-foreground">Maxfiylik siyosati</h1>
-              <p className="text-muted-foreground">Oxirgi yangilash: 2024-yil, Yanvar</p>
+              <p className="text-muted-foreground">Oxirgi yangilash: 2026-yil, Mart</p>
             </div>
           </div>
 

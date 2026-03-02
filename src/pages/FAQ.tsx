@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { HelpCircle, ArrowLeft } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SEOHead, SchemaMarkup, FAQSchema, Breadcrumb } from "@/components/seo";
@@ -17,16 +17,16 @@ const faqData = [
     category: "Umumiy savollar",
     questions: [
       {
-        q: "PromptsHub nima?",
-        a: "PromptsHub - bu marketing va biznes uchun maxsus tayyorlangan AI promtlar bazasi. Bu yerda siz turli AI vositalari (GPT, Claude, Gemini va boshqalar) uchun professional darajadagi promtlarni topishingiz mumkin."
+        q: "MPBS.uz nima?",
+        a: "MPBS.uz — marketing uchun tayyor AI promtlar, onlayn video kurslar va bepul darslar platformasi. GPT, Claude, Gemini va boshqa AI vositalari uchun tayyor promtlarni topishingiz mumkin."
       },
       {
         q: "Promtlardan qanday foydalanaman?",
-        a: "Promtni nusxalab, istalgan AI vositasiga (GPT, Claude, Gemini va h.k.) qo'ying. Kerakli o'zgarishlarni kiritib, natija oling."
+        a: "Promtni nusxalab, istalgan AI vositasiga (GPT, Claude, Gemini va h.k.) joylashtiring. O'zingizning ma'lumotlaringizni qo'shing va natija oling."
       },
       {
-        q: "Promtlar qaysi tillarda mavjud?",
-        a: "Hozirda barcha promtlar o'zbek va ingliz tillarida tayyorlangan. Boshqa tillar ham tez orada qo'shiladi."
+        q: "Platformada qanday kontentlar bor?",
+        a: "AI promtlar bazasi, onlayn video kurslar, bepul video darslar va hamjamiyat chat xonalari mavjud. Barcha kontentlar o'zbek tilida."
       }
     ]
   },
@@ -48,26 +48,25 @@ const faqData = [
     ]
   },
   {
-    category: "Texnik savollar",
+    category: "Kurslar va darslar",
     questions: [
+      {
+        q: "Kurslardan qanday foydalanaman?",
+        a: "Kursni sotib oling va barcha video darslarga, materiallarga va hamjamiyat chatiga kirish imkoniyatini oling."
+      },
+      {
+        q: "Bepul darslar bormi?",
+        a: "Ha, platformada bepul video darsliklar mavjud. Ularni ro'yxatdan o'tmasdan ham ko'rishingiz mumkin."
+      },
       {
         q: "Promtlar qaysi AI vositalari bilan ishlaydi?",
         a: "Bizning promtlar GPT, Claude, Gemini, Mistral va boshqa zamonaviy AI modellar bilan ishlaydi."
-      },
-      {
-        q: "Mobil qurilmalarda ishlaydi mi?",
-        a: "Ha, sayt to'liq mobil qurilmalarga moslashtirilgan. Telefon va planshetlardan qulay foydalanishingiz mumkin."
-      },
-      {
-        q: "Promtlarni yuklab olsam bo'ladimi?",
-        a: "Ha, premium foydalanuvchilar promtlarni PDF formatida yuklab olishlari mumkin."
       }
     ]
   }
 ];
 
 const FAQ = () => {
-  // Generate FAQ schema from data
   const faqQuestions = faqData.flatMap(section => 
     section.questions.map(q => ({
       question: q.q,
@@ -84,8 +83,8 @@ const FAQ = () => {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Ko'p so'raladigan savollar (FAQ)"
-        description="PromptsHub haqida ko'p beriladigan savollar va javoblar. To'lov, obuna, promtlardan foydalanish va texnik savollar."
-        keywords={["FAQ", "savollar", "yordam", "PromptsHub", "AI promtlar"]}
+        description="MPBS.uz haqida ko'p beriladigan savollar va javoblar. Promtlar, kurslar, darslar, to'lov va obuna savollari."
+        keywords={["FAQ", "savollar", "yordam", "MPBS.uz", "AI promtlar", "kurslar"]}
         canonicalUrl="https://mpbs.uz/faq"
       />
       <SchemaMarkup schemas={[faqSchema]} />
@@ -141,7 +140,7 @@ const FAQ = () => {
           <div className="mt-12 p-6 bg-card border border-border rounded-xl text-center">
             <h3 className="text-lg font-semibold text-foreground mb-2">Savolingizga javob topa olmadingizmi?</h3>
             <p className="text-muted-foreground mb-4">Biz bilan bog'laning, yordam beramiz!</p>
-            <Link to="/#contact">
+            <Link to="/contact">
               <Button>Aloqa</Button>
             </Link>
           </div>
