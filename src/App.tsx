@@ -41,6 +41,10 @@ import AdminCourseLessonForm from "./pages/admin/AdminCourseLessonForm";
 import AdminPaymentMethods from "./pages/admin/AdminPaymentMethods";
 import AdminReferralWithdrawals from "./pages/admin/AdminReferralWithdrawals";
 import AdminReminders from "./pages/admin/AdminReminders";
+import AdminGuides from "./pages/admin/AdminGuides";
+import AdminGuideForm from "./pages/admin/AdminGuideForm";
+import Guides from "./pages/Guides";
+import GuideDetail from "./pages/GuideDetail";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 
@@ -75,6 +79,8 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/guides" element={<Guides />} />
+            <Route path="/guides/:slug" element={<GuideDetail />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
@@ -99,6 +105,9 @@ const App = () => (
               <Route path="payment-methods" element={<AdminPaymentMethods />} />
               <Route path="referral-withdrawals" element={<AdminReferralWithdrawals />} />
               <Route path="reminders" element={<AdminReminders />} />
+              <Route path="guides" element={<AdminGuides />} />
+              <Route path="guides/new" element={<AdminGuideForm />} />
+              <Route path="guides/:id/edit" element={<AdminGuideForm />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
