@@ -6,6 +6,7 @@ import {
   LogOut, Sparkles, ChevronRight, FolderOpen, GraduationCap,
   PlayCircle, Menu, Gift, Bell,
 } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/admin/users", icon: Users, label: "Foydalanuvchilar" },
   { href: "/admin/payments", icon: CreditCard, label: "To'lovlar" },
   { href: "/admin/referral-withdrawals", icon: Gift, label: "Referral so'rovlar" },
+  { href: "/admin/guides", icon: BookOpen, label: "Qo'llanmalar" },
   { href: "/admin/reminders", icon: Bell, label: "Eslatmalar" },
   { href: "/admin/settings", icon: Settings, label: "Sozlamalar" },
 ];

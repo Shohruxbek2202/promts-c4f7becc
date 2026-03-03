@@ -350,6 +350,106 @@ export type Database = {
           },
         ]
       }
+      guide_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          guide_id: string
+          id: string
+          sort_order: number | null
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          guide_id: string
+          id?: string
+          sort_order?: number | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          guide_id?: string
+          id?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_files_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guides: {
+        Row: {
+          category_id: string | null
+          content_html: string | null
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_premium: boolean | null
+          is_published: boolean | null
+          price: number | null
+          slug: string
+          sort_order: number | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          category_id?: string | null
+          content_html?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_premium?: boolean | null
+          is_published?: boolean | null
+          price?: number | null
+          slug: string
+          sort_order?: number | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          category_id?: string | null
+          content_html?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_premium?: boolean | null
+          is_published?: boolean | null
+          price?: number | null
+          slug?: string
+          sort_order?: number | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guides_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lessons: {
         Row: {
           category_id: string | null
@@ -1151,6 +1251,35 @@ export type Database = {
           },
         ]
       }
+      user_guides: {
+        Row: {
+          guide_id: string
+          id: string
+          purchased_at: string
+          user_id: string
+        }
+        Insert: {
+          guide_id: string
+          id?: string
+          purchased_at?: string
+          user_id: string
+        }
+        Update: {
+          guide_id?: string
+          id?: string
+          purchased_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_guides_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_lesson_progress: {
         Row: {
           completed_at: string
@@ -1317,6 +1446,10 @@ export type Database = {
       }
       has_active_subscription: { Args: { p_user_id: string }; Returns: boolean }
       has_agency_access: { Args: { p_user_id: string }; Returns: boolean }
+      has_purchased_guide: {
+        Args: { p_guide_id: string; p_user_id: string }
+        Returns: boolean
+      }
       has_purchased_prompt: {
         Args: { p_prompt_id: string; p_user_id: string }
         Returns: boolean

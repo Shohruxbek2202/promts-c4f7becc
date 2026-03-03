@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Hero = () => {
   const { user } = useAuth();
-  const [heroText, setHeroText] = useState({ title: "AI promtlar, kurslar va darslar — bir platformada", subtitle: "Vaqtingizni tejang, natijalaringizni oshiring." });
+  const [heroText, setHeroText] = useState({ title: "AI promtlar, kurslar, qo'llanmalar va darslar — bir platformada", subtitle: "Vaqtingizni tejang, natijalaringizni oshiring." });
 
   useEffect(() => {
     const fetchHeroText = async () => {

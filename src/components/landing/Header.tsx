@@ -65,6 +65,7 @@ export const Header = () => {
     ...(showPricing ? [{ href: "/#pricing", label: "Narxlar", hashOnly: true }] : []),
     { href: "/courses", label: "Kurslar", hashOnly: false },
     { href: "/lessons", label: "Darslar", hashOnly: false },
+    { href: "/guides", label: "Qo'llanmalar", hashOnly: false },
     { href: "/community", label: "Hamjamiyat", hashOnly: false },
   ];
 
@@ -206,6 +207,12 @@ export const Header = () => {
                     <Link to="/prompts">
                       <Sparkles className="mr-2 h-4 w-4" />
                       Promtlar
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
+                    <Link to="/guides">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Qo'llanmalar
                     </Link>
                   </DropdownMenuItem>
                   {hasAgencyAccess && (

@@ -27,19 +27,19 @@ const features = [
     description: "Har bir mavzu bo'yicha alohida bepul video darslar — AI dan samarali foydalanishni o'rganing.",
   },
   {
+    icon: FileText,
+    title: "Amaliy qo'llanmalar",
+    description: "PDF, shablonlar va bosqichma-bosqich qo'llanmalar — marketing strategiyalaringizni mustahkamlang.",
+  },
+  {
     icon: Users,
     title: "Hamjamiyat chatlari",
     description: "Kurs a'zolari bilan real-time muhokama, tajriba almashish va savollarga javob olish.",
   },
   {
-    icon: Clock,
-    title: "Vaqtni tejash",
-    description: "Tayyor promtlar va kurslar bilan o'nlab soatlik ishni bir necha daqiqada bajaring.",
-  },
-  {
     icon: TrendingUp,
     title: "Natijani 2-3x oshirish",
-    description: "Sinovdan o'tgan promtlar va strategiyalar orqali marketing samaradorligini oshiring.",
+    description: "Sinovdan o'tgan promtlar, qo'llanmalar va strategiyalar orqali marketing samaradorligini oshiring.",
   },
 ];
 
@@ -71,7 +71,7 @@ export const Features = () => {
             Platformaning <span className="text-primary">asosiy afzalliklari</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Promtlar, kurslar, darslar va hamjamiyat — barchasi bir joyda.
+            Promtlar, kurslar, qo'llanmalar, darslar va hamjamiyat — barchasi bir joyda.
           </p>
         </motion.div>
 
