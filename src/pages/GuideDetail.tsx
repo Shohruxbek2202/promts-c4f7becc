@@ -137,7 +137,7 @@ const GuideDetail = () => {
                   <div className="bg-card rounded-2xl border border-border overflow-hidden">
                     <div className="flex items-center gap-2 px-6 py-4 border-b border-border bg-muted/30">
                       <BookOpen className="w-5 h-5 text-primary" />
-                      <span className="font-medium">Qo'llanma matni</span>
+                      <span className="font-medium">Qo'llanma haqida batafsil</span>
                     </div>
                     <div className="p-6 prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(guide.content_html) }} />
                   </div>
