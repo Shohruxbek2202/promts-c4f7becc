@@ -1419,6 +1419,14 @@ export type Database = {
         }[]
       }
       generate_referral_code: { Args: never; Returns: string }
+      get_chat_profiles: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          user_id: string
+        }[]
+      }
       get_course_enrolled_counts: {
         Args: { course_ids: string[] }
         Returns: {

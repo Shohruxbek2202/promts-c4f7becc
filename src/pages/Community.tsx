@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   MessageCircle, Send, Users, ArrowLeft, Loader2, Trash2, LogIn
@@ -26,7 +26,11 @@ interface ChatMessage {
   user_id: string;
   content: string;
   created_at: string;
-  profile?: { full_name: string | null; email: string | null };
+}
+
+interface ProfileCache {
+  full_name: string | null;
+  avatar_url: string | null;
 }
 
 const Community = () => {
@@ -38,9 +42,27 @@ const Community = () => {
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
-  const [profilesCache, setProfilesCache] = useState<Record<string, { full_name: string | null; email: string | null }>>({});
+  const [profilesCache, setProfilesCache] = useState<Record<string, ProfileCache>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch profiles using security definer function
+  const fetchProfiles = useCallback(async (userIds: string[]) => {
+    const missing = userIds.filter(id => !profilesCache[id]);
+    if (missing.length === 0) return;
+
+    const { data } = await supabase.rpc("get_chat_profiles", {
+      p_user_ids: missing,
+    });
+
+    if (data && Array.isArray(data)) {
+      const newCache: Record<string, ProfileCache> = {};
+      data.forEach((p: any) => {
+        newCache[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url };
+      });
+      setProfilesCache(prev => ({ ...prev, ...newCache }));
+    }
+  }, [profilesCache]);
 
   // Fetch rooms
   useEffect(() => {
@@ -67,22 +89,10 @@ const Community = () => {
 
     if (data) {
       setMessages(data);
-      // Fetch profiles for unique user IDs
       const userIds = [...new Set(data.map(m => m.user_id))];
-      const missing = userIds.filter(id => !profilesCache[id]);
-      if (missing.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, full_name, email")
-          .in("user_id", missing);
-        if (profiles) {
-          const newCache = { ...profilesCache };
-          profiles.forEach(p => { newCache[p.user_id] = { full_name: p.full_name, email: p.email }; });
-          setProfilesCache(newCache);
-        }
-      }
+      fetchProfiles(userIds);
     }
-  }, [profilesCache]);
+  }, [fetchProfiles]);
 
   useEffect(() => {
     if (!selectedRoom) return;
@@ -107,16 +117,7 @@ const Community = () => {
           if (payload.eventType === "INSERT") {
             const newMsg = payload.new as ChatMessage;
             setMessages(prev => [...prev, newMsg]);
-            // Fetch profile if not cached
-            if (!profilesCache[newMsg.user_id]) {
-              supabase.from("profiles").select("user_id, full_name, email")
-                .eq("user_id", newMsg.user_id).maybeSingle()
-                .then(({ data }) => {
-                  if (data) {
-                    setProfilesCache(prev => ({ ...prev, [data.user_id]: { full_name: data.full_name, email: data.email } }));
-                  }
-                });
-            }
+            fetchProfiles([newMsg.user_id]);
           } else if (payload.eventType === "DELETE") {
             setMessages(prev => prev.filter(m => m.id !== (payload.old as any).id));
           }
@@ -125,7 +126,7 @@ const Community = () => {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [selectedRoom?.id]);
+  }, [selectedRoom?.id, fetchProfiles]);
 
   // Auto-scroll
   useEffect(() => {
@@ -154,9 +155,8 @@ const Community = () => {
     await supabase.from("chat_messages").delete().eq("id", messageId);
   };
 
-  const getInitials = (name: string | null, email: string | null) => {
+  const getInitials = (name: string | null) => {
     if (name) return name.slice(0, 2).toUpperCase();
-    if (email) return email.slice(0, 2).toUpperCase();
     return "??";
   };
 
@@ -217,7 +217,6 @@ const Community = () => {
               <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
             ) : (
               <div className="space-y-4">
-                {/* General rooms */}
                 <div className="space-y-1">
                   {rooms.filter(r => !r.course_id).map(room => (
                     <button
@@ -237,8 +236,6 @@ const Community = () => {
                     </button>
                   ))}
                 </div>
-
-                {/* Course rooms */}
                 {rooms.filter(r => r.course_id).length > 0 && (
                   <>
                     <div className="border-t border-border pt-3">
@@ -288,7 +285,7 @@ const Community = () => {
                     {messages.map(msg => {
                       const isOwn = msg.user_id === user.id;
                       const profile = profilesCache[msg.user_id];
-                      const displayName = profile?.full_name || profile?.email?.split("@")[0] || "Foydalanuvchi";
+                      const displayName = profile?.full_name || "Foydalanuvchi";
 
                       return (
                         <motion.div
@@ -300,8 +297,11 @@ const Community = () => {
                         >
                           {!isOwn && (
                             <Avatar className="w-8 h-8 flex-shrink-0">
+                              {profile?.avatar_url && (
+                                <AvatarImage src={profile.avatar_url} alt={displayName} />
+                              )}
                               <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                                {getInitials(profile?.full_name ?? null, profile?.email ?? null)}
+                                {getInitials(profile?.full_name ?? null)}
                               </AvatarFallback>
                             </Avatar>
                           )}
