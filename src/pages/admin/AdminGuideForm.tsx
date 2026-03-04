@@ -216,39 +216,43 @@ const AdminGuideForm = () => {
         </div>
 
         {/* Files */}
-        {savedGuideId && (
-          <div className="bg-card rounded-xl p-6 border border-border space-y-6">
-            <h2 className="font-display text-lg font-semibold text-foreground">Fayllar</h2>
-            <p className="text-sm text-muted-foreground">PDF, Word, rasm va boshqa fayllarni yuklang</p>
-            
-            <div>
-              <Label htmlFor="file-upload" className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-border hover:border-primary transition-colors">
-                <Upload className="w-4 h-4" />
-                {isUploading ? "Yuklanmoqda..." : "Fayl yuklash"}
-              </Label>
-              <input id="file-upload" type="file" multiple className="hidden" onChange={handleFileUpload} disabled={isUploading} />
-            </div>
-
-            {files.length > 0 && (
-              <div className="space-y-2">
-                {files.map(file => (
-                  <div key={file.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50">
-                    <FileIcon className="w-5 h-5 text-primary shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <a href={file.file_url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:text-primary truncate block">
-                        {file.file_name}
-                      </a>
-                      <p className="text-xs text-muted-foreground">{file.file_type} • {formatFileSize(file.file_size)}</p>
-                    </div>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => handleDeleteFile(file.id, file.file_url)}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </div>
-                ))}
+        <div className="bg-card rounded-xl p-6 border border-border space-y-6">
+          <h2 className="font-display text-lg font-semibold text-foreground">Fayllar</h2>
+          <p className="text-sm text-muted-foreground">PDF, Word, rasm va boshqa fayllarni yuklang</p>
+          
+          {!savedGuideId ? (
+            <p className="text-sm text-amber-500">⚠️ Fayllarni yuklash uchun avval qo'llanmani saqlang</p>
+          ) : (
+            <>
+              <div>
+                <Label htmlFor="file-upload" className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-border hover:border-primary transition-colors">
+                  <Upload className="w-4 h-4" />
+                  {isUploading ? "Yuklanmoqda..." : "Fayl yuklash"}
+                </Label>
+                <input id="file-upload" type="file" multiple className="hidden" onChange={handleFileUpload} disabled={isUploading} />
               </div>
-            )}
-          </div>
-        )}
+
+              {files.length > 0 && (
+                <div className="space-y-2">
+                  {files.map(file => (
+                    <div key={file.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50">
+                      <FileIcon className="w-5 h-5 text-primary shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <a href={file.file_url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:text-primary truncate block">
+                          {file.file_name}
+                        </a>
+                        <p className="text-xs text-muted-foreground">{file.file_type} • {formatFileSize(file.file_size)}</p>
+                      </div>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => handleDeleteFile(file.id, file.file_url)}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
         {/* Pricing */}
         <div className="bg-card rounded-xl p-6 border border-border space-y-6">
