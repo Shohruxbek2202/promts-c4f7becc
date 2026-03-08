@@ -42,10 +42,22 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user && !isLoading) {
+    if (user && !isLoading && !isResetPassword) {
       navigate("/dashboard");
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, navigate, isResetPassword]);
+
+  // Listen for PASSWORD_RECOVERY event
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsResetPassword(true);
+        setIsLogin(true);
+        setIsForgotPassword(false);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Lockout countdown
   const [lockoutSecondsLeft, setLockoutSecondsLeft] = useState(0);
