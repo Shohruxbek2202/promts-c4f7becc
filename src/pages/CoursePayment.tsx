@@ -95,10 +95,9 @@ const CoursePayment = () => {
     
     if (existingPending) {
       toast.warning("Bu kurs uchun to'lov allaqachon kutilmoqda. Admin tasdiqlashini kuting.");
+      setUploading(false);
       return;
     }
-
-    setUploading(true);
     try {
       const fileExt = receiptFile.name.split(".").pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;

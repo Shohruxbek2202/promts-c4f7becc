@@ -192,8 +192,6 @@ const Payment = () => {
       // Proceed anyway (user may want to extend)
     }
 
-    setUploading(true);
-
     try {
       // Upload receipt to storage
       const fileExt = receiptFile.name.split(".").pop();
