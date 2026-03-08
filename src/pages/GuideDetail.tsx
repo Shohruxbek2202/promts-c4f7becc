@@ -31,6 +31,8 @@ const GuideDetail = () => {
   const [files, setFiles] = useState<GuideFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
+  const [signedFileUrls, setSignedFileUrls] = useState<Record<string, string>>({});
+  const [loadingFileId, setLoadingFileId] = useState<string | null>(null);
 
   useEffect(() => { if (slug) fetchGuide(); }, [slug]);
   useEffect(() => {
