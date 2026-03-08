@@ -504,6 +504,7 @@ const Auth = () => {
               </Button>
             </form>
 
+            {!isResetPassword && (
             <div className="mt-6 text-center space-y-2">
               {isForgotPassword ? (
                 <button
@@ -527,6 +528,7 @@ const Auth = () => {
                 </button>
               )}
             </div>
+            )}
           </div>
 
           {/* Back to home */}
