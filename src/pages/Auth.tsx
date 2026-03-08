@@ -164,12 +164,18 @@ const Auth = () => {
         .maybeSingle();
 
       if (referrer) {
-        // Wait briefly for the profile trigger to create the new user's profile
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        await supabase
-          .from("profiles")
-          .update({ referred_by: referrer.id })
-          .eq("user_id", newUserId);
+        // Retry with backoff to handle profile trigger race condition
+        let retries = 0;
+        const maxRetries = 5;
+        while (retries < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 500 * (retries + 1)));
+          const { error } = await supabase
+            .from("profiles")
+            .update({ referred_by: referrer.id })
+            .eq("user_id", newUserId);
+          if (!error) break;
+          retries++;
+        }
       }
     } catch (error) {
       console.error("Error linking referral:", error);

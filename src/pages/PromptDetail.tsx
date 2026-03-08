@@ -153,9 +153,15 @@ const PromptDetail = () => {
       .maybeSingle();
 
     if (profile) {
+      const type = profile.subscription_type;
       const hasActiveSubscription = 
-        profile.subscription_type !== "free" &&
-        (!profile.subscription_expires_at || new Date(profile.subscription_expires_at) > new Date());
+        type != null &&
+        ['monthly', 'yearly', 'lifetime', 'vip'].includes(type) &&
+        (
+          type === 'lifetime' ||
+          (type === 'vip' && !profile.subscription_expires_at) ||
+          (profile.subscription_expires_at != null && new Date(profile.subscription_expires_at) > new Date())
+        );
       
       if (hasActiveSubscription) {
         setHasAccess(true);

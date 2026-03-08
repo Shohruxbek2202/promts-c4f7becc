@@ -316,8 +316,25 @@ const Community = () => {
           ) : (
             <>
               {/* Messages */}
-              <ScrollArea className="flex-1 p-4">
+              <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
                 <div className="space-y-3 max-w-3xl mx-auto">
+                  {hasOlderMessages && (
+                    <div className="text-center py-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={loadOlderMessages}
+                        disabled={isLoadingOlder}
+                        className="text-xs text-muted-foreground"
+                      >
+                        {isLoadingOlder ? (
+                          <><Loader2 className="w-3 h-3 animate-spin mr-1" />Yuklanmoqda...</>
+                        ) : (
+                          "Eski xabarlarni yuklash"
+                        )}
+                      </Button>
+                    </div>
+                  )}
                   <AnimatePresence initial={false}>
                     {messages.map(msg => {
                       const isOwn = msg.user_id === user.id;
