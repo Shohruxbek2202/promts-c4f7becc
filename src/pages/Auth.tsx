@@ -71,6 +71,18 @@ const Auth = () => {
         toast.error(`Juda ko'p urinish. ${lockoutSecondsLeft} soniya kuting.`);
         return;
       }
+      // Server-side rate limit check
+      const { data: allowed } = await supabase.rpc("check_rate_limit", {
+        p_key: `login:${email.toLowerCase().trim()}`,
+        p_max_requests: 5,
+        p_window_seconds: 60,
+      });
+      if (allowed === false) {
+        setLockoutUntil(Date.now() + 30000);
+        setLockoutSecondsLeft(30);
+        toast.error("Juda ko'p urinish. 30 soniya kuting.", { duration: 5000 });
+        return;
+      }
     }
     
     if (isForgotPassword) {
