@@ -153,9 +153,12 @@ const Payment = () => {
       toast.error("Iltimos, to'lov chekini yuklang");
       return;
     }
+    if (uploading) return; // Double-click protection
 
     const plan = plans.find(p => p.id === selectedPlan);
     if (!plan) return;
+
+    setUploading(true); // Block immediately
 
     // Duplicate payment check — plan_id bo'yicha tekshirish
     const { data: existingPending } = await supabase
@@ -168,6 +171,7 @@ const Payment = () => {
 
     if (existingPending) {
       toast.warning("Bu tarif uchun to'lov allaqachon kutilmoqda. Admin tasdiqlashini kuting.");
+      setUploading(false);
       return;
     }
 
@@ -187,8 +191,6 @@ const Payment = () => {
       toast.warning(`Siz allaqachon ${plan.name} obunasiga egasiz. ${daysLeft} kun qoldi.`, { duration: 5000 });
       // Proceed anyway (user may want to extend)
     }
-
-    setUploading(true);
 
     try {
       // Upload receipt to storage

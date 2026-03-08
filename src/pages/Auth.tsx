@@ -28,6 +28,8 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -40,10 +42,22 @@ const Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user && !isLoading) {
+    if (user && !isLoading && !isResetPassword) {
       navigate("/dashboard");
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, navigate, isResetPassword]);
+
+  // Listen for PASSWORD_RECOVERY event
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsResetPassword(true);
+        setIsLogin(true);
+        setIsForgotPassword(false);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Lockout countdown
   const [lockoutSecondsLeft, setLockoutSecondsLeft] = useState(0);
@@ -64,6 +78,29 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Handle password reset (new password submission)
+    if (isResetPassword) {
+      if (!passwordSchema.validate(newPassword)) {
+        toast.error(passwordSchema.message);
+        return;
+      }
+      setIsSubmitting(true);
+      try {
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) {
+          toast.error(error.message);
+        } else {
+          toast.success("Parol muvaffaqiyatli yangilandi!");
+          setIsResetPassword(false);
+          setNewPassword("");
+          navigate("/dashboard");
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
 
     // Brute-force check (only for login)
     if (isLogin && !isForgotPassword) {
@@ -317,10 +354,12 @@ const Auth = () => {
           {/* Form Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
-              {isForgotPassword ? "Parolni tiklash" : isLogin ? "Xush kelibsiz!" : "Yangi hisob yarating"}
+              {isResetPassword ? "Yangi parol o'rnating" : isForgotPassword ? "Parolni tiklash" : isLogin ? "Xush kelibsiz!" : "Yangi hisob yarating"}
             </h2>
             <p className="text-muted-foreground">
-              {isForgotPassword
+              {isResetPassword
+                ? "Yangi xavfsiz parolingizni kiriting"
+                : isForgotPassword
                 ? "Emailingizni kiriting, parolni tiklash havolasi yuboriladi"
                 : isLogin
                 ? "Hisobingizga kirish uchun ma'lumotlarni kiriting"
@@ -331,6 +370,33 @@ const Auth = () => {
           {/* Form */}
           <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 lg:p-8 shadow-xl">
             <form onSubmit={handleSubmit} className="space-y-5">
+              {isResetPassword ? (
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword" className="text-foreground font-medium">Yangi parol</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="newPassword"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="pl-12 pr-12 h-12 rounded-xl bg-background/50 border-border/50 focus:border-primary transition-colors"
+                      required
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  <PasswordStrengthMeter password={newPassword} />
+                </div>
+              ) : (
+              <>
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-foreground font-medium">Email</Label>
                 <div className="relative">
@@ -406,9 +472,11 @@ const Auth = () => {
                   </p>
                 </motion.div>
               )}
+              </>
+              )}
 
               {/* Lockout warning */}
-              {lockoutUntil && lockoutSecondsLeft > 0 && (
+              {!isResetPassword && lockoutUntil && lockoutSecondsLeft > 0 && (
                 <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive text-center">
                   🔒 {lockoutSecondsLeft} soniya kuting...
                 </div>
@@ -418,24 +486,25 @@ const Auth = () => {
                 type="submit"
                 size="lg"
                 className="w-full h-12 rounded-xl text-base font-medium shadow-lg shadow-primary/25"
-                disabled={isSubmitting || (isLogin && !!lockoutUntil && lockoutSecondsLeft > 0)}
+                disabled={isSubmitting || (!isResetPassword && isLogin && !!lockoutUntil && lockoutSecondsLeft > 0)}
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     Kutib turing...
                   </div>
-                ) : lockoutUntil && lockoutSecondsLeft > 0 ? (
+                ) : lockoutUntil && lockoutSecondsLeft > 0 && !isResetPassword ? (
                   <>🔒 {lockoutSecondsLeft}s</>
                 ) : (
                   <>
-                    {isForgotPassword ? "Havolani yuborish" : isLogin ? "Kirish" : "Ro'yxatdan o'tish"}
+                    {isResetPassword ? "Parolni yangilash" : isForgotPassword ? "Havolani yuborish" : isLogin ? "Kirish" : "Ro'yxatdan o'tish"}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </>
                 )}
               </Button>
             </form>
 
+            {!isResetPassword && (
             <div className="mt-6 text-center space-y-2">
               {isForgotPassword ? (
                 <button
@@ -459,6 +528,7 @@ const Auth = () => {
                 </button>
               )}
             </div>
+            )}
           </div>
 
           {/* Back to home */}
