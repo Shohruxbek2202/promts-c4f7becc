@@ -85,6 +85,7 @@ const difficultyLabels: Record<DifficultyLevel, string> = {
 
 interface Profile {
   subscription_type: string | null;
+  subscription_expires_at: string | null;
 }
 
 const PAGE_SIZE = 20;
