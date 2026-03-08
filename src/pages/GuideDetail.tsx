@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Lock, ChevronLeft, Eye, FileIcon, Download, BookOpen } from "lucide-react";
+import { Lock, ChevronLeft, Eye, FileIcon, Download, BookOpen, Loader2 } from "lucide-react";
 import { SEOHead, Breadcrumb } from "@/components/seo";
 import DOMPurify from "dompurify";
 
