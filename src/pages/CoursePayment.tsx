@@ -80,6 +80,9 @@ const CoursePayment = () => {
 
   const handleSubmitPayment = async () => {
     if (!user || !course || !receiptFile) { toast.error("Barcha maydonlarni to'ldiring"); return; }
+    if (uploading) return; // Double-click protection
+    
+    setUploading(true); // Block immediately
     
     // Double-click protection: check pending payment already exists
     const { data: existingPending } = await supabase
