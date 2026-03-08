@@ -370,6 +370,33 @@ const Auth = () => {
           {/* Form */}
           <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 lg:p-8 shadow-xl">
             <form onSubmit={handleSubmit} className="space-y-5">
+              {isResetPassword ? (
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword" className="text-foreground font-medium">Yangi parol</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="newPassword"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="pl-12 pr-12 h-12 rounded-xl bg-background/50 border-border/50 focus:border-primary transition-colors"
+                      required
+                      minLength={8}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  <PasswordStrengthMeter password={newPassword} />
+                </div>
+              ) : (
+              <>
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-foreground font-medium">Email</Label>
                 <div className="relative">
