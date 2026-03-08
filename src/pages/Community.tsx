@@ -88,19 +88,48 @@ const Community = () => {
 
   // Fetch messages when room selected
   const fetchMessages = useCallback(async (roomId: string) => {
-    const { data } = await supabase
+    // Fetch latest messages (descending to get newest, then reverse)
+    const { data, count } = await supabase
       .from("chat_messages")
-      .select("id, room_id, user_id, content, created_at")
+      .select("id, room_id, user_id, content, created_at", { count: "exact" })
       .eq("room_id", roomId)
-      .order("created_at", { ascending: true })
-      .range(0, 99);
+      .order("created_at", { ascending: false })
+      .range(0, MESSAGES_PER_PAGE - 1);
 
     if (data) {
-      setMessages(data);
-      const userIds = [...new Set(data.map(m => m.user_id))];
+      const sorted = [...data].reverse();
+      setMessages(sorted);
+      setHasOlderMessages((count || 0) > MESSAGES_PER_PAGE);
+      const userIds = [...new Set(sorted.map(m => m.user_id))];
       fetchProfiles(userIds);
     }
   }, [fetchProfiles]);
+
+  const loadOlderMessages = useCallback(async () => {
+    if (!selectedRoom || isLoadingOlder || !hasOlderMessages) return;
+    setIsLoadingOlder(true);
+    const oldestMessage = messages[0];
+    if (!oldestMessage) { setIsLoadingOlder(false); return; }
+
+    const { data } = await supabase
+      .from("chat_messages")
+      .select("id, room_id, user_id, content, created_at")
+      .eq("room_id", selectedRoom.id)
+      .lt("created_at", oldestMessage.created_at)
+      .order("created_at", { ascending: false })
+      .range(0, MESSAGES_PER_PAGE - 1);
+
+    if (data && data.length > 0) {
+      const sorted = [...data].reverse();
+      setMessages(prev => [...sorted, ...prev]);
+      setHasOlderMessages(data.length === MESSAGES_PER_PAGE);
+      const userIds = [...new Set(sorted.map(m => m.user_id))];
+      fetchProfiles(userIds);
+    } else {
+      setHasOlderMessages(false);
+    }
+    setIsLoadingOlder(false);
+  }, [selectedRoom, messages, isLoadingOlder, hasOlderMessages, fetchProfiles]);
 
   useEffect(() => {
     if (!selectedRoom) return;
