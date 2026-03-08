@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Lock, ChevronLeft, Eye, FileIcon, Download, BookOpen } from "lucide-react";
+import { Lock, ChevronLeft, Eye, FileIcon, Download, BookOpen, Loader2 } from "lucide-react";
 import { SEOHead, Breadcrumb } from "@/components/seo";
 import DOMPurify from "dompurify";
 
@@ -31,6 +31,8 @@ const GuideDetail = () => {
   const [files, setFiles] = useState<GuideFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
+  const [signedFileUrls, setSignedFileUrls] = useState<Record<string, string>>({});
+  const [loadingFileId, setLoadingFileId] = useState<string | null>(null);
 
   useEffect(() => { if (slug) fetchGuide(); }, [slug]);
   useEffect(() => {
@@ -48,8 +50,8 @@ const GuideDetail = () => {
       const { data: filesData } = await supabase.from("guide_files")
         .select("*").eq("guide_id", data.id).order("sort_order");
       if (filesData) setFiles(filesData as GuideFile[]);
-      // Increment view
-      await supabase.from("guides").update({ view_count: (data.view_count || 0) + 1 }).eq("id", data.id);
+      // Increment view atomically
+      await supabase.rpc("increment_guide_view_count", { p_guide_id: data.id });
     }
     setIsLoading(false);
   };
@@ -75,6 +77,36 @@ const GuideDetail = () => {
     if (bytes < 1024) return bytes + " B";
     if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
     return (bytes / 1048576).toFixed(1) + " MB";
+  };
+
+  const handleFileDownload = async (file: GuideFile) => {
+    if (!guide) return;
+    // Check if we already have a signed URL
+    if (signedFileUrls[file.id]) {
+      window.open(signedFileUrls[file.id], "_blank");
+      return;
+    }
+    setLoadingFileId(file.id);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Fayl yuklab olish uchun tizimga kiring");
+        return;
+      }
+      const { data, error } = await supabase.functions.invoke("get-guide-file-url", {
+        body: { fileUrl: file.file_url, guideId: guide.id },
+      });
+      if (error || !data?.signedUrl) {
+        toast.error("Faylni yuklab olishda xatolik");
+        return;
+      }
+      setSignedFileUrls(prev => ({ ...prev, [file.id]: data.signedUrl }));
+      window.open(data.signedUrl, "_blank");
+    } catch {
+      toast.error("Faylni yuklab olishda xatolik");
+    } finally {
+      setLoadingFileId(null);
+    }
   };
 
   if (isLoading) {
@@ -151,15 +183,20 @@ const GuideDetail = () => {
                     </div>
                     <div className="p-6 space-y-3">
                       {files.map(file => (
-                        <a key={file.id} href={file.file_url} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/30 transition-colors">
+                        <button key={file.id} onClick={() => handleFileDownload(file)}
+                          disabled={loadingFileId === file.id}
+                          className="w-full flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/30 transition-colors text-left">
                           <FileIcon className="w-5 h-5 text-primary shrink-0" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
                             <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
                           </div>
-                          <Download className="w-4 h-4 text-muted-foreground" />
-                        </a>
+                          {loadingFileId === file.id ? (
+                            <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+                          ) : (
+                            <Download className="w-4 h-4 text-muted-foreground" />
+                          )}
+                        </button>
                       ))}
                     </div>
                   </div>

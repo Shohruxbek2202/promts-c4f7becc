@@ -46,9 +46,12 @@ const Community = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch profiles using security definer function
+  // Fetch profiles using security definer function (use ref to avoid stale closure)
+  const profilesCacheRef = useRef(profilesCache);
+  profilesCacheRef.current = profilesCache;
+
   const fetchProfiles = useCallback(async (userIds: string[]) => {
-    const missing = userIds.filter(id => !profilesCache[id]);
+    const missing = userIds.filter(id => !profilesCacheRef.current[id]);
     if (missing.length === 0) return;
 
     const { data } = await supabase.rpc("get_chat_profiles", {
@@ -62,7 +65,7 @@ const Community = () => {
       });
       setProfilesCache(prev => ({ ...prev, ...newCache }));
     }
-  }, [profilesCache]);
+  }, []);
 
   // Fetch rooms
   useEffect(() => {

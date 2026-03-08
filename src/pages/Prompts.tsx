@@ -85,6 +85,7 @@ const difficultyLabels: Record<DifficultyLevel, string> = {
 
 interface Profile {
   subscription_type: string | null;
+  subscription_expires_at: string | null;
 }
 
 const PAGE_SIZE = 20;
@@ -125,9 +126,16 @@ const Prompts = () => {
   
   const selectedCategory = searchParams.get("category") || "";
 
-  // Check if user has premium access
-  const hasPremiumAccess = profile?.subscription_type && 
-    ['monthly', 'yearly', 'lifetime', 'vip'].includes(profile.subscription_type);
+  // Check if user has premium access (with expiry check)
+  const hasPremiumAccess = (() => {
+    if (!profile?.subscription_type) return false;
+    const type = profile.subscription_type;
+    if (!['monthly', 'yearly', 'lifetime', 'vip'].includes(type)) return false;
+    if (type === 'lifetime') return true;
+    if (type === 'vip' && !profile.subscription_expires_at) return true;
+    if (profile.subscription_expires_at && new Date(profile.subscription_expires_at) > new Date()) return true;
+    return false;
+  })();
 
   useEffect(() => {
     fetchCategories();
@@ -140,7 +148,7 @@ const Prompts = () => {
     if (!user) return;
     const { data } = await supabase
       .from("profiles")
-      .select("subscription_type")
+      .select("subscription_type, subscription_expires_at")
       .eq("user_id", user.id)
       .maybeSingle();
     if (data) setProfile(data);

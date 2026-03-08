@@ -1469,6 +1469,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_guide_view_count: {
+        Args: { p_guide_id: string }
+        Returns: undefined
+      }
       increment_prompt_copy_count: {
         Args: { prompt_id: string }
         Returns: undefined
