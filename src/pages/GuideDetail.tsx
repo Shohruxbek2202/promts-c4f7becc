@@ -79,6 +79,36 @@ const GuideDetail = () => {
     return (bytes / 1048576).toFixed(1) + " MB";
   };
 
+  const handleFileDownload = async (file: GuideFile) => {
+    if (!guide) return;
+    // Check if we already have a signed URL
+    if (signedFileUrls[file.id]) {
+      window.open(signedFileUrls[file.id], "_blank");
+      return;
+    }
+    setLoadingFileId(file.id);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Fayl yuklab olish uchun tizimga kiring");
+        return;
+      }
+      const { data, error } = await supabase.functions.invoke("get-guide-file-url", {
+        body: { fileUrl: file.file_url, guideId: guide.id },
+      });
+      if (error || !data?.signedUrl) {
+        toast.error("Faylni yuklab olishda xatolik");
+        return;
+      }
+      setSignedFileUrls(prev => ({ ...prev, [file.id]: data.signedUrl }));
+      window.open(data.signedUrl, "_blank");
+    } catch {
+      toast.error("Faylni yuklab olishda xatolik");
+    } finally {
+      setLoadingFileId(null);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background"><Header />
