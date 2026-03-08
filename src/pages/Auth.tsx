@@ -81,9 +81,8 @@ const Auth = () => {
 
     // Handle password reset (new password submission)
     if (isResetPassword) {
-      const passResult = passwordSchema.safeParse(newPassword);
-      if (!passResult.success) {
-        toast.error("Parol talablarga javob bermayapti");
+      if (!passwordSchema.validate(newPassword)) {
+        toast.error(passwordSchema.message);
         return;
       }
       setIsSubmitting(true);
