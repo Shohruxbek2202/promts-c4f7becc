@@ -148,7 +148,7 @@ const Prompts = () => {
     if (!user) return;
     const { data } = await supabase
       .from("profiles")
-      .select("subscription_type")
+      .select("subscription_type, subscription_expires_at")
       .eq("user_id", user.id)
       .maybeSingle();
     if (data) setProfile(data);

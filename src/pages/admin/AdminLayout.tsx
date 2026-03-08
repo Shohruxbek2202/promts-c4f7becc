@@ -71,7 +71,9 @@ const AdminLayout = () => {
       </div>
       <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
         {navItems.map((item) => {
-          const isActive = item.exact ? location.pathname === item.href : location.pathname.startsWith(item.href);
+          const isActive = item.exact
+            ? location.pathname === item.href
+            : location.pathname === item.href || location.pathname.startsWith(item.href + "/");
           return (
             <Link key={item.href} to={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>

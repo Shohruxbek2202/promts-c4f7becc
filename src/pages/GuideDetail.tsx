@@ -183,15 +183,20 @@ const GuideDetail = () => {
                     </div>
                     <div className="p-6 space-y-3">
                       {files.map(file => (
-                        <a key={file.id} href={file.file_url} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/30 transition-colors">
+                        <button key={file.id} onClick={() => handleFileDownload(file)}
+                          disabled={loadingFileId === file.id}
+                          className="w-full flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/30 transition-colors text-left">
                           <FileIcon className="w-5 h-5 text-primary shrink-0" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
                             <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
                           </div>
-                          <Download className="w-4 h-4 text-muted-foreground" />
-                        </a>
+                          {loadingFileId === file.id ? (
+                            <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+                          ) : (
+                            <Download className="w-4 h-4 text-muted-foreground" />
+                          )}
+                        </button>
                       ))}
                     </div>
                   </div>

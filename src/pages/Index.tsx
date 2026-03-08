@@ -130,7 +130,7 @@ const Index = () => {
       "3.5+ yillik marketing tajribasi"
     ],
     softwareVersion: "2.0",
-    dateModified: new Date().toISOString().split("T")[0],
+    dateModified: "2026-03-01",
   };
 
   const faqSchema: FAQSchema = {
