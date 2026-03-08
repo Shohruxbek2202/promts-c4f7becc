@@ -110,28 +110,31 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user!.id)
-        .maybeSingle();
-      
+      // Phase 1: Parallel independent queries
+      const [
+        { data: profileData },
+        { data: pendingData },
+        { data: promptsData },
+        { data: coursesData },
+        { data: plansData },
+      ] = await Promise.all([
+        supabase.from("profiles").select("*").eq("user_id", user!.id).maybeSingle(),
+        supabase.from("payments").select("id, amount, created_at, course_id, plan_id").eq("user_id", user!.id).eq("status", "pending").order("created_at", { ascending: false }),
+        supabase.from("user_prompts").select(`id, purchased_at, prompt:prompts (id, title, slug, description)`).eq("user_id", user!.id).order("purchased_at", { ascending: false }),
+        supabase.from("user_courses").select(`id, purchased_at, course:courses (id, title, slug, lessons_count, cover_image_url)`).eq("user_id", user!.id).order("purchased_at", { ascending: false }),
+        supabase.from("pricing_plans").select("id, name, price, subscription_type").eq("is_active", true).order("sort_order"),
+      ]);
+
       setProfile(profileData);
+      setPricingPlans(plansData || []);
 
       // Check if onboarding needed
       if (profileData && !profileData.onboarding_completed) {
         setShowOnboarding(true);
       }
 
-      // Fetch pending payments for status UI
-      const { data: pendingData } = await supabase
-        .from("payments")
-        .select("id, amount, created_at, course_id, plan_id")
-        .eq("user_id", user!.id)
-        .eq("status", "pending")
-        .order("created_at", { ascending: false });
+      // Enrich pending payments with names
       if (pendingData && pendingData.length > 0) {
-        // Enrich with names
         const courseIds = pendingData.filter(p => p.course_id).map(p => p.course_id!);
         const planIds = pendingData.filter(p => p.plan_id).map(p => p.plan_id!);
         const [{ data: courses }, { data: plans }] = await Promise.all([
@@ -147,21 +150,6 @@ const Dashboard = () => {
         })));
       }
 
-      const { data: promptsData } = await supabase
-        .from("user_prompts")
-        .select(`
-          id,
-          purchased_at,
-          prompt:prompts (
-            id,
-            title,
-            slug,
-            description
-          )
-        `)
-        .eq("user_id", user!.id)
-        .order("purchased_at", { ascending: false });
-
       if (promptsData) {
         const mappedPrompts = promptsData
           .filter((p): p is typeof p & { prompt: NonNullable<typeof p.prompt> } => p.prompt !== null)
@@ -173,12 +161,6 @@ const Dashboard = () => {
         setPurchasedPrompts(mappedPrompts);
       }
 
-      // Fetch purchased courses
-      const { data: coursesData } = await supabase
-        .from("user_courses")
-        .select(`id, purchased_at, course:courses (id, title, slug, lessons_count, cover_image_url)`)
-        .eq("user_id", user!.id)
-        .order("purchased_at", { ascending: false });
       if (coursesData) {
         const mapped = coursesData
           .filter((c): c is typeof c & { course: NonNullable<typeof c.course> } => c.course !== null)
@@ -186,31 +168,15 @@ const Dashboard = () => {
         setPurchasedCourses(mapped);
       }
 
+      // Phase 2: Profile-dependent queries (parallel)
       if (profileData) {
-        const { data: referralsData } = await supabase
-          .from("referral_transactions")
-          .select("id, amount, created_at")
-          .eq("referrer_id", profileData.id)
-          .order("created_at", { ascending: false });
-        
+        const [{ data: referralsData }, { data: withdrawalsData }] = await Promise.all([
+          supabase.from("referral_transactions").select("id, amount, created_at").eq("referrer_id", profileData.id).order("created_at", { ascending: false }),
+          supabase.from("referral_withdrawals").select("id, amount, type, status, created_at, card_number, admin_notes, plan_id").eq("profile_id", profileData.id).order("created_at", { ascending: false }),
+        ]);
         setReferralTransactions(referralsData || []);
-
-        // Fetch withdrawals
-        const { data: withdrawalsData } = await supabase
-          .from("referral_withdrawals")
-          .select("id, amount, type, status, created_at, card_number, admin_notes, plan_id")
-          .eq("profile_id", profileData.id)
-          .order("created_at", { ascending: false });
         setWithdrawals(withdrawalsData || []);
       }
-
-      // Fetch pricing plans for subscription conversion
-      const { data: plansData } = await supabase
-        .from("pricing_plans")
-        .select("id, name, price, subscription_type")
-        .eq("is_active", true)
-        .order("sort_order");
-      setPricingPlans(plansData || []);
 
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
