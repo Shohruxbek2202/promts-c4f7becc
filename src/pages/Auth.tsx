@@ -79,6 +79,30 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Handle password reset (new password submission)
+    if (isResetPassword) {
+      const passResult = passwordSchema.safeParse(newPassword);
+      if (!passResult.success) {
+        toast.error("Parol talablarga javob bermayapti");
+        return;
+      }
+      setIsSubmitting(true);
+      try {
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) {
+          toast.error(error.message);
+        } else {
+          toast.success("Parol muvaffaqiyatli yangilandi!");
+          setIsResetPassword(false);
+          setNewPassword("");
+          navigate("/dashboard");
+        }
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
     // Brute-force check (only for login)
     if (isLogin && !isForgotPassword) {
       if (lockoutUntil && Date.now() < lockoutUntil) {
