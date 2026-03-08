@@ -472,9 +472,11 @@ const Auth = () => {
                   </p>
                 </motion.div>
               )}
+              </>
+              )}
 
               {/* Lockout warning */}
-              {lockoutUntil && lockoutSecondsLeft > 0 && (
+              {!isResetPassword && lockoutUntil && lockoutSecondsLeft > 0 && (
                 <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive text-center">
                   🔒 {lockoutSecondsLeft} soniya kuting...
                 </div>
@@ -484,18 +486,18 @@ const Auth = () => {
                 type="submit"
                 size="lg"
                 className="w-full h-12 rounded-xl text-base font-medium shadow-lg shadow-primary/25"
-                disabled={isSubmitting || (isLogin && !!lockoutUntil && lockoutSecondsLeft > 0)}
+                disabled={isSubmitting || (!isResetPassword && isLogin && !!lockoutUntil && lockoutSecondsLeft > 0)}
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     Kutib turing...
                   </div>
-                ) : lockoutUntil && lockoutSecondsLeft > 0 ? (
+                ) : lockoutUntil && lockoutSecondsLeft > 0 && !isResetPassword ? (
                   <>🔒 {lockoutSecondsLeft}s</>
                 ) : (
                   <>
-                    {isForgotPassword ? "Havolani yuborish" : isLogin ? "Kirish" : "Ro'yxatdan o'tish"}
+                    {isResetPassword ? "Parolni yangilash" : isForgotPassword ? "Havolani yuborish" : isLogin ? "Kirish" : "Ro'yxatdan o'tish"}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </>
                 )}
