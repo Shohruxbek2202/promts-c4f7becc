@@ -171,6 +171,7 @@ const Payment = () => {
 
     if (existingPending) {
       toast.warning("Bu tarif uchun to'lov allaqachon kutilmoqda. Admin tasdiqlashini kuting.");
+      setUploading(false);
       return;
     }
 
