@@ -33,6 +33,8 @@ interface ProfileCache {
   avatar_url: string | null;
 }
 
+const MESSAGES_PER_PAGE = 50;
+
 const Community = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -43,8 +45,11 @@ const Community = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [profilesCache, setProfilesCache] = useState<Record<string, ProfileCache>>({});
+  const [hasOlderMessages, setHasOlderMessages] = useState(false);
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // Fetch profiles using security definer function (use ref to avoid stale closure)
   const profilesCacheRef = useRef(profilesCache);
