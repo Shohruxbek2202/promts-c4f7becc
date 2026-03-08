@@ -153,9 +153,12 @@ const Payment = () => {
       toast.error("Iltimos, to'lov chekini yuklang");
       return;
     }
+    if (uploading) return; // Double-click protection
 
     const plan = plans.find(p => p.id === selectedPlan);
     if (!plan) return;
+
+    setUploading(true); // Block immediately
 
     // Duplicate payment check — plan_id bo'yicha tekshirish
     const { data: existingPending } = await supabase
