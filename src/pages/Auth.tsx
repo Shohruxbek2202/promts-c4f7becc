@@ -354,10 +354,12 @@ const Auth = () => {
           {/* Form Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
-              {isForgotPassword ? "Parolni tiklash" : isLogin ? "Xush kelibsiz!" : "Yangi hisob yarating"}
+              {isResetPassword ? "Yangi parol o'rnating" : isForgotPassword ? "Parolni tiklash" : isLogin ? "Xush kelibsiz!" : "Yangi hisob yarating"}
             </h2>
             <p className="text-muted-foreground">
-              {isForgotPassword
+              {isResetPassword
+                ? "Yangi xavfsiz parolingizni kiriting"
+                : isForgotPassword
                 ? "Emailingizni kiriting, parolni tiklash havolasi yuboriladi"
                 : isLogin
                 ? "Hisobingizga kirish uchun ma'lumotlarni kiriting"
