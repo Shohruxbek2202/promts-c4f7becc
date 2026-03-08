@@ -63,8 +63,14 @@ const GuideDetail = () => {
       .select("subscription_type, subscription_expires_at")
       .eq("user_id", user.id).maybeSingle();
     if (profile) {
-      const active = profile.subscription_type !== "free" &&
-        (!profile.subscription_expires_at || new Date(profile.subscription_expires_at) > new Date());
+      const type = profile.subscription_type;
+      const active = type != null &&
+        ['monthly', 'yearly', 'lifetime', 'vip'].includes(type) &&
+        (
+          type === 'lifetime' ||
+          (type === 'vip' && !profile.subscription_expires_at) ||
+          (profile.subscription_expires_at != null && new Date(profile.subscription_expires_at) > new Date())
+        );
       if (active) { setHasAccess(true); return; }
     }
     const { data: purchased } = await supabase.from("user_guides")

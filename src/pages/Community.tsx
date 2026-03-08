@@ -33,6 +33,8 @@ interface ProfileCache {
   avatar_url: string | null;
 }
 
+const MESSAGES_PER_PAGE = 50;
+
 const Community = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -43,8 +45,11 @@ const Community = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [profilesCache, setProfilesCache] = useState<Record<string, ProfileCache>>({});
+  const [hasOlderMessages, setHasOlderMessages] = useState(false);
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   // Fetch profiles using security definer function (use ref to avoid stale closure)
   const profilesCacheRef = useRef(profilesCache);
@@ -83,19 +88,48 @@ const Community = () => {
 
   // Fetch messages when room selected
   const fetchMessages = useCallback(async (roomId: string) => {
-    const { data } = await supabase
+    // Fetch latest messages (descending to get newest, then reverse)
+    const { data, count } = await supabase
       .from("chat_messages")
-      .select("id, room_id, user_id, content, created_at")
+      .select("id, room_id, user_id, content, created_at", { count: "exact" })
       .eq("room_id", roomId)
-      .order("created_at", { ascending: true })
-      .range(0, 99);
+      .order("created_at", { ascending: false })
+      .range(0, MESSAGES_PER_PAGE - 1);
 
     if (data) {
-      setMessages(data);
-      const userIds = [...new Set(data.map(m => m.user_id))];
+      const sorted = [...data].reverse();
+      setMessages(sorted);
+      setHasOlderMessages((count || 0) > MESSAGES_PER_PAGE);
+      const userIds = [...new Set(sorted.map(m => m.user_id))];
       fetchProfiles(userIds);
     }
   }, [fetchProfiles]);
+
+  const loadOlderMessages = useCallback(async () => {
+    if (!selectedRoom || isLoadingOlder || !hasOlderMessages) return;
+    setIsLoadingOlder(true);
+    const oldestMessage = messages[0];
+    if (!oldestMessage) { setIsLoadingOlder(false); return; }
+
+    const { data } = await supabase
+      .from("chat_messages")
+      .select("id, room_id, user_id, content, created_at")
+      .eq("room_id", selectedRoom.id)
+      .lt("created_at", oldestMessage.created_at)
+      .order("created_at", { ascending: false })
+      .range(0, MESSAGES_PER_PAGE - 1);
+
+    if (data && data.length > 0) {
+      const sorted = [...data].reverse();
+      setMessages(prev => [...sorted, ...prev]);
+      setHasOlderMessages(data.length === MESSAGES_PER_PAGE);
+      const userIds = [...new Set(sorted.map(m => m.user_id))];
+      fetchProfiles(userIds);
+    } else {
+      setHasOlderMessages(false);
+    }
+    setIsLoadingOlder(false);
+  }, [selectedRoom, messages, isLoadingOlder, hasOlderMessages, fetchProfiles]);
 
   useEffect(() => {
     if (!selectedRoom) return;
@@ -282,8 +316,25 @@ const Community = () => {
           ) : (
             <>
               {/* Messages */}
-              <ScrollArea className="flex-1 p-4">
+              <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
                 <div className="space-y-3 max-w-3xl mx-auto">
+                  {hasOlderMessages && (
+                    <div className="text-center py-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={loadOlderMessages}
+                        disabled={isLoadingOlder}
+                        className="text-xs text-muted-foreground"
+                      >
+                        {isLoadingOlder ? (
+                          <><Loader2 className="w-3 h-3 animate-spin mr-1" />Yuklanmoqda...</>
+                        ) : (
+                          "Eski xabarlarni yuklash"
+                        )}
+                      </Button>
+                    </div>
+                  )}
                   <AnimatePresence initial={false}>
                     {messages.map(msg => {
                       const isOwn = msg.user_id === user.id;
