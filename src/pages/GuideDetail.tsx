@@ -50,8 +50,8 @@ const GuideDetail = () => {
       const { data: filesData } = await supabase.from("guide_files")
         .select("*").eq("guide_id", data.id).order("sort_order");
       if (filesData) setFiles(filesData as GuideFile[]);
-      // Increment view
-      await supabase.from("guides").update({ view_count: (data.view_count || 0) + 1 }).eq("id", data.id);
+      // Increment view atomically
+      await supabase.rpc("increment_guide_view_count", { p_guide_id: data.id });
     }
     setIsLoading(false);
   };
