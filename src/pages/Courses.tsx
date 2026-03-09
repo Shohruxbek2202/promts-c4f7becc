@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 import { SEOHead, Breadcrumb } from "@/components/seo";
 import DOMPurify from "dompurify";
+import { sanitizeSearchInput } from "@/lib/sanitize-search";
 
 interface Course {
   id: string;

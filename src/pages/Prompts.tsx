@@ -31,6 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { SEOHead, SchemaMarkup, ItemListSchema, Breadcrumb } from "@/components/seo";
 import { PromptRating } from "@/components/prompts/PromptRating";
+import { sanitizeSearchInput } from "@/lib/sanitize-search";
 
 type DifficultyLevel = "beginner" | "intermediate" | "advanced" | "expert";
 

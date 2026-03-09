@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { sanitizeSearchInput } from "@/lib/sanitize-search";
 import { 
   Search, 
   ChevronRight,
