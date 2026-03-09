@@ -383,7 +383,12 @@ const CourseLessonView = () => {
                     />
                   )}
 
-                  <MaterialsList materials={materials} />
+                  <MaterialsList materials={materials} onGetSignedUrl={async (fileUrl) => {
+                    const { data } = await supabase.functions.invoke("get-video-url", {
+                      body: { filePath: fileUrl, bucket: "course-materials" }
+                    });
+                    return data?.signedUrl || null;
+                  }} />
 
                    {/* Mark complete button */}
                    {hasAccess && (
