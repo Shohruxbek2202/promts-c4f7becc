@@ -62,13 +62,13 @@ const Payment = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch payment settings
-      const { data: settingsData } = await supabase
-        .from("settings")
-        .select("value")
-        .eq("key", "payment_settings")
-        .maybeSingle();
-      
+      // Parallel fetch all data
+      const [{ data: settingsData }, { data: plansData }, { data: paymentsData }] = await Promise.all([
+        supabase.from("settings").select("value").eq("key", "payment_settings").maybeSingle(),
+        supabase.from("pricing_plans").select("*").eq("is_active", true).order("sort_order", { ascending: true }),
+        supabase.from("payments").select(`id, amount, status, created_at, plan:pricing_plans (name)`).eq("user_id", user!.id).order("created_at", { ascending: false }).limit(10),
+      ]);
+
       if (settingsData?.value) {
         const settings = settingsData.value as unknown as PaymentSettings;
         setPaymentSettings({
@@ -77,13 +77,6 @@ const Payment = () => {
           instructions: settings.instructions || paymentSettings.instructions,
         });
       }
-
-      // Fetch pricing plans
-      const { data: plansData } = await supabase
-        .from("pricing_plans")
-        .select("*")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
 
       if (plansData) {
         const mappedPlans = plansData.map(plan => ({
@@ -97,22 +90,6 @@ const Payment = () => {
           setSelectedPlan(mappedPlans[0].id);
         }
       }
-
-      // Fetch user's payment history
-      const { data: paymentsData } = await supabase
-        .from("payments")
-        .select(`
-          id,
-          amount,
-          status,
-          created_at,
-          plan:pricing_plans (
-            name
-          )
-        `)
-        .eq("user_id", user!.id)
-        .order("created_at", { ascending: false })
-        .limit(10);
 
       if (paymentsData) {
         const mappedPayments = paymentsData.map(p => ({

@@ -140,8 +140,23 @@ const VideoPlayer = ({
   );
 };
 
-const MaterialsList = ({ materials }: { materials: CourseMaterial[] }) => {
+const MaterialsList = ({ materials, onGetSignedUrl }: { materials: CourseMaterial[]; onGetSignedUrl: (fileUrl: string) => Promise<string | null> }) => {
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+
   if (materials.length === 0) return null;
+
+  const handleDownload = async (material: CourseMaterial) => {
+    setLoadingId(material.id);
+    try {
+      const signedUrl = await onGetSignedUrl(material.file_url);
+      if (signedUrl) {
+        window.open(signedUrl, "_blank");
+      }
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
   return (
     <div className="border border-border rounded-xl p-4 mb-6">
       <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -149,21 +164,22 @@ const MaterialsList = ({ materials }: { materials: CourseMaterial[] }) => {
       </h3>
       <div className="space-y-2">
         {materials.map((m) => (
-          <a
+          <button
             key={m.id}
-            href={m.file_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+            onClick={() => handleDownload(m)}
+            disabled={loadingId === m.id}
+            className="w-full flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors text-left"
           >
             <Download className="w-4 h-4 text-primary flex-shrink-0" />
             <span className="text-sm text-foreground flex-1 truncate">{m.file_name}</span>
-            {m.file_size && (
+            {loadingId === m.id ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+            ) : m.file_size ? (
               <span className="text-xs text-muted-foreground">
                 {(m.file_size / 1024).toFixed(0)} KB
               </span>
-            )}
-          </a>
+            ) : null}
+          </button>
         ))}
       </div>
     </div>

@@ -141,21 +141,8 @@ const Lessons = () => {
 
   const checkAccess = async () => {
     if (!user) return;
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("subscription_type, subscription_expires_at")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (profile) {
-      const hasValidSubscription = 
-        profile.subscription_type && 
-        profile.subscription_type !== "free" &&
-        (!profile.subscription_expires_at || new Date(profile.subscription_expires_at) > new Date());
-      
-      setHasAccess(!!hasValidSubscription);
-    }
+    const { data: hasSubscription } = await supabase.rpc("has_active_subscription", { p_user_id: user.id });
+    setHasAccess(!!hasSubscription);
   };
 
   const filteredLessons = lessons.filter(lesson =>

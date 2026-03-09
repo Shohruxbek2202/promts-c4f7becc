@@ -196,6 +196,14 @@ const Dashboard = () => {
       toast.error("Karta raqami va egasini kiriting");
       return;
     }
+
+    // Check for existing pending withdrawal
+    const hasPending = withdrawals.some(w => w.status === "pending" && w.type === "cash");
+    if (hasPending) {
+      toast.warning("Sizda allaqachon kutilayotgan yechib olish so'rovi bor. Admin tasdiqlashini kuting.");
+      return;
+    }
+
     setIsSubmittingWithdrawal(true);
     try {
       const { error } = await supabase.from("referral_withdrawals").insert({
