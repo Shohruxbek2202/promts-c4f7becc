@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { sanitizeSearchInput } from "@/lib/sanitize-search";
 import { 
   Search, 
   ChevronRight,
@@ -170,8 +171,9 @@ const Agency = () => {
 
     // Server-side search
     if (debouncedSearch.trim()) {
+      const safe = sanitizeSearchInput(debouncedSearch);
       query = query.or(
-        `title.ilike.%${debouncedSearch.trim()}%,description.ilike.%${debouncedSearch.trim()}%`
+        `title.ilike.%${safe}%,description.ilike.%${safe}%`
       );
     }
 

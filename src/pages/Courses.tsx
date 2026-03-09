@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 import { SEOHead, Breadcrumb } from "@/components/seo";
 import DOMPurify from "dompurify";
+import { sanitizeSearchInput } from "@/lib/sanitize-search";
 
 interface Course {
   id: string;
@@ -125,7 +126,8 @@ const Courses = () => {
 
     // Server-side search
     if (debouncedSearch.trim()) {
-      query = query.or(`title.ilike.%${debouncedSearch.trim()}%,description.ilike.%${debouncedSearch.trim()}%`);
+      const safe = sanitizeSearchInput(debouncedSearch);
+      query = query.or(`title.ilike.%${safe}%,description.ilike.%${safe}%`);
     }
 
     const { data } = await query;
@@ -198,38 +200,19 @@ const Courses = () => {
     }
     setEnrollingFree(course.id);
     try {
-      // Check if already enrolled
-      const { data: existing } = await supabase
-        .from("user_courses")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("course_id", course.id)
-        .maybeSingle();
+      // Use secure server-side RPC that validates course is actually free
+      const { data: result, error } = await supabase.rpc("enroll_free_course", { p_course_id: course.id });
+      if (error) throw error;
 
-      if (existing) {
-        toast.info("Siz allaqachon bu kursga yozilgansiz");
-        navigate(`/course/${course.slug}`);
-        return;
+      const res = result as { success: boolean; message?: string; error?: string };
+      if (!res.success) {
+        if (res.error === 'Already enrolled' || res.message === 'Already enrolled') {
+          toast.info("Siz allaqachon bu kursga yozilgansiz");
+          navigate(`/course/${course.slug}`);
+          return;
+        }
+        throw new Error(res.error || "Ro'yxatdan o'tishda xatolik");
       }
-
-      // Create auto-approved payment for free course
-      const { error: paymentError } = await supabase.from("payments").insert({
-        user_id: user.id,
-        course_id: course.id,
-        amount: 0,
-        status: "approved" as any,
-        payment_method: "free",
-        approved_at: new Date().toISOString(),
-      });
-
-      if (paymentError) throw paymentError;
-
-      // Enroll via RPC
-      const { data: result, error: enrollError } = await supabase.rpc("enroll_after_payment", { p_course_id: course.id });
-      if (enrollError) throw enrollError;
-
-      const res = result as { success: boolean; error?: string };
-      if (!res.success) throw new Error(res.error || "Ro'yxatdan o'tishda xatolik");
 
       setPurchasedCourseIds(prev => [...prev, course.id]);
       toast.success("Kursga muvaffaqiyatli yozildingiz!");

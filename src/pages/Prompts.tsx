@@ -31,6 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { SEOHead, SchemaMarkup, ItemListSchema, Breadcrumb } from "@/components/seo";
 import { PromptRating } from "@/components/prompts/PromptRating";
+import { sanitizeSearchInput } from "@/lib/sanitize-search";
 
 type DifficultyLevel = "beginner" | "intermediate" | "advanced" | "expert";
 
@@ -217,8 +218,9 @@ const Prompts = () => {
 
     // Server-side search: filter by title or description
     if (debouncedSearch.trim()) {
+      const safe = sanitizeSearchInput(debouncedSearch);
       query = query.or(
-        `title.ilike.%${debouncedSearch.trim()}%,description.ilike.%${debouncedSearch.trim()}%`
+        `title.ilike.%${safe}%,description.ilike.%${safe}%`
       );
     }
 
