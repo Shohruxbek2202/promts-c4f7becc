@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
@@ -42,6 +42,9 @@ interface PaymentSettings {
 
 const Payment = () => {
   const { user, isLoading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const promptId = searchParams.get("prompt");
+  const [promptInfo, setPromptInfo] = useState<{ id: string; title: string; price: number } | null>(null);
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
@@ -62,13 +65,12 @@ const Payment = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch payment settings
-      const { data: settingsData } = await supabase
-        .from("settings")
-        .select("value")
-        .eq("key", "payment_settings")
-        .maybeSingle();
-      
+      const [{ data: settingsData }, { data: plansData }, { data: paymentsData }] = await Promise.all([
+        supabase.from("settings").select("value").eq("key", "payment_settings").maybeSingle(),
+        supabase.from("pricing_plans").select("*").eq("is_active", true).order("sort_order", { ascending: true }),
+        supabase.from("payments").select(`id, amount, status, created_at, plan:pricing_plans (name)`).eq("user_id", user!.id).order("created_at", { ascending: false }).limit(10),
+      ]);
+
       if (settingsData?.value) {
         const settings = settingsData.value as unknown as PaymentSettings;
         setPaymentSettings({
@@ -78,41 +80,16 @@ const Payment = () => {
         });
       }
 
-      // Fetch pricing plans
-      const { data: plansData } = await supabase
-        .from("pricing_plans")
-        .select("*")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
-
       if (plansData) {
         const mappedPlans = plansData.map(plan => ({
           ...plan,
-          features: Array.isArray(plan.features) 
-            ? plan.features.map(f => String(f))
-            : []
+          features: Array.isArray(plan.features) ? plan.features.map(f => String(f)) : []
         }));
         setPlans(mappedPlans);
-        if (mappedPlans.length > 0) {
+        if (!promptId && mappedPlans.length > 0) {
           setSelectedPlan(mappedPlans[0].id);
         }
       }
-
-      // Fetch user's payment history
-      const { data: paymentsData } = await supabase
-        .from("payments")
-        .select(`
-          id,
-          amount,
-          status,
-          created_at,
-          plan:pricing_plans (
-            name
-          )
-        `)
-        .eq("user_id", user!.id)
-        .order("created_at", { ascending: false })
-        .limit(10);
 
       if (paymentsData) {
         const mappedPayments = paymentsData.map(p => ({
@@ -120,6 +97,11 @@ const Payment = () => {
           plan: Array.isArray(p.plan) ? p.plan[0] : p.plan
         }));
         setPayments(mappedPayments);
+      }
+
+      if (promptId) {
+        const { data: pData } = await supabase.from("prompts").select("id, title, price").eq("id", promptId).maybeSingle();
+        if (pData) setPromptInfo({ id: pData.id, title: pData.title, price: pData.price || 0 });
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -145,7 +127,9 @@ const Payment = () => {
   };
 
   const handleSubmitPayment = async () => {
-    if (!selectedPlan) {
+    const isPromptPurchase = !!promptInfo;
+    
+    if (!isPromptPurchase && !selectedPlan) {
       toast.error("Iltimos, tarifni tanlang");
       return;
     }
@@ -153,72 +137,47 @@ const Payment = () => {
       toast.error("Iltimos, to'lov chekini yuklang");
       return;
     }
-    if (uploading) return; // Double-click protection
+    if (uploading) return;
 
-    const plan = plans.find(p => p.id === selectedPlan);
-    if (!plan) return;
+    const plan = !isPromptPurchase ? plans.find(p => p.id === selectedPlan) : null;
+    const amount = isPromptPurchase ? promptInfo!.price : plan!.price;
 
-    setUploading(true); // Block immediately
+    setUploading(true);
 
-    // Duplicate payment check — plan_id bo'yicha tekshirish
-    const { data: existingPending } = await supabase
-      .from("payments")
-      .select("id")
-      .eq("user_id", user!.id)
-      .eq("plan_id", selectedPlan)
-      .eq("status", "pending")
-      .maybeSingle();
-
-    if (existingPending) {
-      toast.warning("Bu tarif uchun to'lov allaqachon kutilmoqda. Admin tasdiqlashini kuting.");
-      setUploading(false);
-      return;
-    }
-
-    // Agar foydalanuvchi allaqachon shu obunaga ega bo'lsa ogohlantir
-    const { data: currentProfile } = await supabase
-      .from("profiles")
-      .select("subscription_type, subscription_expires_at")
-      .eq("user_id", user!.id)
-      .maybeSingle();
-
-    if (currentProfile?.subscription_type === plan.subscription_type &&
-        currentProfile.subscription_expires_at &&
-        new Date(currentProfile.subscription_expires_at) > new Date()) {
-      const daysLeft = Math.ceil(
-        (new Date(currentProfile.subscription_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      );
-      toast.warning(`Siz allaqachon ${plan.name} obunasiga egasiz. ${daysLeft} kun qoldi.`, { duration: 5000 });
-      // Proceed anyway (user may want to extend)
+    // Duplicate check
+    if (isPromptPurchase) {
+      const { data: ep } = await supabase.from("payments").select("id").eq("user_id", user!.id).eq("prompt_id", promptInfo!.id).eq("status", "pending").maybeSingle();
+      if (ep) { toast.warning("Bu promt uchun to'lov allaqachon kutilmoqda."); setUploading(false); return; }
+    } else {
+      const { data: ep } = await supabase.from("payments").select("id").eq("user_id", user!.id).eq("plan_id", selectedPlan).eq("status", "pending").maybeSingle();
+      if (ep) { toast.warning("Bu tarif uchun to'lov allaqachon kutilmoqda."); setUploading(false); return; }
     }
 
     try {
-      // Upload receipt to storage
       const fileExt = receiptFile.name.split(".").pop();
       const fileName = `${user!.id}/${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from("receipts")
-        .upload(fileName, receiptFile);
-
+      const { error: uploadError } = await supabase.storage.from("receipts").upload(fileName, receiptFile);
       if (uploadError) throw uploadError;
 
-      // Create payment record with file path (private bucket)
-      const { error: paymentError } = await supabase
-        .from("payments")
-        .insert({
-          user_id: user!.id,
-          plan_id: selectedPlan,
-          amount: plan.price,
-          status: "pending",
-          receipt_url: fileName,
-        });
+      const paymentRecord: any = {
+        user_id: user!.id,
+        amount,
+        status: "pending",
+        receipt_url: fileName,
+      };
 
+      if (isPromptPurchase) {
+        paymentRecord.prompt_id = promptInfo!.id;
+      } else {
+        paymentRecord.plan_id = selectedPlan;
+      }
+
+      const { error: paymentError } = await supabase.from("payments").insert(paymentRecord);
       if (paymentError) throw paymentError;
 
       toast.success("To'lov so'rovi yuborildi! Tez orada tasdiqlanadi.");
       setReceiptFile(null);
-      fetchData(); // Refresh payments list
+      fetchData();
     } catch (error) {
       console.error("Error submitting payment:", error);
       toast.error("To'lovni yuborishda xatolik. Qaytadan urinib ko'ring.");
@@ -278,13 +237,15 @@ const Payment = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-button mb-4">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">Premium obuna</span>
+              <span className="text-sm font-medium">{promptInfo ? "Promt sotib olish" : "Premium obuna"}</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              To'lov sahifasi
+              {promptInfo ? promptInfo.title : "To'lov sahifasi"}
             </h1>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              Tarifni tanlang, to'lovni amalga oshiring va chekni yuklang
+              {promptInfo 
+                ? `Narxi: ${new Intl.NumberFormat('uz-UZ').format(promptInfo.price)} so'm — chekni yuklang`
+                : "Tarifni tanlang, to'lovni amalga oshiring va chekni yuklang"}
             </p>
           </motion.div>
 

@@ -32,6 +32,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { SEOHead, SchemaMarkup, ItemListSchema, Breadcrumb } from "@/components/seo";
 import { PromptRating } from "@/components/prompts/PromptRating";
 import { sanitizeSearchInput } from "@/lib/sanitize-search";
+import { getEmbedUrl } from "@/lib/video-utils";
 
 type DifficultyLevel = "beginner" | "intermediate" | "advanced" | "expert";
 
@@ -319,18 +320,7 @@ const Prompts = () => {
     }
   };
 
-  // Helper to convert YouTube URL to embed URL
-  const getEmbedUrl = (url: string): string => {
-    const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-    if (ytMatch) {
-      return `https://www.youtube.com/embed/${ytMatch[1]}`;
-    }
-    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-    if (vimeoMatch) {
-      return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-    }
-    return url;
-  };
+  // getEmbedUrl imported from @/lib/video-utils
 
   const handleCopyPrompt = async () => {
     if (!selectedPrompt) return;

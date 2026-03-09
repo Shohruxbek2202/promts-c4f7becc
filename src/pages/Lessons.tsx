@@ -53,18 +53,7 @@ interface Category {
   icon: string | null;
 }
 
-// Helper to convert YouTube URL to embed URL
-const getEmbedUrl = (url: string): string => {
-  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-  if (ytMatch) {
-    return `https://www.youtube.com/embed/${ytMatch[1]}`;
-  }
-  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) {
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-  }
-  return url;
-};
+import { getEmbedUrl, isEmbedVideo } from "@/lib/video-utils";
 
 const Lessons = () => {
   const { user } = useAuth();
@@ -96,24 +85,17 @@ const Lessons = () => {
   }, [selectedCategory, categories]);
 
   const fetchCategories = async () => {
-    const { data: categoriesData } = await supabase
-      .from("categories")
-      .select("id, name, slug, icon")
-      .eq("is_active", true)
-      .order("sort_order");
+    const [{ data: categoriesData }, { data: allLessons }] = await Promise.all([
+      supabase.from("categories").select("id, name, slug, icon").eq("is_active", true).order("sort_order"),
+      supabase.from("lessons").select("category_id").eq("is_published", true),
+    ]);
     
     if (categoriesData) {
       setCategories(categoriesData);
-      
-      // Fetch lesson counts for each category
+      // Count in-memory to avoid N+1 queries
       const counts: Record<string, number> = {};
-      for (const cat of categoriesData) {
-        const { count } = await supabase
-          .from("lessons")
-          .select("id", { count: "exact", head: true })
-          .eq("category_id", cat.id)
-          .eq("is_published", true);
-        counts[cat.id] = count || 0;
+      for (const lesson of allLessons || []) {
+        if (lesson.category_id) counts[lesson.category_id] = (counts[lesson.category_id] || 0) + 1;
       }
       setLessonCounts(counts);
     }
@@ -159,21 +141,8 @@ const Lessons = () => {
 
   const checkAccess = async () => {
     if (!user) return;
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("subscription_type, subscription_expires_at")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (profile) {
-      const hasValidSubscription = 
-        profile.subscription_type && 
-        profile.subscription_type !== "free" &&
-        (!profile.subscription_expires_at || new Date(profile.subscription_expires_at) > new Date());
-      
-      setHasAccess(!!hasValidSubscription);
-    }
+    const { data: hasSubscription } = await supabase.rpc("has_active_subscription", { p_user_id: user.id });
+    setHasAccess(!!hasSubscription);
   };
 
   const filteredLessons = lessons.filter(lesson =>
@@ -277,9 +246,7 @@ const Lessons = () => {
     return lesson.video_file_url || lesson.video_url;
   };
 
-  const isEmbeddable = (url: string) => {
-    return url.includes("youtube") || url.includes("youtu.be") || url.includes("vimeo");
-  };
+  const isEmbeddable = isEmbedVideo;
 
   return (
     <div className="min-h-screen bg-background">

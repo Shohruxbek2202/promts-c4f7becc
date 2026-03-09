@@ -31,32 +31,26 @@ export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if pricing should be shown
+  const [pricingChecked, setPricingChecked] = useState(false);
+
+  // Check if pricing should be shown — only once
   useEffect(() => {
+    if (pricingChecked) return;
+    const checkPricingVisibility = async () => {
+      const [{ data: settings }, { count }] = await Promise.all([
+        supabase.from("site_settings").select("value").eq("key", "section_visibility").maybeSingle(),
+        supabase.from("pricing_plans").select("id", { count: "exact", head: true }).eq("is_active", true),
+      ]);
+
+      const showPricingSetting = settings?.value
+        ? (settings.value as { show_pricing?: boolean }).show_pricing ?? true
+        : true;
+      const hasActivePlans = (count || 0) > 0;
+      setShowPricing(showPricingSetting && hasActivePlans);
+      setPricingChecked(true);
+    };
     checkPricingVisibility();
-  }, []);
-
-  const checkPricingVisibility = async () => {
-    // Check site settings
-    const { data: settings } = await supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", "section_visibility")
-      .maybeSingle();
-
-    const showPricingSetting = settings?.value 
-      ? (settings.value as { show_pricing?: boolean }).show_pricing ?? true 
-      : true;
-
-    // Check if there are active plans
-    const { count } = await supabase
-      .from("pricing_plans")
-      .select("id", { count: "exact", head: true })
-      .eq("is_active", true);
-
-    const hasActivePlans = (count || 0) > 0;
-    setShowPricing(showPricingSetting && hasActivePlans);
-  };
+  }, [pricingChecked]);
 
   // Build nav links dynamically based on visibility
   const navLinks: NavLink[] = [
