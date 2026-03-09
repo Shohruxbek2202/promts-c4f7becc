@@ -66,21 +66,23 @@ const Payment = () => {
   const fetchData = async () => {
     try {
       // Parallel fetch all data
-      const queries: Promise<any>[] = [
+      const baseQueries = [
         supabase.from("settings").select("value").eq("key", "payment_settings").maybeSingle(),
         supabase.from("pricing_plans").select("*").eq("is_active", true).order("sort_order", { ascending: true }),
         supabase.from("payments").select(`id, amount, status, created_at, plan:pricing_plans (name)`).eq("user_id", user!.id).order("created_at", { ascending: false }).limit(10),
       ];
 
-      // If prompt_id, also fetch prompt info
-      if (promptId) {
-        queries.push(
-          supabase.from("prompts").select("id, title, price").eq("id", promptId).maybeSingle()
-        );
-      }
+      const [settingsResult, plansResult, paymentsResult] = await Promise.all(baseQueries);
+      const settingsData = settingsResult.data;
+      const plansData = plansResult.data;
+      const paymentsData = paymentsResult.data;
 
-      const results = await Promise.all(queries);
-      const [{ data: settingsData }, { data: plansData }, { data: paymentsData }] = results;
+      // Fetch prompt info separately if needed
+      let promptData = null;
+      if (promptId) {
+        const { data } = await supabase.from("prompts").select("id, title, price").eq("id", promptId).maybeSingle();
+        promptData = data;
+      }
 
       if (settingsData?.value) {
         const settings = settingsData.value as unknown as PaymentSettings;
