@@ -127,7 +127,9 @@ const Payment = () => {
   };
 
   const handleSubmitPayment = async () => {
-    if (!selectedPlan) {
+    const isPromptPurchase = !!promptInfo;
+    
+    if (!isPromptPurchase && !selectedPlan) {
       toast.error("Iltimos, tarifni tanlang");
       return;
     }
@@ -135,72 +137,47 @@ const Payment = () => {
       toast.error("Iltimos, to'lov chekini yuklang");
       return;
     }
-    if (uploading) return; // Double-click protection
+    if (uploading) return;
 
-    const plan = plans.find(p => p.id === selectedPlan);
-    if (!plan) return;
+    const plan = !isPromptPurchase ? plans.find(p => p.id === selectedPlan) : null;
+    const amount = isPromptPurchase ? promptInfo!.price : plan!.price;
 
-    setUploading(true); // Block immediately
+    setUploading(true);
 
-    // Duplicate payment check — plan_id bo'yicha tekshirish
-    const { data: existingPending } = await supabase
-      .from("payments")
-      .select("id")
-      .eq("user_id", user!.id)
-      .eq("plan_id", selectedPlan)
-      .eq("status", "pending")
-      .maybeSingle();
-
-    if (existingPending) {
-      toast.warning("Bu tarif uchun to'lov allaqachon kutilmoqda. Admin tasdiqlashini kuting.");
-      setUploading(false);
-      return;
-    }
-
-    // Agar foydalanuvchi allaqachon shu obunaga ega bo'lsa ogohlantir
-    const { data: currentProfile } = await supabase
-      .from("profiles")
-      .select("subscription_type, subscription_expires_at")
-      .eq("user_id", user!.id)
-      .maybeSingle();
-
-    if (currentProfile?.subscription_type === plan.subscription_type &&
-        currentProfile.subscription_expires_at &&
-        new Date(currentProfile.subscription_expires_at) > new Date()) {
-      const daysLeft = Math.ceil(
-        (new Date(currentProfile.subscription_expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      );
-      toast.warning(`Siz allaqachon ${plan.name} obunasiga egasiz. ${daysLeft} kun qoldi.`, { duration: 5000 });
-      // Proceed anyway (user may want to extend)
+    // Duplicate check
+    if (isPromptPurchase) {
+      const { data: ep } = await supabase.from("payments").select("id").eq("user_id", user!.id).eq("prompt_id", promptInfo!.id).eq("status", "pending").maybeSingle();
+      if (ep) { toast.warning("Bu promt uchun to'lov allaqachon kutilmoqda."); setUploading(false); return; }
+    } else {
+      const { data: ep } = await supabase.from("payments").select("id").eq("user_id", user!.id).eq("plan_id", selectedPlan).eq("status", "pending").maybeSingle();
+      if (ep) { toast.warning("Bu tarif uchun to'lov allaqachon kutilmoqda."); setUploading(false); return; }
     }
 
     try {
-      // Upload receipt to storage
       const fileExt = receiptFile.name.split(".").pop();
       const fileName = `${user!.id}/${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from("receipts")
-        .upload(fileName, receiptFile);
-
+      const { error: uploadError } = await supabase.storage.from("receipts").upload(fileName, receiptFile);
       if (uploadError) throw uploadError;
 
-      // Create payment record with file path (private bucket)
-      const { error: paymentError } = await supabase
-        .from("payments")
-        .insert({
-          user_id: user!.id,
-          plan_id: selectedPlan,
-          amount: plan.price,
-          status: "pending",
-          receipt_url: fileName,
-        });
+      const paymentRecord: any = {
+        user_id: user!.id,
+        amount,
+        status: "pending",
+        receipt_url: fileName,
+      };
 
+      if (isPromptPurchase) {
+        paymentRecord.prompt_id = promptInfo!.id;
+      } else {
+        paymentRecord.plan_id = selectedPlan;
+      }
+
+      const { error: paymentError } = await supabase.from("payments").insert(paymentRecord);
       if (paymentError) throw paymentError;
 
       toast.success("To'lov so'rovi yuborildi! Tez orada tasdiqlanadi.");
       setReceiptFile(null);
-      fetchData(); // Refresh payments list
+      fetchData();
     } catch (error) {
       console.error("Error submitting payment:", error);
       toast.error("To'lovni yuborishda xatolik. Qaytadan urinib ko'ring.");
