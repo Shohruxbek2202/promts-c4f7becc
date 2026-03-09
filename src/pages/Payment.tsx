@@ -237,13 +237,15 @@ const Payment = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-button mb-4">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">Premium obuna</span>
+              <span className="text-sm font-medium">{promptInfo ? "Promt sotib olish" : "Premium obuna"}</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              To'lov sahifasi
+              {promptInfo ? promptInfo.title : "To'lov sahifasi"}
             </h1>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              Tarifni tanlang, to'lovni amalga oshiring va chekni yuklang
+              {promptInfo 
+                ? `Narxi: ${new Intl.NumberFormat('uz-UZ').format(promptInfo.price)} so'm — chekni yuklang`
+                : "Tarifni tanlang, to'lovni amalga oshiring va chekni yuklang"}
             </p>
           </motion.div>
 
