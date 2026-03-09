@@ -42,16 +42,7 @@ interface CourseMaterial {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const getEmbedUrl = (url: string): string => {
-  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
-  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-  return url;
-};
-
-const isEmbedVideo = (url: string) =>
-  url.includes("youtube") || url.includes("youtu.be") || url.includes("vimeo");
+import { getEmbedUrl, isEmbedVideo } from "@/lib/video-utils";
 
 // ─── Signed Video URL Hook ────────────────────────────────────────────────────
 
