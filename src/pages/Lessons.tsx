@@ -246,9 +246,7 @@ const Lessons = () => {
     return lesson.video_file_url || lesson.video_url;
   };
 
-  const isEmbeddable = (url: string) => {
-    return url.includes("youtube") || url.includes("youtu.be") || url.includes("vimeo");
-  };
+  const isEmbeddable = isEmbedVideo;
 
   return (
     <div className="min-h-screen bg-background">
