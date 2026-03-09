@@ -55,13 +55,7 @@ interface Category {
   icon: string | null;
 }
 
-const getEmbedUrl = (url: string): string => {
-  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
-  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-  return url;
-};
+import { getEmbedUrl } from "@/lib/video-utils";
 
 const Courses = () => {
   const { user } = useAuth();

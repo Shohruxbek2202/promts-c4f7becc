@@ -69,20 +69,7 @@ const difficultyLabels: Record<DifficultyLevel, string> = {
   expert: "Ekspert",
 };
 
-// Helper to convert YouTube URL to embed URL
-const getEmbedUrl = (url: string): string => {
-  // YouTube watch URL
-  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-  if (ytMatch) {
-    return `https://www.youtube.com/embed/${ytMatch[1]}`;
-  }
-  // Vimeo URL
-  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) {
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-  }
-  return url;
-};
+import { getEmbedUrl } from "@/lib/video-utils";
 
 const PromptDetail = () => {
   const { slug } = useParams<{ slug: string }>();
