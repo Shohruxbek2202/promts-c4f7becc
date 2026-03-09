@@ -65,24 +65,11 @@ const Payment = () => {
 
   const fetchData = async () => {
     try {
-      // Parallel fetch all data
-      const baseQueries = [
+      const [{ data: settingsData }, { data: plansData }, { data: paymentsData }] = await Promise.all([
         supabase.from("settings").select("value").eq("key", "payment_settings").maybeSingle(),
         supabase.from("pricing_plans").select("*").eq("is_active", true).order("sort_order", { ascending: true }),
         supabase.from("payments").select(`id, amount, status, created_at, plan:pricing_plans (name)`).eq("user_id", user!.id).order("created_at", { ascending: false }).limit(10),
-      ];
-
-      const [settingsResult, plansResult, paymentsResult] = await Promise.all(baseQueries);
-      const settingsData = settingsResult.data;
-      const plansData = plansResult.data;
-      const paymentsData = paymentsResult.data;
-
-      // Fetch prompt info separately if needed
-      let promptData = null;
-      if (promptId) {
-        const { data } = await supabase.from("prompts").select("id, title, price").eq("id", promptId).maybeSingle();
-        promptData = data;
-      }
+      ]);
 
       if (settingsData?.value) {
         const settings = settingsData.value as unknown as PaymentSettings;
@@ -94,11 +81,9 @@ const Payment = () => {
       }
 
       if (plansData) {
-        const mappedPlans = plansData.map((plan: any) => ({
+        const mappedPlans = plansData.map(plan => ({
           ...plan,
-          features: Array.isArray(plan.features) 
-            ? plan.features.map((f: any) => String(f))
-            : []
+          features: Array.isArray(plan.features) ? plan.features.map(f => String(f)) : []
         }));
         setPlans(mappedPlans);
         if (!promptId && mappedPlans.length > 0) {
@@ -107,16 +92,16 @@ const Payment = () => {
       }
 
       if (paymentsData) {
-        const mappedPayments = paymentsData.map((p: any) => ({
+        const mappedPayments = paymentsData.map(p => ({
           ...p,
           plan: Array.isArray(p.plan) ? p.plan[0] : p.plan
         }));
         setPayments(mappedPayments);
       }
 
-      // Set prompt info
-      if (promptId && results[3]?.data) {
-        setPromptInfo(results[3].data);
+      if (promptId) {
+        const { data: pData } = await supabase.from("prompts").select("id, title, price").eq("id", promptId).maybeSingle();
+        if (pData) setPromptInfo({ id: pData.id, title: pData.title, price: pData.price || 0 });
       }
     } catch (error) {
       console.error("Error fetching data:", error);
