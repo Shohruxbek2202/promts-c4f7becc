@@ -66,11 +66,21 @@ const Payment = () => {
   const fetchData = async () => {
     try {
       // Parallel fetch all data
-      const [{ data: settingsData }, { data: plansData }, { data: paymentsData }] = await Promise.all([
+      const queries: Promise<any>[] = [
         supabase.from("settings").select("value").eq("key", "payment_settings").maybeSingle(),
         supabase.from("pricing_plans").select("*").eq("is_active", true).order("sort_order", { ascending: true }),
         supabase.from("payments").select(`id, amount, status, created_at, plan:pricing_plans (name)`).eq("user_id", user!.id).order("created_at", { ascending: false }).limit(10),
-      ]);
+      ];
+
+      // If prompt_id, also fetch prompt info
+      if (promptId) {
+        queries.push(
+          supabase.from("prompts").select("id, title, price").eq("id", promptId).maybeSingle()
+        );
+      }
+
+      const results = await Promise.all(queries);
+      const [{ data: settingsData }, { data: plansData }, { data: paymentsData }] = results;
 
       if (settingsData?.value) {
         const settings = settingsData.value as unknown as PaymentSettings;
@@ -82,24 +92,29 @@ const Payment = () => {
       }
 
       if (plansData) {
-        const mappedPlans = plansData.map(plan => ({
+        const mappedPlans = plansData.map((plan: any) => ({
           ...plan,
           features: Array.isArray(plan.features) 
-            ? plan.features.map(f => String(f))
+            ? plan.features.map((f: any) => String(f))
             : []
         }));
         setPlans(mappedPlans);
-        if (mappedPlans.length > 0) {
+        if (!promptId && mappedPlans.length > 0) {
           setSelectedPlan(mappedPlans[0].id);
         }
       }
 
       if (paymentsData) {
-        const mappedPayments = paymentsData.map(p => ({
+        const mappedPayments = paymentsData.map((p: any) => ({
           ...p,
           plan: Array.isArray(p.plan) ? p.plan[0] : p.plan
         }));
         setPayments(mappedPayments);
+      }
+
+      // Set prompt info
+      if (promptId && results[3]?.data) {
+        setPromptInfo(results[3].data);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
