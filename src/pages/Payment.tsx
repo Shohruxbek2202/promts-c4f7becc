@@ -42,6 +42,9 @@ interface PaymentSettings {
 
 const Payment = () => {
   const { user, isLoading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const promptId = searchParams.get("prompt");
+  const [promptInfo, setPromptInfo] = useState<{ id: string; title: string; price: number } | null>(null);
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
