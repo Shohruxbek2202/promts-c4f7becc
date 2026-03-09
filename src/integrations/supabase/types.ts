@@ -1400,6 +1400,7 @@ export type Database = {
       }
       cleanup_rate_limits: { Args: never; Returns: undefined }
       enroll_after_payment: { Args: { p_course_id: string }; Returns: Json }
+      enroll_free_course: { Args: { p_course_id: string }; Returns: Json }
       expire_subscriptions: { Args: never; Returns: Json }
       export_reminders_csv: {
         Args: {
