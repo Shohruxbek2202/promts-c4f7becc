@@ -53,18 +53,7 @@ interface Category {
   icon: string | null;
 }
 
-// Helper to convert YouTube URL to embed URL
-const getEmbedUrl = (url: string): string => {
-  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-  if (ytMatch) {
-    return `https://www.youtube.com/embed/${ytMatch[1]}`;
-  }
-  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-  if (vimeoMatch) {
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-  }
-  return url;
-};
+import { getEmbedUrl, isEmbedVideo } from "@/lib/video-utils";
 
 const Lessons = () => {
   const { user } = useAuth();
