@@ -32,6 +32,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { SEOHead, SchemaMarkup, ItemListSchema, Breadcrumb } from "@/components/seo";
 import { PromptRating } from "@/components/prompts/PromptRating";
 import { sanitizeSearchInput } from "@/lib/sanitize-search";
+import { getEmbedUrl } from "@/lib/video-utils";
 
 type DifficultyLevel = "beginner" | "intermediate" | "advanced" | "expert";
 
