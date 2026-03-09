@@ -170,8 +170,9 @@ const Agency = () => {
 
     // Server-side search
     if (debouncedSearch.trim()) {
+      const safe = sanitizeSearchInput(debouncedSearch);
       query = query.or(
-        `title.ilike.%${debouncedSearch.trim()}%,description.ilike.%${debouncedSearch.trim()}%`
+        `title.ilike.%${safe}%,description.ilike.%${safe}%`
       );
     }
 

@@ -125,7 +125,8 @@ const Courses = () => {
 
     // Server-side search
     if (debouncedSearch.trim()) {
-      query = query.or(`title.ilike.%${debouncedSearch.trim()}%,description.ilike.%${debouncedSearch.trim()}%`);
+      const safe = sanitizeSearchInput(debouncedSearch);
+      query = query.or(`title.ilike.%${safe}%,description.ilike.%${safe}%`);
     }
 
     const { data } = await query;

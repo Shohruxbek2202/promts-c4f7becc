@@ -217,8 +217,9 @@ const Prompts = () => {
 
     // Server-side search: filter by title or description
     if (debouncedSearch.trim()) {
+      const safe = sanitizeSearchInput(debouncedSearch);
       query = query.or(
-        `title.ilike.%${debouncedSearch.trim()}%,description.ilike.%${debouncedSearch.trim()}%`
+        `title.ilike.%${safe}%,description.ilike.%${safe}%`
       );
     }
 

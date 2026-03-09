@@ -381,9 +381,11 @@ const PromptDetail = () => {
                                 Obuna bo'lish
                               </Button>
                             </Link>
-                            <Button variant="outline">
-                              {prompt.price?.toLocaleString()} so'mga sotib olish
-                            </Button>
+                            <Link to={`/payment?prompt=${prompt.id}`}>
+                              <Button variant="outline">
+                                {prompt.price?.toLocaleString()} so'mga sotib olish
+                              </Button>
+                            </Link>
                           </>
                         )}
                       </div>
