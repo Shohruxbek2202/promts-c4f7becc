@@ -85,24 +85,17 @@ const Lessons = () => {
   }, [selectedCategory, categories]);
 
   const fetchCategories = async () => {
-    const { data: categoriesData } = await supabase
-      .from("categories")
-      .select("id, name, slug, icon")
-      .eq("is_active", true)
-      .order("sort_order");
+    const [{ data: categoriesData }, { data: allLessons }] = await Promise.all([
+      supabase.from("categories").select("id, name, slug, icon").eq("is_active", true).order("sort_order"),
+      supabase.from("lessons").select("category_id").eq("is_published", true),
+    ]);
     
     if (categoriesData) {
       setCategories(categoriesData);
-      
-      // Fetch lesson counts for each category
+      // Count in-memory to avoid N+1 queries
       const counts: Record<string, number> = {};
-      for (const cat of categoriesData) {
-        const { count } = await supabase
-          .from("lessons")
-          .select("id", { count: "exact", head: true })
-          .eq("category_id", cat.id)
-          .eq("is_published", true);
-        counts[cat.id] = count || 0;
+      for (const lesson of allLessons || []) {
+        if (lesson.category_id) counts[lesson.category_id] = (counts[lesson.category_id] || 0) + 1;
       }
       setLessonCounts(counts);
     }
