@@ -3,8 +3,6 @@ import {
   FolderTree, 
   FileText, 
   Layers,
-  Shield, 
-  Clock, 
   TrendingUp,
   GraduationCap,
   Users,
@@ -58,19 +56,19 @@ const itemVariants = {
 
 export const Features = () => {
   return (
-    <section id="features" className="py-12 md:py-16 bg-background">
+    <section id="features" className="py-8 sm:py-12 md:py-16 bg-background">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-10"
+          className="text-center mb-6 sm:mb-10"
         >
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4">
             Platformaning <span className="text-primary">asosiy afzalliklari</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             Promtlar, kurslar, qo'llanmalar, darslar va hamjamiyat — barchasi bir joyda.
           </p>
         </motion.div>
@@ -80,21 +78,21 @@ export const Features = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
         >
           {features.map((feature) => (
             <motion.div
               key={feature.title}
               variants={itemVariants}
-              className="group glass-card p-6 hover:-translate-y-1 transition-all duration-300"
+              className="group glass-card p-4 sm:p-6 hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
-                <feature.icon className="w-7 h-7 text-primary" />
+              <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-3 sm:mb-5 group-hover:bg-primary/20 transition-colors">
+                <feature.icon className="w-5 h-5 sm:w-7 sm:h-7 text-primary" />
               </div>
-              <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+              <h3 className="font-display text-base sm:text-xl font-semibold text-foreground mb-1.5 sm:mb-2">
                 {feature.title}
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>

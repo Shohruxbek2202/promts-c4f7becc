@@ -12,7 +12,6 @@ interface Category {
   description: string | null;
 }
 
-// Default gradient colors for categories
 const gradientColors = [
   "from-blue-500/20 to-blue-600/10",
   "from-indigo-500/20 to-indigo-600/10",
@@ -45,59 +44,49 @@ export const Categories = () => {
     if (categoriesData) {
       setCategories(categoriesData);
       
-      // Fetch prompt counts for each category
+      // Fetch all published prompts with category_id in one query
+      const { data: prompts } = await supabase
+        .from("prompts")
+        .select("category_id")
+        .eq("is_published", true)
+        .in("category_id", categoriesData.map(c => c.id));
+      
       const counts: Record<string, number> = {};
-      for (const cat of categoriesData) {
-        const { count } = await supabase
-          .from("prompts")
-          .select("id", { count: "exact", head: true })
-          .eq("category_id", cat.id)
-          .eq("is_published", true);
-        counts[cat.id] = count || 0;
+      if (prompts) {
+        for (const p of prompts) {
+          if (p.category_id) {
+            counts[p.category_id] = (counts[p.category_id] || 0) + 1;
+          }
+        }
       }
       setPromptCounts(counts);
     }
     setIsLoading(false);
   };
 
-  const isUrl = (str: string) => {
-    return str.startsWith("http://") || str.startsWith("https://");
-  };
+  const isUrl = (str: string) => str.startsWith("http://") || str.startsWith("https://");
 
   const isEmoji = (str: string) => {
     const emojiRegex = /^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]$/u;
     return emojiRegex.test(str) || str.length <= 2;
   };
 
-  const renderIcon = (icon: string | null, index: number) => {
-    if (!icon) {
-      return <FolderOpen className="w-5 h-5 text-primary" />;
-    }
-
+  const renderIcon = (icon: string | null) => {
+    if (!icon) return <FolderOpen className="w-5 h-5 text-primary" />;
     if (isUrl(icon)) {
       return (
-        <img 
-          src={icon} 
-          alt="" 
-          className="w-8 h-8 object-contain rounded-lg"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none';
-          }}
+        <img src={icon} alt="" className="w-8 h-8 object-contain rounded-lg"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
         />
       );
     }
-
-    if (isEmoji(icon)) {
-      return <span className="text-2xl">{icon}</span>;
-    }
-
-    // Default folder icon
+    if (isEmoji(icon)) return <span className="text-2xl">{icon}</span>;
     return <FolderOpen className="w-5 h-5 text-primary" />;
   };
 
   if (isLoading) {
     return (
-      <section id="categories" className="py-12 md:py-16 relative">
+      <section id="categories" className="py-8 sm:py-12 md:py-16 relative">
         <div className="container mx-auto px-4">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
@@ -108,30 +97,28 @@ export const Categories = () => {
   }
 
   return (
-    <section id="categories" className="py-12 md:py-16 relative">
+    <section id="categories" className="py-8 sm:py-12 md:py-16 relative">
       <div className="container mx-auto px-4">
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="flex items-center justify-between mb-12"
+          className="flex items-center justify-between mb-6 sm:mb-12"
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground tracking-tight">
             Kategoriyalar
           </h2>
           <Link 
             to="/prompts" 
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+            className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors group"
           >
             Barchasi
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
 
-        {/* Categories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {categories.slice(0, 6).map((category, index) => (
             <motion.div
               key={category.id}
@@ -142,25 +129,20 @@ export const Categories = () => {
             >
               <Link 
                 to={`/prompts?category=${category.slug}`}
-                className="group glass-card flex items-center gap-4 p-5 hover:-translate-y-1 transition-all duration-300"
+                className="group glass-card flex items-center gap-3 sm:gap-4 p-4 sm:p-5 hover:-translate-y-1 transition-all duration-300"
               >
-                {/* Icon */}
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradientColors[index % gradientColors.length]} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
-                  {renderIcon(category.icon, index)}
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${gradientColors[index % gradientColors.length]} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                  {renderIcon(category.icon)}
                 </div>
-
-                {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">
                     {category.name}
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {promptCounts[category.id] || 0} promt
                   </p>
                 </div>
-
-                {/* Arrow */}
-                <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
               </Link>
             </motion.div>
           ))}
