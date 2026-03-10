@@ -76,36 +76,32 @@ export const Pricing = () => {
     return null;
   };
 
-  // Determine which plan is popular (monthly by default)
   const popularPlan = plans.find(p => p.slug === "monthly") || plans[1];
 
   return (
-    <section id="pricing" className="py-12 md:py-16 relative">
+    <section id="pricing" className="py-8 sm:py-12 md:py-16 relative">
       <div className="container relative mx-auto px-4">
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-10"
+          className="text-center mb-6 sm:mb-10"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground tracking-tight mb-3 sm:mb-4">
             Oddiy va <span className="text-primary">tushunarli</span> narxlar
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             Bepul boshlang yoki premium imkoniyatlarga ega bo'ling
           </p>
         </motion.div>
 
-        {/* Loading State */}
         {isLoading ? (
           <div className="flex justify-center items-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-          /* Pricing Cards */
-          <div className={`grid grid-cols-1 ${plans.length <= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4'} gap-6 max-w-6xl mx-auto`}>
+          <div className={`grid grid-cols-1 sm:grid-cols-2 ${plans.length <= 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-4 sm:gap-6 max-w-6xl mx-auto`}>
             {plans.map((plan, index) => {
               const isPopular = plan.id === popularPlan?.id;
               const gradient = gradients[plan.subscription_type] || gradients.monthly;
@@ -119,59 +115,55 @@ export const Pricing = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className={`relative ${isPopular ? 'md:-mt-4 md:mb-4' : ''}`}
+                  className={`relative ${isPopular ? 'sm:-mt-4 sm:mb-4' : ''}`}
                 >
-                  <div className={`glass-card p-8 h-full bg-gradient-to-br ${gradient} ${isPopular ? 'ring-2 ring-primary' : ''}`}>
-                    {/* Popular Badge */}
+                  <div className={`glass-card p-5 sm:p-8 h-full bg-gradient-to-br ${gradient} ${isPopular ? 'ring-2 ring-primary' : ''}`}>
                     {isPopular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium shadow-lg">
-                          <Sparkles className="w-3.5 h-3.5" />
+                        <div className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-lg whitespace-nowrap">
+                          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                           Eng mashhur
                         </div>
                       </div>
                     )}
 
-                    {/* Plan Header */}
-                    <div className="text-center mb-8">
-                      <h3 className="text-xl font-semibold text-foreground mb-2">
+                    <div className="text-center mb-5 sm:mb-8">
+                      <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-1.5 sm:mb-2">
                         {plan.name}
                       </h3>
-                      <p className="text-sm text-muted-foreground mb-4">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                         {plan.description}
                       </p>
                       <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-4xl font-bold text-foreground tracking-tight">
+                        <span className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
                           {formatPrice(plan.price)}
                         </span>
                         {plan.price !== 0 && (
-                          <span className="text-muted-foreground text-sm">so'm</span>
+                          <span className="text-muted-foreground text-xs sm:text-sm">so'm</span>
                         )}
                       </div>
                       {period && (
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-xs sm:text-sm text-muted-foreground">
                           /{period}
                         </span>
                       )}
                     </div>
 
-                    {/* Features */}
-                    <ul className="space-y-3 mb-8">
+                    <ul className="space-y-2 sm:space-y-3 mb-5 sm:mb-8">
                       {plan.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-start gap-3">
-                          <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <Check className="w-3 h-3 text-primary" />
+                        <li key={featureIndex} className="flex items-start gap-2 sm:gap-3">
+                          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-primary" />
                           </div>
-                          <span className="text-sm text-muted-foreground">{feature}</span>
+                          <span className="text-xs sm:text-sm text-muted-foreground">{feature}</span>
                         </li>
                       ))}
                     </ul>
 
-                    {/* CTA Button */}
                     <Link to={user ? "/payment" : "/auth"} className="block">
                       <Button 
                         variant={isPopular ? "default" : "outline"} 
-                        className={`w-full rounded-full h-11 ${isPopular ? 'shadow-lg' : ''}`}
+                        className={`w-full rounded-full h-10 sm:h-11 text-sm ${isPopular ? 'shadow-lg' : ''}`}
                       >
                         {cta}
                       </Button>
@@ -183,13 +175,12 @@ export const Pricing = () => {
           </div>
         )}
 
-        {/* Payment Note */}
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="text-center text-sm text-muted-foreground mt-10"
+          className="text-center text-xs sm:text-sm text-muted-foreground mt-6 sm:mt-10"
         >
           * To'lovlar karta orqali amalga oshiriladi. Admin tasdiqlashidan keyin kirish ochiladi.
         </motion.p>

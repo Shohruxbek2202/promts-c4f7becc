@@ -23,11 +23,34 @@ interface ComparisonTableProps {
   className?: string;
 }
 
-/**
- * AI-Friendly Comparison Table Component
- * Optimized for AI crawlers (ChatGPT, Perplexity) with structured data
- * and semantic HTML for better visibility in AI search results
- */
+const renderValue = (value: boolean | string | "partial") => {
+  if (value === true) {
+    return (
+      <span className="inline-flex items-center justify-center w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full">
+        <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+        <span className="sr-only">Ha</span>
+      </span>
+    );
+  }
+  if (value === false) {
+    return (
+      <span className="inline-flex items-center justify-center w-6 h-6 bg-red-100 dark:bg-red-900/30 rounded-full">
+        <X className="w-4 h-4 text-red-600 dark:text-red-400" />
+        <span className="sr-only">Yo'q</span>
+      </span>
+    );
+  }
+  if (value === "partial") {
+    return (
+      <span className="inline-flex items-center justify-center w-6 h-6 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
+        <Minus className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+        <span className="sr-only">Qisman</span>
+      </span>
+    );
+  }
+  return <span className="text-sm text-muted-foreground">{value}</span>;
+};
+
 export const ComparisonTable = ({
   title,
   description,
@@ -35,54 +58,25 @@ export const ComparisonTable = ({
   features,
   className = "",
 }: ComparisonTableProps) => {
-  const renderValue = (value: boolean | string | "partial") => {
-    if (value === true) {
-      return (
-        <span className="inline-flex items-center justify-center w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full">
-          <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
-          <span className="sr-only">Ha</span>
-        </span>
-      );
-    }
-    if (value === false) {
-      return (
-        <span className="inline-flex items-center justify-center w-6 h-6 bg-red-100 dark:bg-red-900/30 rounded-full">
-          <X className="w-4 h-4 text-red-600 dark:text-red-400" />
-          <span className="sr-only">Yo'q</span>
-        </span>
-      );
-    }
-    if (value === "partial") {
-      return (
-        <span className="inline-flex items-center justify-center w-6 h-6 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
-          <Minus className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-          <span className="sr-only">Qisman</span>
-        </span>
-      );
-    }
-    return <span className="text-sm text-muted-foreground">{value}</span>;
-  };
-
   return (
     <section 
-      className={cn("py-12", className)}
+      className={cn("py-8 sm:py-12", className)}
       aria-labelledby="comparison-title"
       itemScope
       itemType="https://schema.org/ItemList"
     >
       <div className="container mx-auto px-4">
-        {/* SEO-friendly header */}
-        <header className="text-center mb-8">
+        <header className="text-center mb-6 sm:mb-8">
           <h2 
             id="comparison-title" 
-            className="text-2xl md:text-3xl font-bold mb-3"
+            className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3"
             itemProp="name"
           >
             {title}
           </h2>
           {description && (
             <p 
-              className="text-muted-foreground max-w-2xl mx-auto"
+              className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto"
               itemProp="description"
             >
               {description}
@@ -90,20 +84,16 @@ export const ComparisonTable = ({
           )}
         </header>
 
-        {/* Responsive table wrapper */}
-        <div className="overflow-x-auto rounded-lg border border-border">
+        {/* Desktop table - hidden on mobile */}
+        <div className="hidden sm:block overflow-x-auto rounded-lg border border-border">
           <table 
-            className="w-full min-w-[600px] bg-card"
+            className="w-full bg-card"
             role="grid"
             aria-label={title}
           >
-            {/* Table header with product names */}
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th 
-                  scope="col" 
-                  className="text-left p-4 font-semibold text-foreground"
-                >
+                <th scope="col" className="text-left p-3 sm:p-4 font-semibold text-foreground text-sm">
                   Xususiyatlar
                 </th>
                 {products.map((product, index) => (
@@ -111,7 +101,7 @@ export const ComparisonTable = ({
                     key={product.name}
                     scope="col"
                     className={cn(
-                      "p-4 text-center font-semibold",
+                      "p-3 sm:p-4 text-center font-semibold text-sm",
                       product.isHighlighted && "bg-primary/10"
                     )}
                     itemProp="itemListElement"
@@ -126,7 +116,7 @@ export const ComparisonTable = ({
                       </span>
                     )}
                     {product.price && (
-                      <span className="block text-sm text-muted-foreground mt-1">
+                      <span className="block text-xs sm:text-sm text-muted-foreground mt-1">
                         {product.price}
                       </span>
                     )}
@@ -134,8 +124,6 @@ export const ComparisonTable = ({
                 ))}
               </tr>
             </thead>
-
-            {/* Table body with features */}
             <tbody>
               {features.map((feature, index) => (
                 <tr
@@ -145,12 +133,12 @@ export const ComparisonTable = ({
                     index % 2 === 0 ? "bg-card" : "bg-muted/20"
                   )}
                 >
-                  <td className="p-4">
-                    <span className="font-medium text-foreground">
+                  <td className="p-3 sm:p-4">
+                    <span className="font-medium text-foreground text-sm">
                       {feature.name}
                     </span>
                     {feature.description && (
-                      <span className="block text-sm text-muted-foreground mt-1">
+                      <span className="block text-xs sm:text-sm text-muted-foreground mt-0.5">
                         {feature.description}
                       </span>
                     )}
@@ -159,7 +147,7 @@ export const ComparisonTable = ({
                     <td
                       key={`${feature.name}-${product.name}`}
                       className={cn(
-                        "p-4 text-center",
+                        "p-3 sm:p-4 text-center",
                         product.isHighlighted && "bg-primary/5"
                       )}
                     >
@@ -172,7 +160,43 @@ export const ComparisonTable = ({
           </table>
         </div>
 
-        {/* AI-friendly summary (hidden visually but accessible to crawlers) */}
+        {/* Mobile card layout */}
+        <div className="sm:hidden space-y-4">
+          {products.map((product, pIndex) => (
+            <div
+              key={product.name}
+              className={cn(
+                "rounded-xl border p-4",
+                product.isHighlighted
+                  ? "border-primary bg-primary/5"
+                  : "border-border bg-card"
+              )}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-foreground">{product.name}</h3>
+                {product.isHighlighted && (
+                  <span className="text-xs text-primary font-medium">⭐ Tavsiya</span>
+                )}
+              </div>
+              {product.price && (
+                <p className="text-sm text-muted-foreground mb-3">{product.price}</p>
+              )}
+              <div className="space-y-2">
+                {features.map((feature) => (
+                  <div
+                    key={feature.name}
+                    className="flex items-center justify-between py-1.5 border-b border-border/50 last:border-b-0"
+                  >
+                    <span className="text-sm text-muted-foreground">{feature.name}</span>
+                    {renderValue(feature.values[product.name])}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* AI-friendly summary */}
         <div className="sr-only" aria-hidden="false">
           <h3>Taqqoslash xulosasi</h3>
           <p>

@@ -21,11 +21,6 @@ const iconMap = {
   check: CheckCircle,
 };
 
-/**
- * Trust Signals Component
- * Displays E-E-A-T (Experience, Expertise, Authority, Trust) indicators
- * Important for both Google ranking and AI recommendations
- */
 export const TrustSignals = ({
   signals,
   title,
@@ -33,17 +28,17 @@ export const TrustSignals = ({
 }: TrustSignalsProps) => {
   return (
     <section
-      className={cn("py-8 bg-muted/30", className)}
+      className={cn("py-6 sm:py-8 bg-muted/30", className)}
       aria-label="Ishonch ko'rsatkichlari"
     >
       <div className="container mx-auto px-4">
         {title && (
-          <h3 className="text-center text-sm font-medium text-muted-foreground mb-6 uppercase tracking-wide">
+          <h3 className="text-center text-xs sm:text-sm font-medium text-muted-foreground mb-4 sm:mb-6 uppercase tracking-wide">
             {title}
           </h3>
         )}
         
-        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 md:gap-12 max-w-2xl sm:max-w-none mx-auto">
           {signals.map((signal, index) => {
             const Icon = iconMap[signal.icon];
             return (
@@ -53,15 +48,15 @@ export const TrustSignals = ({
                 itemScope
                 itemType="https://schema.org/QuantitativeValue"
               >
-                <Icon className="w-6 h-6 text-primary mb-2" />
+                <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-1.5 sm:mb-2" />
                 <span
-                  className="text-2xl font-bold text-foreground"
+                  className="text-xl sm:text-2xl font-bold text-foreground"
                   itemProp="value"
                 >
                   {signal.value}
                 </span>
                 <span
-                  className="text-sm text-muted-foreground"
+                  className="text-xs sm:text-sm text-muted-foreground"
                   itemProp="name"
                 >
                   {signal.label}

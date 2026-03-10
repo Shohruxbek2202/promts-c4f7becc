@@ -35,7 +35,7 @@ export const CoursesShowcase = () => {
       
       if (data && data.length > 0) {
         setCourses(data);
-        const ids = data.map(c => c.id);
+        const ids = data.map((c: Course) => c.id);
         const { data: countData } = await supabase.rpc("get_course_enrolled_counts", { course_ids: ids });
         if (countData) {
           const counts: Record<string, number> = {};
@@ -57,23 +57,23 @@ export const CoursesShowcase = () => {
   };
 
   return (
-    <section className="py-12 md:py-16 bg-background">
+    <section className="py-8 sm:py-12 md:py-16 bg-background">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-10"
+          className="text-center mb-6 sm:mb-10"
         >
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4">
             <span className="text-primary">Kurslar</span> va ta'lim
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             AI va digital marketing bo'yicha onlayn kurslar bilan bilimingizni oshiring.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {courses.map((course, i) => (
             <motion.div
               key={course.id}
@@ -84,42 +84,40 @@ export const CoursesShowcase = () => {
             >
               <Link to={`/courses?course=${course.slug}`} className="block group">
                 <div className="glass-card overflow-hidden hover:-translate-y-1 transition-all duration-300">
-                  {/* Cover */}
                   <div className="aspect-video bg-muted relative overflow-hidden">
                     {course.cover_image_url ? (
-                      <img src={course.cover_image_url} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={course.cover_image_url} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
-                        <GraduationCap className="w-12 h-12 text-primary/40" />
+                        <GraduationCap className="w-10 h-10 sm:w-12 sm:h-12 text-primary/40" />
                       </div>
                     )}
                     {course.price === 0 && (
-                      <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">Bepul</Badge>
+                      <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-primary text-primary-foreground text-xs">Bepul</Badge>
                     )}
                   </div>
 
-                  {/* Content */}
-                  <div className="p-5">
-                    <h3 className="font-semibold text-foreground text-lg mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+                  <div className="p-3.5 sm:p-5">
+                    <h3 className="font-semibold text-foreground text-base sm:text-lg mb-1.5 sm:mb-2 line-clamp-1 group-hover:text-primary transition-colors">
                       {course.title}
                     </h3>
                     {course.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{course.description}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3 sm:mb-4">{course.description}</p>
                     )}
 
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-primary">
+                      <span className="text-base sm:text-lg font-bold text-primary">
                         {course.discount_price != null ? formatPrice(course.discount_price) : formatPrice(course.price)}
                       </span>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
                         {(course.lessons_count || 0) > 0 && (
-                          <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" />{course.lessons_count}</span>
+                          <span className="flex items-center gap-0.5 sm:gap-1"><BookOpen className="w-3 h-3 sm:w-3.5 sm:h-3.5" />{course.lessons_count}</span>
                         )}
                         {(course.duration_minutes || 0) > 0 && (
-                          <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{course.duration_minutes} daq</span>
+                          <span className="flex items-center gap-0.5 sm:gap-1"><Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />{course.duration_minutes} daq</span>
                         )}
                         {(enrolledCounts[course.id] || 0) > 0 && (
-                          <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" />{enrolledCounts[course.id]}</span>
+                          <span className="flex items-center gap-0.5 sm:gap-1"><User className="w-3 h-3 sm:w-3.5 sm:h-3.5" />{enrolledCounts[course.id]}</span>
                         )}
                       </div>
                     </div>
@@ -134,10 +132,10 @@ export const CoursesShowcase = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center mt-8"
+          className="text-center mt-6 sm:mt-8"
         >
           <Link to="/courses">
-            <Button variant="outline" size="lg" className="rounded-full gap-2">
+            <Button variant="outline" size="lg" className="rounded-full gap-2 text-sm">
               Barcha kurslarni ko'rish <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>

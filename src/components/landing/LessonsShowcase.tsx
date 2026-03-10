@@ -34,23 +34,23 @@ export const LessonsShowcase = () => {
   if (lessons.length === 0) return null;
 
   return (
-    <section className="py-12 md:py-16 bg-gradient-to-b from-background to-primary/5">
+    <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-b from-background to-primary/5">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-10"
+          className="text-center mb-6 sm:mb-10"
         >
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4">
             Bepul <span className="text-primary">video darslar</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             AI va marketing bo'yicha bepul darslarni ko'ring va o'rganing.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
           {lessons.map((lesson, i) => (
             <motion.div
               key={lesson.id}
@@ -63,26 +63,26 @@ export const LessonsShowcase = () => {
                 <div className="glass-card overflow-hidden hover:-translate-y-1 transition-all duration-300">
                   <div className="aspect-video bg-muted relative overflow-hidden">
                     {lesson.thumbnail_url ? (
-                      <img src={lesson.thumbnail_url} alt={lesson.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={lesson.thumbnail_url} alt={lesson.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
-                        <Play className="w-10 h-10 text-primary/40" />
+                        <Play className="w-8 h-8 sm:w-10 sm:h-10 text-primary/40" />
                       </div>
                     )}
                     <div className="absolute inset-0 bg-background/0 group-hover:bg-background/20 transition-colors flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                        <Play className="w-5 h-5 text-primary-foreground ml-0.5" />
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                        <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground ml-0.5" />
                       </div>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-medium text-foreground text-sm line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+                  <div className="p-3 sm:p-4">
+                    <h3 className="font-medium text-foreground text-xs sm:text-sm line-clamp-2 mb-1.5 sm:mb-2 group-hover:text-primary transition-colors">
                       {lesson.title}
                     </h3>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      {lesson.categories?.name && <span>{lesson.categories.name}</span>}
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground">
+                      {lesson.categories?.name && <span className="truncate">{lesson.categories.name}</span>}
                       {(lesson.duration_minutes || 0) > 0 && (
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{lesson.duration_minutes} daq</span>
+                        <span className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0"><Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />{lesson.duration_minutes} daq</span>
                       )}
                     </div>
                   </div>
@@ -96,10 +96,10 @@ export const LessonsShowcase = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center mt-8"
+          className="text-center mt-6 sm:mt-8"
         >
           <Link to="/lessons">
-            <Button variant="outline" size="lg" className="rounded-full gap-2">
+            <Button variant="outline" size="lg" className="rounded-full gap-2 text-sm">
               Barcha darslarni ko'rish <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
